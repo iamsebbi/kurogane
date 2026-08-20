@@ -1,0 +1,47 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String          @id @default(uuid())
+  username     String          @unique
+  email        String          @unique
+  passwordHash String
+  avatarUrl    String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  watchlist    WatchlistItem[]
+  reviews      Review[]
+}
+
+model WatchlistItem {
+  id               String   @id @default(uuid())
+  userId           String
+  mediaId          String
+  status           String   // WATCHING, COMPLETED, PLAN_TO_WATCH, ON_HOLD, DROPPED
+  score            Float?   // e.g. 8.5
+  progressEpisodes Int      @default(0)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaId])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  mediaId   String
+  rating    Float
+  content   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

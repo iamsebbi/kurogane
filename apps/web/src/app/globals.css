@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Zalando+Sans+Expanded:ital,wght@0,200..900;1,200..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Google Sans", sans-serif;
+  --font-heading: "Zalando Sans Expanded", sans-serif;
+
+  /* Base — Dark Mode */
+  --bg-primary: #0F1419;
+  --bg-surface: #1E293B;
+  --bg-surface-hover: #283548;
+  --accent-primary: #3B82F6;
+
+  /* Accente Semantice */
+  --signal-live: #4ADE80;
+  --score-gold: #FBBF24;
+  --badge-violet: #A78BFA;
+  --alert-coral: #F87171;
+  --highlight-ember: #FB923C;
+
+  /* Neutre */
+  --border-subtle: #334155;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme='light'] {
+  --bg-primary: #F2F2F2;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #E2E8F0;
+  --accent-primary: #004C94;
+
+  --signal-live: #22C55E;
+  --score-gold: #F5A623;
+  --badge-violet: #7C3AED;
+  --alert-coral: #EF4444;
+  --highlight-ember: #F97316;
+
+  --border-subtle: #E5E7EB;
+  --text-primary: #0F1419;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+}
+
+html {
+  color-scheme: dark;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  font-variation-settings: "GRAD" 0;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+[data-theme='light'] html {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  font-variation-settings: "GRAD" 0;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+[data-theme='dark'] body {
+  background-color: var(--bg-primary);
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading), 'Zalando Sans Expanded', sans-serif;
+}
+
+/* FocusVisible outline according to global rules */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Touch Action manipulation */
+button, input, select {
+  touch-action: manipulation;
+}
+
+/* Tabular numbers for score comparisons */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Solid Cards */
+.solid-card, .glass-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-hover);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-subtle);
+}
+
+/* Hero Carousel Timer Fill (Linear constant progression) */
+@keyframes heroTimerFill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-timer-fill {
+  animation: heroTimerFill 6s linear forwards;
+}
+
+/* Hero Carousel Content Transition (Pure Soft Blur & Opacity Fade, Stationary) */
+@keyframes heroContentFade {
+  0% {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+.animate-hero-fade {
+  animation: heroContentFade 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes heroBadgeFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hero-badge-fade {
+  animation: heroBadgeFade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Hero & Landscape Artwork Fade Masks (Blends artwork left edge softly without any hard seams) */
+.hero-art-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.05) 8%, rgba(0, 0, 0, 0.35) 25%, rgba(0, 0, 0, 0.85) 45%, black 65%);
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.05) 8%, rgba(0, 0, 0, 0.35) 25%, rgba(0, 0, 0, 0.85) 45%, black 65%);
+}
+
+.landscape-art-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.04) 10%, rgba(0, 0, 0, 0.35) 30%, rgba(0, 0, 0, 0.85) 60%, black 85%);
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.04) 10%, rgba(0, 0, 0, 0.35) 30%, rgba(0, 0, 0, 0.85) 60%, black 85%);
+}
+
+/* Hide Scrollbars completely across all browsers */
+.scrollbar-none,
+.no-scrollbar,
+[class*="scrollbar-none"] {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+[class*="scrollbar-none"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
