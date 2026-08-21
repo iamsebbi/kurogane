@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -58,7 +58,7 @@ const MICRO_TAGS_LIST = [
   'Military',
 ];
 
-export default function MediaCatalogPage() {
+function MediaCatalogContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -881,5 +881,20 @@ export default function MediaCatalogPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MediaCatalogPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-bgPrimary text-textSecondary">
+          <div className="w-8 h-8 border-2 border-accentPrimary border-t-transparent rounded-full animate-spin mr-3" />
+          <span>Se încarcă catalogul...</span>
+        </div>
+      }
+    >
+      <MediaCatalogContent />
+    </Suspense>
   );
 }

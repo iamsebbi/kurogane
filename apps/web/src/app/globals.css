@@ -160,6 +160,53 @@ button, input, select {
   animation: heroContentFade 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Skeleton Blur Pulse & Shimmer (Autofocus-rack effect for seamless loading) */
+@keyframes skeletonBlurPulse {
+  0%, 100% {
+    opacity: 0.35;
+    filter: blur(4px);
+    transform: scale(0.998);
+  }
+  50% {
+    opacity: 0.85;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+}
+
+@keyframes skeletonShimmerSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-skeleton-blur {
+  animation: skeletonBlurPulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  animation: skeletonShimmerSweep 1.8s infinite;
+  pointer-events: none;
+}
+
 @keyframes heroBadgeFade {
   0% {
     opacity: 0;
