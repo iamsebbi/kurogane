@@ -52,9 +52,16 @@ export default function Navbar() {
     // Firebase Auth native listener as single source of truth across tabs
     const unsubscribeFirebase = firebaseAuth.onAuthStateChange((fbUser, idToken) => {
       if (fbUser) {
-        setUser(fbUser);
+        const userProfile: UserProfile = {
+          id: fbUser.id,
+          username: fbUser.username,
+          email: fbUser.email,
+          avatarUrl: fbUser.avatarUrl,
+          createdAt: fbUser.createdAt || new Date().toISOString(),
+        };
+        setUser(userProfile);
         if (idToken) localStorage.setItem('kurogane_token', idToken);
-        localStorage.setItem('kurogane_user', JSON.stringify(fbUser));
+        localStorage.setItem('kurogane_user', JSON.stringify(userProfile));
       } else {
         // If Firebase is signed out and no token exists in localStorage, clear user state
         const token = localStorage.getItem('kurogane_token');

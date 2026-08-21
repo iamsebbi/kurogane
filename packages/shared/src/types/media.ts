@@ -142,7 +142,7 @@ export interface SearchResponse {
 }
 
 export interface UserProfile {
-  id: string;
+  id?: string;
   username: string;
   email: string;
   avatarUrl?: string;
@@ -150,7 +150,7 @@ export interface UserProfile {
   pronouns?: string;
   bannerUrl?: string;
   favoriteGenres?: string[];
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface WatchlistItemRecord {

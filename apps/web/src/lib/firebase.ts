@@ -32,6 +32,11 @@ export interface FirebaseAuthUser {
   email: string;
   username: string;
   avatarUrl?: string;
+  bio?: string;
+  pronouns?: string;
+  bannerUrl?: string;
+  favoriteGenres?: string[];
+  createdAt?: string;
   idToken?: string;
 }
 
