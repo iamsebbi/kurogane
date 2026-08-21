@@ -210,6 +210,7 @@ class FirebaseAuthService {
     if (code.includes('network-request-failed')) return 'Eroare de rețea. Verifică conexiunea la internet.';
     if (code.includes('popup-blocked')) return 'Fereastra popup a fost blocată de browser. Permite popup-urile pentru acest site.';
     if (code.includes('account-exists-with-different-credential')) return 'Un cont cu acest email există deja folosind altă metodă de conectare.';
+    if (code.includes('unauthorized-domain')) return 'Domeniul curent nu este autorizat în Firebase Console. Adaugă domeniul exact în Firebase -> Authentication -> Settings -> Authorized domains.';
     if (code.includes('invalid-email')) return 'Adresa de email nu este validă.';
     return code || 'A apărut o eroare neașteptată.';
   }
