@@ -1,5 +1,33 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+
+// Automatic zero-dependency .env loader
+[
+  path.join(__dirname, '../.env'),
+  path.join(__dirname, '../../.env'),
+  path.join(process.cwd(), '.env'),
+  path.join(process.cwd(), 'apps/api/.env'),
+].forEach((envPath) => {
+  if (fs.existsSync(envPath)) {
+    try {
+      const content = fs.readFileSync(envPath, 'utf-8');
+      content.split('\n').forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const idx = trimmed.indexOf('=');
+          const key = trimmed.substring(0, idx).trim();
+          const val = trimmed.substring(idx + 1).trim();
+          if (key && !process.env[key]) {
+            process.env[key] = val.replace(/^["']|["']$/g, '');
+          }
+        }
+      });
+    } catch (e) {}
+  }
+});
+
 import { dbService } from './services/db';
 import { franchiseService } from './services/franchise';
 import { persistentDb } from './services/db-persistent';
@@ -51,7 +79,7 @@ app.post('/api/auth/send-otp', async (req: Request, res: Response) => {
   }
   const result = await resendService.sendOtpEmail(email);
   if (!result.success) {
-    return res.status(429).json({ error: result.message });
+    return res.status(429).json({ error: result.message, waitSec: (result as any).waitSec });
   }
   res.json(result);
 });
@@ -74,7 +102,20 @@ app.post('/api/auth/verify-otp', (req: Request, res: Response) => {
   const cleanEmail = email.trim().toLowerCase();
   const uName = username ? username.trim() : cleanEmail.split('@')[0];
   const token = `fb-token:${cleanEmail}:${encodeURIComponent(uName)}`;
-  const user = persistentDb.verifyToken(token);
+  let user = persistentDb.verifyToken(token);
+
+  if (!user) {
+    user = {
+      id: `user-${Buffer.from(cleanEmail).toString('hex').substring(0, 16)}`,
+      username: uName,
+      email: cleanEmail,
+      avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(uName)}`,
+      bio: 'Entuziast Anime & Manga pe Kurogane.',
+      pronouns: 'he/him',
+      bannerUrl: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
+      createdAt: new Date().toISOString(),
+    };
+  }
 
   res.json({ success: true, user, token });
 });

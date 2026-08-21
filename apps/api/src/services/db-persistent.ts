@@ -63,11 +63,11 @@ class PersistentDatabaseService {
       let username = 'Otaku Explorer';
       let userId = token;
 
-      if (token.startsWith('sb-token:')) {
+      if (token.startsWith('sb-token:') || token.startsWith('fb-token:') || token.startsWith('otp-token:')) {
         const parts = token.split(':');
         if (parts.length >= 2 && parts[1].includes('@')) {
           email = parts[1].toLowerCase().trim();
-          username = parts[2] || email.split('@')[0];
+          username = decodeURIComponent(parts[2] || email.split('@')[0]);
           userId = `user-${Buffer.from(email).toString('hex').substring(0, 16)}`;
         }
       } else if (token.includes('.')) {

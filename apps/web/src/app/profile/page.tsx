@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, WatchlistItemRecord, WatchlistStatus } from '@kurogane/shared';
 import { AuthModal } from '@/components/AuthModal';
+import { firebaseAuth } from '@/lib/firebase';
 
 const STATUS_LABELS: Record<string, string> = {
   ALL: 'Toate',
@@ -256,9 +257,15 @@ export default function ProfilePage() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await firebaseAuth.signOut();
+    } catch (e) {
+      console.error('Error signing out from Firebase:', e);
+    }
     localStorage.removeItem('kurogane_token');
     localStorage.removeItem('kurogane_user');
+    window.dispatchEvent(new Event('kurogane_auth_changed'));
     setUser(null);
     setItems([]);
   };

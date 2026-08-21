@@ -13,10 +13,12 @@ import {
   Menu,
   X,
   Bookmark,
+  LogOut,
 } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 import { UserProfile } from '@kurogane/shared';
 import { gsap, useGSAP } from '@/lib/gsap';
+import { firebaseAuth } from '@/lib/firebase';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -47,11 +49,27 @@ export default function Navbar() {
   useEffect(() => {
     checkUserAuth();
 
+    // Firebase Auth native listener as single source of truth across tabs
+    const unsubscribeFirebase = firebaseAuth.onAuthStateChange((fbUser, idToken) => {
+      if (fbUser) {
+        setUser(fbUser);
+        if (idToken) localStorage.setItem('kurogane_token', idToken);
+        localStorage.setItem('kurogane_user', JSON.stringify(fbUser));
+      } else {
+        // If Firebase is signed out and no token exists in localStorage, clear user state
+        const token = localStorage.getItem('kurogane_token');
+        if (!token) {
+          setUser(null);
+        }
+      }
+    });
+
     const handleAuthChange = () => checkUserAuth();
     window.addEventListener('kurogane_auth_changed', handleAuthChange);
     window.addEventListener('storage', handleAuthChange);
 
     return () => {
+      unsubscribeFirebase();
       window.removeEventListener('kurogane_auth_changed', handleAuthChange);
       window.removeEventListener('storage', handleAuthChange);
     };
@@ -300,15 +318,68 @@ export default function Navbar() {
             );
           })}
 
-          <div className="pt-3 mt-3 flex items-center justify-between px-3 text-xs sm:text-sm text-textSecondary border-t border-borderSubtle/40">
-            <Link
-              href="/watchlist"
-              className="flex items-center gap-2 hover:text-textPrimary py-1"
-            >
-              <Bookmark className="w-4 h-4 text-scoreGold" />
-              <span>Watchlist</span>
-            </Link>
-          </div>
+          {user ? (
+            <div className="pt-3 mt-3 space-y-2 border-t border-borderSubtle/40">
+              <Link
+                href="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-3 text-textSecondary hover:text-textPrimary hover:bg-bgSurfaceHover transition-colors"
+              >
+                <User className="w-4 h-4 text-accentPrimary" />
+                <span>Profilul Meu ({user.username})</span>
+              </Link>
+              <Link
+                href="/watchlist"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-3 text-textSecondary hover:text-textPrimary hover:bg-bgSurfaceHover transition-colors"
+              >
+                <Bookmark className="w-4 h-4 text-scoreGold" />
+                <span>Watchlist</span>
+              </Link>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await firebaseAuth.signOut();
+                  } catch (e) {
+                    console.error('Error signing out from Firebase:', e);
+                  }
+                  localStorage.removeItem('kurogane_token');
+                  localStorage.removeItem('kurogane_user');
+                  window.dispatchEvent(new Event('kurogane_auth_changed'));
+                  setUser(null);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-3 text-red-400 hover:bg-red-500/10 transition-colors text-left cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Deconectare</span>
+              </button>
+            </div>
+          ) : (
+            <div className="pt-3 mt-3 flex items-center justify-between px-3 text-xs sm:text-sm text-textSecondary border-t border-borderSubtle/40">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleOpenAuth('SIGN_IN');
+                }}
+                className="py-2 text-textSecondary hover:text-textPrimary font-semibold cursor-pointer"
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleOpenAuth('SIGN_UP');
+                }}
+                className="px-4 py-2 rounded-full bg-accentPrimary text-white font-semibold cursor-pointer"
+              >
+                Sign up
+              </button>
+            </div>
+          )}
         </div>
       )}
 

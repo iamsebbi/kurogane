@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import ThemeToggle from '../components/ThemeToggle';
 
 export const metadata: Metadata = {
@@ -51,12 +52,7 @@ export default function RootLayout({
           {children}
         </main>
 
-        <footer className="border-t border-borderSubtle py-6 bg-bgSurface/50 text-center text-xs text-textMuted">
-          <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p>© 2026 Kurogane Media Tracking Platform. Open source & anti-review bombing technology.</p>
-            <p className="text-textMuted">Local JSON Seed DB + AniList GraphQL API Integration</p>
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

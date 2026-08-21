@@ -8,6 +8,8 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
   updateProfile,
+  onAuthStateChanged,
+  signOut as fbSignOut,
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -155,6 +157,38 @@ class FirebaseAuthService {
         return { user: null, token: null, error: null };
       }
       return { user: null, token: null, error: new Error(this.formatErrorMessage(err.code || err.message || '')) };
+    }
+  }
+
+  /**
+   * Listen to Firebase native auth state changes across all tabs
+   */
+  public onAuthStateChange(callback: (user: FirebaseAuthUser | null, token: string | null) => void) {
+    return onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        const idToken = await fbUser.getIdToken();
+        const user: FirebaseAuthUser = {
+          id: fbUser.uid,
+          email: fbUser.email || '',
+          username: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
+          avatarUrl: fbUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(fbUser.uid)}`,
+          idToken,
+        };
+        callback(user, idToken);
+      } else {
+        callback(null, null);
+      }
+    });
+  }
+
+  /**
+   * Sign Out from Firebase Auth
+   */
+  public async signOut(): Promise<void> {
+    try {
+      await fbSignOut(auth);
+    } catch (err) {
+      console.error('Error signing out from Firebase:', err);
     }
   }
 
