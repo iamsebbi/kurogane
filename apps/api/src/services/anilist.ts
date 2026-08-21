@@ -661,7 +661,7 @@ export async function fetchAniListFeatured(limit: number = 8): Promise<MediaItem
 
 const FETCH_MEDIA_BY_ID_QUERY = `
 query ($id: Int) {
-  Media(id: $id, isAdult: false) {
+  Media(id: $id) {
     id
     title {
       romaji
@@ -718,9 +718,15 @@ export async function fetchAniListMediaById(rawId: string | number): Promise<Med
       }),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error(`[AniList API fetchById HTTP ${response.status}]`);
+      return null;
+    }
 
     const json = await response.json();
+    if (json.errors) {
+      console.error('[AniList API fetchById GraphQL Errors]:', json.errors);
+    }
     const media: AniListMedia = json.data?.Media;
     if (!media) return null;
 
