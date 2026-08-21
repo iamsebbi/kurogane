@@ -1,1 +1,145 @@
-[]
+[
+  {
+    "id": "witem-1787308893292-y179q",
+    "userId": "1c5p40pOfhNxq5COee863a6Uw122",
+    "mediaId": "anilist-204466",
+    "status": "WATCHING",
+    "progressEpisodes": 8,
+    "createdAt": "2026-08-21T10:41:33.292Z",
+    "updatedAt": "2026-08-21T10:41:33.292Z",
+    "mediaItem": {
+      "id": "anilist-204466",
+      "anilistId": 204466,
+      "title": {
+        "userPreferred": "Otome Kaijuu Caraméliser",
+        "english": "KAIJU GIRL CARAMELISE",
+        "romaji": "Otome Kaijuu Caraméliser"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "UPCOMING",
+      "demographic": "Seinen",
+      "microTags": [
+        "Female Protagonist",
+        "School Life",
+        "Romance",
+        "Slice of Life",
+        "Magic",
+        "Comedy"
+      ],
+      "episodes": 1,
+      "genres": [
+        "based on a manga",
+        "cgi",
+        "comedy",
+        "contemporary fantasy",
+        "drama",
+        "fantasy",
+        "female protagonist",
+        "henshin",
+        "heroine of strong character",
+        "heterosexual",
+        "high school",
+        "japanese production",
+        "kaiju",
+        "magical girl",
+        "monster",
+        "monster girl",
+        "monster girls",
+        "monsters",
+        "present",
+        "romance",
+        "romantic comedy",
+        "school",
+        "school life",
+        "seinen",
+        "shapeshifting",
+        "slapstick",
+        "slice of life",
+        "supernatural",
+        "tokusatsu",
+        "urban",
+        "urban fantasy"
+      ],
+      "description": "Synonyms: KAIJU GIRL CARAMELISE, Kaiju Girl Caramelise, Meiden Kaiju Carameliser, Monster Maiden Caramelize",
+      "coverImage": {
+        "large": "https://cdn.myanimelist.net/images/anime/1981/156340.jpg",
+        "medium": "https://cdn.myanimelist.net/images/anime/1981/156340t.jpg",
+        "color": "#3b82f6"
+      },
+      "year": 2026,
+      "season": "SUMMER",
+      "scores": {
+        "averageScore": 0,
+        "reviewCount": 0,
+        "weightedScore": 0
+      },
+      "source": "LOCAL_OFFLINE_DB"
+    }
+  },
+  {
+    "id": "witem-1787308910057-697bb",
+    "userId": "1c5p40pOfhNxq5COee863a6Uw122",
+    "mediaId": "anilist-180136",
+    "status": "WATCHING",
+    "progressEpisodes": 0,
+    "createdAt": "2026-08-21T10:41:50.057Z",
+    "updatedAt": "2026-08-21T10:41:50.057Z",
+    "mediaItem": {
+      "id": "anilist-180136",
+      "anilistId": 180136,
+      "title": {
+        "userPreferred": "Tsuihou sareta Tensei Juukishi wa Game Chishiki de Musou suru",
+        "english": "Juukishi",
+        "romaji": "Tsuihou sareta Tensei Juukishi wa Game Chishiki de Musou suru"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "UPCOMING",
+      "microTags": [
+        "Isekai",
+        "Magic",
+        "Comedy",
+        "Dungeon"
+      ],
+      "episodes": 1,
+      "genres": [
+        "action",
+        "adventure",
+        "alternative world",
+        "based on a manga",
+        "comedy",
+        "dungeon",
+        "fantasy",
+        "game elements",
+        "isekai",
+        "japanese production",
+        "knight",
+        "magic",
+        "male protagonist",
+        "manga",
+        "medieval european aesthetic",
+        "monster",
+        "nobility",
+        "reincarnation",
+        "speculative fiction",
+        "swords & co",
+        "video game"
+      ],
+      "description": "Synonyms: Juukishi, The Exiled Heavy Knight Knows How to Game the System, The Exiled Reincarnated Heavy Knight Is Unrivaled in Game Knowledge, The Exiled Reincarnated Heavy Knight is Unrivaled in Game Knowledge",
+      "coverImage": {
+        "large": "https://cdn.myanimelist.net/images/anime/1322/158711.jpg",
+        "medium": "https://cdn.myanimelist.net/images/anime/1322/158711t.jpg",
+        "color": "#3b82f6"
+      },
+      "year": 2026,
+      "season": "SUMMER",
+      "scores": {
+        "averageScore": 7.1,
+        "reviewCount": 3695,
+        "weightedScore": 7.1
+      },
+      "source": "LOCAL_OFFLINE_DB"
+    }
+  }
+]
