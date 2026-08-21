@@ -659,5 +659,77 @@ export async function fetchAniListFeatured(limit: number = 8): Promise<MediaItem
   }
 }
 
+const FETCH_MEDIA_BY_ID_QUERY = `
+query ($id: Int) {
+  Media(id: $id, isAdult: false) {
+    id
+    title {
+      romaji
+      english
+      native
+      userPreferred
+    }
+    type
+    format
+    status
+    season
+    episodes
+    chapters
+    volumes
+    genres
+    description(asHtml: false)
+    countryOfOrigin
+    coverImage {
+      extraLarge
+      large
+      medium
+      color
+    }
+    bannerImage
+    startDate {
+      year
+    }
+    averageScore
+    meanScore
+    stats {
+      scoreDistribution {
+        score
+        amount
+      }
+    }
+  }
+}
+`;
+
+export async function fetchAniListMediaById(rawId: string | number): Promise<MediaItem | null> {
+  const numericId = typeof rawId === 'number' ? rawId : parseInt(String(rawId).replace(/\D/g, ''), 10);
+  if (!numericId || isNaN(numericId)) return null;
+
+  try {
+    const response = await fetch(ANILIST_GRAPHQL_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        query: FETCH_MEDIA_BY_ID_QUERY,
+        variables: { id: numericId },
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const json = await response.json();
+    const media: AniListMedia = json.data?.Media;
+    if (!media) return null;
+
+    return mapAniListToMediaItem(media);
+  } catch (error) {
+    console.error('[AniList API fetchById Error]:', error);
+    return null;
+  }
+}
+
 
 

@@ -256,9 +256,9 @@ app.get('/api/search', async (req: Request, res: Response) => {
 });
 
 // Get Media By ID
-app.get('/api/media/:id', (req: Request, res: Response) => {
+app.get('/api/media/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const item = dbService.getMediaById(id);
+  const item = await dbService.getMediaByIdAsync(id);
 
   if (!item) {
     return res.status(404).json({ error: 'Media not found' });

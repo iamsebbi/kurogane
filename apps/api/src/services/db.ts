@@ -25,6 +25,7 @@ import {
   fetchAniListTopUpcoming,
   fetchAniListFeatured,
   fetchAniListRecentlyAired,
+  fetchAniListMediaById,
 } from './anilist';
 import { anilistCacheService } from './anilist-cache';
 import { newsAggregationService } from './news-rss';
@@ -237,6 +238,22 @@ class JSONDatabaseService {
 
   public getMediaById(id: string): MediaItem | undefined {
     return this.itemsById.get(id);
+  }
+
+  public async getMediaByIdAsync(id: string): Promise<MediaItem | undefined> {
+    if (this.itemsById.has(id)) {
+      return this.itemsById.get(id);
+    }
+    const item = await fetchAniListMediaById(id);
+    if (item) {
+      this.itemsById.set(id, item);
+      this.itemsById.set(item.id, item);
+      if (item.anilistId) {
+        this.itemsByAnilistId.set(item.anilistId, item);
+      }
+      return item;
+    }
+    return undefined;
   }
 
   public getCategoryShelves(): CategoryShelf[] {
