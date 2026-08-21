@@ -79,7 +79,7 @@ app.post('/api/auth/send-otp', async (req: Request, res: Response) => {
   }
   const result = await resendService.sendOtpEmail(email);
   if (!result.success) {
-    return res.status(429).json({ error: result.message, waitSec: (result as any).waitSec });
+    return res.status(429).json({ error: result.message, waitSec: result.waitSec });
   }
   res.json(result);
 });

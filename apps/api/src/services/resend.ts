@@ -29,7 +29,7 @@ export class ResendEmailService {
   /**
    * Send a 6-digit OTP verification code via Resend
    */
-  public async sendOtpEmail(toEmail: string): Promise<{ success: boolean; code?: string; message: string }> {
+  public async sendOtpEmail(toEmail: string): Promise<{ success: boolean; code?: string; message: string; waitSec?: number }> {
     const cleanEmail = toEmail.trim().toLowerCase();
     const now = Date.now();
 
