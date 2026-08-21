@@ -154,7 +154,7 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    fetchProfileAndWatchlist();
+    fetchUserData();
   }, []);
 
   const openEditModal = () => {
