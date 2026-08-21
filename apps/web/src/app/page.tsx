@@ -8,6 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import Link from "next/link";
+import { API_BASE_URL } from "../lib/api";
 import {
   Search,
   X,
@@ -453,7 +454,7 @@ export default function Homepage() {
         : null;
     if (!token) return;
 
-    fetch("http://localhost:4000/api/watchlist", {
+    fetch(`${API_BASE_URL}/api/watchlist`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : null))
@@ -510,7 +511,7 @@ export default function Homepage() {
         ? localStorage.getItem("kurogane_token")
         : null;
 
-    fetch("http://localhost:4000/api/homepage", {
+    fetch(`${API_BASE_URL}/api/homepage`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then((res) => (res.ok ? res.json() : null))
@@ -544,23 +545,19 @@ export default function Homepage() {
     return () => clearInterval(timer);
   }, [homepageData?.featuredSeason, activeHeroIndex]);
 
-  // Handle Search Query
+  // Active Live Search with AbortController
   const performSearch = useCallback(
     async (searchQuery: string) => {
-      if (!searchQuery.trim()) {
-        setSearchResults([]);
-        setIsSearching(false);
-        return;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
-
-      if (abortControllerRef.current) abortControllerRef.current.abort();
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
       setIsSearching(true);
       try {
         const params = new URLSearchParams({
-          q: searchQuery,
+          q: searchQuery.trim(),
           type: selectedType,
           format: selectedFormat,
           status: selectedStatus,
@@ -573,7 +570,7 @@ export default function Homepage() {
           limit: "24",
         });
         const res = await fetch(
-          `http://localhost:4000/api/search?${params.toString()}`,
+          `${API_BASE_URL}/api/search?${params.toString()}`,
           {
             signal: controller.signal,
           },
@@ -657,7 +654,7 @@ export default function Homepage() {
           ? "COMPLETED"
           : "WATCHING";
 
-      await fetch("http://localhost:4000/api/watchlist", {
+      await fetch(`${API_BASE_URL}/api/watchlist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

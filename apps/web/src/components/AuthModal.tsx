@@ -19,6 +19,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { firebaseAuth } from '@/lib/firebase';
+import { API_BASE_URL } from '../lib/api';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -377,7 +378,7 @@ export function AuthModal({
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:4000/api/auth/send-otp', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: cleanEmail }),
@@ -423,7 +424,7 @@ export function AuthModal({
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:4000/api/auth/verify-otp', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -20,6 +20,7 @@ import {
   SortOption,
 } from '@kurogane/shared';
 import { gsap, useGSAP } from '@/lib/gsap';
+import { API_BASE_URL } from '@/lib/api';
 
 const ALPHABET = [
   'TOATE', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
@@ -128,7 +129,7 @@ function MediaCatalogContent() {
         params.set('minScore', String(minScore));
       }
 
-      const res = await fetch(`http://localhost:4000/api/search?${params.toString()}`, {
+      const res = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`, {
         signal: controller.signal,
       });
 

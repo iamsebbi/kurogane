@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Bookmark, Plus, Star, CheckCircle, Clock, Trash2, ArrowLeft, UserCheck } from 'lucide-react';
-import { WatchlistItemRecord, WatchlistStatus } from '@kurogane/shared';
+import { WatchlistItemRecord, WatchlistStatus, UserProfile } from '@kurogane/shared';
+import { API_BASE_URL } from '@/lib/api';
 import { AuthModal } from '@/components/AuthModal';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -39,7 +40,7 @@ export default function WatchlistPage() {
 
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:4000/api/watchlist', {
+      const res = await fetch(`${API_BASE_URL}/api/watchlist`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -58,10 +59,15 @@ export default function WatchlistPage() {
       if (storedUser) {
         try {
           setUser(JSON.parse(storedUser));
-        } catch (e) {}
+        } catch {
+          setUser({ username: 'Otaku Explorer', email: 'user@kurogane.app' });
+        }
+      } else {
+        setUser({ username: 'Otaku Explorer', email: 'user@kurogane.app' });
       }
     } catch (err: any) {
-      setError(err.message);
+      console.error('Error loading watchlist:', err);
+      setError(err.message || 'Nu s-a putut încărca lista.');
     } finally {
       setLoading(false);
     }
@@ -76,7 +82,7 @@ export default function WatchlistPage() {
     if (!token) return;
 
     try {
-      await fetch(`http://localhost:4000/api/watchlist/${mediaId}`, {
+      await fetch(`${API_BASE_URL}/api/watchlist/${mediaId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -91,7 +97,7 @@ export default function WatchlistPage() {
     if (!token) return;
 
     try {
-      const res = await fetch('http://localhost:4000/api/watchlist', {
+      const res = await fetch(`${API_BASE_URL}/api/watchlist`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

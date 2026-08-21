@@ -13,6 +13,7 @@ import {
   Clock,
   Command,
 } from 'lucide-react';
+import { API_BASE_URL } from '../lib/api';
 import { MediaItem, MediaType } from '@kurogane/shared';
 
 interface SearchModalProps {
@@ -82,7 +83,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           type: typeFilter,
           limit: '20',
         });
-        const res = await fetch(`http://localhost:4000/api/search?${params.toString()}`, {
+        const res = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`, {
           signal: controller.signal,
         });
         if (res.ok && !controller.signal.aborted) {

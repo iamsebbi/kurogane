@@ -29,6 +29,7 @@ import {
 import { UserProfile, WatchlistItemRecord, WatchlistStatus } from '@kurogane/shared';
 import { AuthModal } from '@/components/AuthModal';
 import { firebaseAuth } from '@/lib/firebase';
+import { API_BASE_URL } from '@/lib/api';
 
 const STATUS_LABELS: Record<string, string> = {
   ALL: 'Toate',
@@ -108,7 +109,7 @@ export default function ProfilePage() {
       setLoading(true);
 
       // Verify token & fetch latest profile from API
-      const profileRes = await fetch('http://localhost:4000/api/user/profile', {
+      const profileRes = await fetch(`${API_BASE_URL}/api/user/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -132,7 +133,7 @@ export default function ProfilePage() {
       }
 
       // Fetch watchlist
-      const watchlistRes = await fetch('http://localhost:4000/api/watchlist', {
+      const watchlistRes = await fetch(`${API_BASE_URL}/api/watchlist`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -146,19 +147,14 @@ export default function ProfilePage() {
         setItems([]);
       }
     } catch (err) {
-      console.error('Error fetching profile data:', err);
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {}
-      }
+      console.error('Error loading profile page data:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUserData();
+    fetchProfileAndWatchlist();
   }, []);
 
   const openEditModal = () => {
@@ -180,7 +176,7 @@ export default function ProfilePage() {
     setSaveSuccess(false);
 
     try {
-      const res = await fetch('http://localhost:4000/api/user/profile', {
+      const res = await fetch(`${API_BASE_URL}/api/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -218,7 +214,7 @@ export default function ProfilePage() {
     if (!token) return;
 
     try {
-      await fetch(`http://localhost:4000/api/watchlist/${mediaId}`, {
+      await fetch(`${API_BASE_URL}/api/watchlist/${mediaId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -233,7 +229,7 @@ export default function ProfilePage() {
     if (!token || newProgress < 0) return;
 
     try {
-      const res = await fetch('http://localhost:4000/api/watchlist', {
+      const res = await fetch(`${API_BASE_URL}/api/watchlist`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
