@@ -9,13 +9,12 @@ import {
   Zap,
   Heart,
   Compass,
-  Plus,
-  CheckCircle2,
+  Bookmark,
   SlidersHorizontal,
 } from 'lucide-react';
 import { MediaItem } from '@kurogane/shared';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000') + '/api';
 
 export default function RecommendationsPage() {
   const [items, setItems] = useState<MediaItem[]>([]);
@@ -134,21 +133,22 @@ export default function RecommendationsPage() {
                   </div>
                 )}
 
-                {/* Quick Watchlist Toggle */}
+                {/* Quick Watchlist Toggle (Always visible Bookmark Save Button) */}
                 <button
-                  onClick={() => toggleWatchlist(item.id)}
-                  className={`absolute top-2 right-2 p-1.5 rounded-lg backdrop-blur-md transition-all shadow-md ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleWatchlist(item.id);
+                  }}
+                  className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 z-20 ${
                     savedWatchlistIds.has(item.id)
-                      ? 'bg-signalLive text-slate-950 opacity-100'
-                      : 'bg-bgPrimary/80 text-textSecondary hover:text-textPrimary hover:bg-bgPrimary opacity-0 group-hover:opacity-100 border border-borderSubtle'
+                      ? 'bg-accentPrimary text-white shadow-accentPrimary/25'
+                      : 'bg-black/60 hover:bg-accentPrimary text-white/90 hover:text-white border border-white/15'
                   }`}
-                  aria-label="Toggle Watchlist"
+                  aria-label={savedWatchlistIds.has(item.id) ? 'Elimină din Watchlist' : 'Adaugă în Watchlist'}
+                  title={savedWatchlistIds.has(item.id) ? 'În Watchlist' : 'Adaugă în Watchlist'}
                 >
-                  {savedWatchlistIds.has(item.id) ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />
-                  ) : (
-                    <Plus className="w-3.5 h-3.5" />
-                  )}
+                  <Bookmark className={`w-3.5 h-3.5 transition-colors ${savedWatchlistIds.has(item.id) ? 'fill-white' : ''}`} />
                 </button>
               </div>
 

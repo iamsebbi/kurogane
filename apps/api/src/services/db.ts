@@ -26,6 +26,7 @@ import {
   fetchAniListFeatured,
   fetchAniListRecentlyAired,
 } from './anilist';
+import { newsAggregationService } from './news-rss';
 
 const TAG_TAXONOMY_PATH = path.join(__dirname, '../data/tag-taxonomy.json');
 const OFFLINE_DB_PATHS = [
@@ -1027,7 +1028,7 @@ class JSONDatabaseService {
     const trendingSeasonCandidates = [...validOffline]
       .filter((i) => {
         if (i.type !== 'ANIME') return false;
-        if (!['TV', 'MOVIE', 'ONA'].includes(i.format)) return false;
+        if (!i.format || !['TV', 'MOVIE', 'ONA'].includes(i.format)) return false;
         if (i.scores.averageScore < 7.4) return false;
 
         const titleLower = i.title.userPreferred.toLowerCase();
@@ -1078,61 +1079,8 @@ class JSONDatabaseService {
         thumbnailUrl: item.coverImage.extraLarge || item.coverImage.large,
       }));
 
-    // 3. News Beta (Anime & Manga News)
-    const newsBeta: NewsArticle[] = [
-      {
-        id: 'news-1',
-        title: 'Solo Leveling Sezonul 2: Arise from the Shadow primește dată oficială de lansare',
-        category: 'ANIME',
-        tagBadge: 'SEZON NOU',
-        summary: 'Producătorii Aniplex și Studioul A-1 Pictures au lansat un nou trailer vizual pentru continuarea aventurii lui Sung Jinwoo.',
-        content: 'Sezonul 2 promite secvențe de acțiune și mai spectaculoase și va acoperi unul dintre cele mai așteptate arcuri din manhwa-ul original. Lansarea globală va avea loc pe platformele principale de streaming.',
-        imageUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80',
-        date: '20 August 2026',
-        readTime: '3 min lectura',
-        source: 'Kurogane Newsroom',
-        isBeta: true,
-      },
-      {
-        id: 'news-2',
-        title: 'Demon Slayer: Infinity Castle Movie Trilogy - Teaser Trailer Oficial lansat de ufotable',
-        category: 'MOVIE',
-        tagBadge: 'FILM CINEMA',
-        summary: 'Trilogia de filme ce încheie saga Demon Slayer a primit primele secvențe animate de înaltă rezoluție.',
-        content: 'ufotable continuă să împingă limitele animației digitale. Prima parte a trilogiei va fi lansată simultan în cinematografele din întreaga lume.',
-        imageUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=80',
-        date: '19 August 2026',
-        readTime: '4 min lectura',
-        source: 'ufotable Official',
-        isBeta: true,
-      },
-      {
-        id: 'news-3',
-        title: 'Chainsaw Man Capitolul 180 deschide un nou arc epic în seria Manga',
-        category: 'MANGA',
-        tagBadge: 'CAPITOL NOU',
-        summary: 'Tatsuki Fujimoto revine cu o întorsătură de situație neașteptată pentru Denji și noii demoni din universul Chainsaw Man.',
-        content: 'Fanii au reacționat intens la lansarea noului capitol, care plasează personajul principal într-o confruntare directă cu demonii de nivel înalt.',
-        imageUrl: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80',
-        date: '18 August 2026',
-        readTime: '2 min lectura',
-        source: 'Shonen Jump',
-        isBeta: true,
-      },
-      {
-        id: 'news-4',
-        title: 'Studioul MAPPA anunță un nou proiect anime original cu buget record',
-        category: 'STUDIO',
-        tagBadge: 'ANUNȚ OFICIAL',
-        summary: 'Echipa din spatele Jujutsu Kaisen și Attack on Titan pregătește un anime sci-fi cyberpunk impecabil vizual.',
-        content: 'Proiectul va fi regizat de nume importante din industrie și va beneficia de o coloană sonoră orchestrală compusă de muzicieni de renume internațional.',
-        imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80',
-        date: '16 August 2026',
-        readTime: '5 min lectura',
-        source: 'MAPPA Stage',
-        isBeta: true,
-      },
-    ];
+    // 3. News Feed (Auto-Aggregated Live RSS News from official feeds)
+    const newsBeta: NewsArticle[] = newsAggregationService.getLatest(4);
 
     // 4. Recomandări (Personalizate dacă există Watchlist/Profil, altfel Curated High Rating Media)
     let recommendations: RecommendedMediaItem[] = [];

@@ -30,24 +30,27 @@
 }
 
 [data-theme='light'] {
-  --bg-primary: #F2F2F2;
+  --bg-primary: #F8FAFC;
   --bg-surface: #FFFFFF;
-  --bg-surface-hover: #E2E8F0;
-  --accent-primary: #004C94;
+  --bg-surface-hover: #F1F5F9;
+  --accent-primary: #2563EB;
 
-  --signal-live: #22C55E;
-  --score-gold: #F5A623;
+  --signal-live: #16A34A;
+  --score-gold: #D97706;
   --badge-violet: #7C3AED;
-  --alert-coral: #EF4444;
-  --highlight-ember: #F97316;
+  --alert-coral: #DC2626;
+  --highlight-ember: #EA580C;
 
-  --border-subtle: #E5E7EB;
-  --text-primary: #0F1419;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
+  --border-subtle: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --shadow-glow: 0 0 35px rgba(37, 99, 235, 0.25);
 }
 
 html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
   color-scheme: dark;
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -183,6 +186,11 @@ button, input, select {
   mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.04) 10%, rgba(0, 0, 0, 0.35) 30%, rgba(0, 0, 0, 0.85) 60%, black 85%);
 }
 
+.vertical-art-mask {
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50%, rgba(0, 0, 0, 0.65) 75%, rgba(0, 0, 0, 0.15) 90%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 50%, rgba(0, 0, 0, 0.65) 75%, rgba(0, 0, 0, 0.15) 90%, transparent 100%);
+}
+
 /* Hide Scrollbars completely across all browsers */
 .scrollbar-none,
 .no-scrollbar,
@@ -198,3 +206,25 @@ button, input, select {
   width: 0 !important;
   height: 0 !important;
 }
+
+/* Geometric Pill Button & Badge Pattern (Icon Center at exact R = H/2 of Semicircular Cap) */
+.btn-pill,
+.badge-pill {
+  @apply rounded-full inline-flex items-center overflow-hidden;
+}
+
+.btn-pill-icon,
+.badge-pill-icon {
+  @apply flex items-center justify-center shrink-0;
+}
+
+.btn-pill-label {
+  @apply -ml-2 font-semibold;
+}
+
+.badge-pill-label {
+  @apply -ml-1 font-medium;
+}
+
+
+

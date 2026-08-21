@@ -37,6 +37,9 @@ import {
   Layers,
   Heart,
   CheckCircle2,
+  Bookmark,
+  BookmarkCheck,
+  Save,
 } from 'lucide-react';
 import {
   MediaItem,
@@ -167,6 +170,86 @@ const getDisplayTitle = (title?: { english?: string; romaji?: string; native?: s
   return title.english?.trim() || title.userPreferred?.trim() || title.romaji?.trim() || '';
 };
 
+const getDisplayCardTitle = (title?: { english?: string; romaji?: string; native?: string; userPreferred?: string }): string => {
+  const raw = getDisplayTitle(title);
+  if (!raw) return '';
+  return raw
+    .replace(/\s*:\s*/g, ': ')
+    .replace(/\s*-\s*/g, ' - ')
+    .replace(/\s*—\s*/g, ' — ');
+};
+
+const formatMediaFormat = (format?: string, type?: string): string => {
+  if (!format && !type) return 'Anime';
+  const val = (format || type || '').toUpperCase();
+  const formatMap: Record<string, string> = {
+    TV_SHORT: 'TV Short',
+    TV: 'TV',
+    MOVIE: 'Movie',
+    OVA: 'OVA',
+    ONA: 'ONA',
+    SPECIAL: 'Special',
+    MUSIC: 'Music',
+    MANGA: 'Manga',
+    NOVEL: 'Novel',
+    ONE_SHOT: 'One Shot',
+    DONGHUA: 'Donghua',
+    AENI: 'Aeni',
+    MANHWA: 'Manhwa',
+    MANHUA: 'Manhua',
+    WEBTOON: 'Webtoon',
+  };
+  return formatMap[val] || val.replace(/_/g, ' ');
+};
+
+const isFreshEpisode = (airDateExact?: string, airDateRelative?: string): boolean => {
+  if (airDateExact) {
+    const timestamp = new Date(airDateExact).getTime();
+    if (!isNaN(timestamp)) {
+      const diffHours = (Date.now() - timestamp) / (1000 * 60 * 60);
+      if (diffHours >= 0 && diffHours < 24) return true;
+      if (diffHours >= 24) return false;
+    }
+  }
+  if (airDateRelative) {
+    const isHoursOrMinutes = /oră|ore|minut|secund/i.test(airDateRelative);
+    const isDaysOrWeeks = /zi|zile|săpt|luni|ani/i.test(airDateRelative);
+    if (isHoursOrMinutes && !isDaysOrWeeks) return true;
+  }
+  return false;
+};
+
+const getNewsBadgeConfig = (tagBadge?: string, category?: string) => {
+  const tag = (tagBadge || category || '').toUpperCase();
+  if (tag.includes('SEZON') || tag.includes('ANIME') || tag.includes('SERIE') || tag.includes('TV')) {
+    return {
+      label: tagBadge || 'SEZON NOU',
+      className: 'bg-accentPrimary text-white shadow-sm',
+      icon: Tv,
+    };
+  }
+  if (tag.includes('CAPITOL') || tag.includes('MANGA') || tag.includes('MANHWA') || tag.includes('MANHUA') || tag.includes('NOVEL')) {
+    return {
+      label: tagBadge || 'CAPITOL NOU',
+      className: 'bg-badgeViolet text-slate-950 font-bold shadow-sm',
+      icon: BookOpen,
+    };
+  }
+  if (tag.includes('FILM') || tag.includes('MOVIE') || tag.includes('CINEMA')) {
+    return {
+      label: tagBadge || 'FILM CINEMA',
+      className: 'bg-amber-500 text-slate-950 font-bold shadow-sm',
+      icon: Film,
+    };
+  }
+  // Official announcements / Studio / Industry (Electric Cyan with equal visual weight)
+  return {
+    label: tagBadge || 'ANUNȚ OFICIAL',
+    className: 'bg-cyan-500 text-slate-950 font-bold shadow-sm',
+    icon: Newspaper,
+  };
+};
+
 export default function Homepage() {
   // Homepage Sections State
   const [homepageData, setHomepageData] = useState<HomepageData | null>(null);
@@ -178,6 +261,9 @@ export default function Homepage() {
   // Seasonal Carousel Scroll Ref
   const seasonCarouselRef = useRef<HTMLDivElement>(null);
 
+  // Recently Aired Carousel Scroll Ref
+  const airedCarouselRef = useRef<HTMLDivElement>(null);
+
   // Active Tab for Top Airing vs Top Upcoming
   const [activeTopTab, setActiveTopTab] = useState<'AIRING' | 'UPCOMING'>('AIRING');
 
@@ -186,11 +272,36 @@ export default function Homepage() {
   const [top100Format, setTop100Format] = useState<string>('ALL');
   const [top100Limit, setTop100Limit] = useState<number>(20);
 
-  // Selected News Article for Modal
-  const [selectedNews, setSelectedNews] = useState<NewsArticle | null>(null);
-
   // Global Watchlist State (mocked local set for instant UI feedback)
   const [savedWatchlistIds, setSavedWatchlistIds] = useState<Set<string>>(new Set());
+  // User watched episodes progress map: mediaId -> progressEpisodes
+  const [watchedEpisodes, setWatchedEpisodes] = useState<Record<string, number>>({});
+
+  // Sync watchlist and episode progress from API/localStorage
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('kurogane_token') : null;
+    if (!token) return;
+
+    fetch('http://localhost:4000/api/watchlist', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.items) {
+          const ids = new Set<string>();
+          const epMap: Record<string, number> = {};
+          data.items.forEach((item: any) => {
+            ids.add(item.mediaId);
+            if (item.progressEpisodes !== undefined) {
+              epMap[item.mediaId] = item.progressEpisodes;
+            }
+          });
+          setSavedWatchlistIds(ids);
+          setWatchedEpisodes(epMap);
+        }
+      })
+      .catch((err) => console.error('Error loading watchlist in homepage:', err));
+  }, []);
 
   // Search & Filter Drawer State
   const [query, setQuery] = useState<string>('');
@@ -300,6 +411,50 @@ export default function Homepage() {
     });
   };
 
+  const handleMarkWatched = async (e: React.MouseEvent, airedItem: RecentlyAiredEpisode) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const mediaId = airedItem.media.id;
+    const epNum = airedItem.episodeNumber;
+    const isCurrentlyWatched = (watchedEpisodes[mediaId] || 0) >= epNum;
+    const newProgress = isCurrentlyWatched ? Math.max(0, epNum - 1) : epNum;
+
+    // Optimistic state update
+    setWatchedEpisodes((prev) => ({
+      ...prev,
+      [mediaId]: newProgress,
+    }));
+    setSavedWatchlistIds((prev) => {
+      const next = new Set(prev);
+      if (newProgress > 0) next.add(mediaId);
+      return next;
+    });
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('kurogane_token') : null;
+    if (!token) return;
+
+    try {
+      const totalEpisodes = airedItem.media.episodes;
+      const status = (totalEpisodes && newProgress >= totalEpisodes) ? 'COMPLETED' : 'WATCHING';
+
+      await fetch('http://localhost:4000/api/watchlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          mediaId,
+          status,
+          progressEpisodes: newProgress,
+        }),
+      });
+    } catch (err) {
+      console.error('Error updating watched progress:', err);
+    }
+  };
+
   const currentFeatured = homepageData?.featuredSeason?.[activeHeroIndex];
 
   // Filtered Top 100 list
@@ -319,195 +474,205 @@ export default function Homepage() {
         const heroArtColor = getMediaAccentColor(currentFeatured);
 
         return (
-          <section
-            className="relative rounded-3xl overflow-hidden bg-bgSurface border border-borderSubtle transition-all duration-1000 shadow-2xl h-[560px] sm:h-[620px] lg:h-[660px] xl:h-[680px]"
-            style={{
-              boxShadow: currentFeatured
-                ? `0 20px 50px -10px rgba(0, 0, 0, 0.4), 0 0 40px -15px ${heroArtColor}25`
-                : undefined,
-            }}
-          >
-            {loadingHomepage ? (
-              <div className="h-full flex items-center justify-center text-textSecondary">
-                <div className="w-8 h-8 border-2 border-accentPrimary border-t-transparent rounded-full animate-spin mr-3" />
-                <span>Se încarcă secțiunea Trending Anime...</span>
-              </div>
-            ) : currentFeatured ? (
-              <div className="relative h-full flex flex-col justify-end p-6 sm:p-10 lg:p-14 pb-16 sm:pb-20 lg:pb-24 xl:pb-26">
-                {/* Dynamic Ambient Artwork Color Glow for Hero Slide */}
-                <div
-                  className="absolute -right-24 -bottom-24 w-[500px] sm:w-[650px] h-[500px] sm:h-[650px] rounded-full blur-[140px] opacity-10 dark:opacity-25 transition-all duration-1000 pointer-events-none z-10"
-                  style={{ backgroundColor: heroArtColor }}
-                />
-                <div
-                  className="absolute -left-20 -top-20 w-[350px] sm:w-[450px] h-[350px] sm:h-[450px] rounded-full blur-[120px] opacity-5 dark:opacity-15 transition-all duration-1000 pointer-events-none z-10"
-                  style={{ backgroundColor: heroArtColor }}
-                />
+          <div className="relative w-full">
+            {/* Ambient Lighting Glow Behind Hero Card for Light & Dark Mode */}
+            <div
+              className="absolute -inset-4 sm:-inset-6 lg:-inset-8 rounded-[3.5rem] blur-[100px] sm:blur-[130px] opacity-45 dark:opacity-25 transition-all duration-1000 pointer-events-none -z-10"
+              style={{ backgroundColor: heroArtColor }}
+            />
 
-                {/* Background Image Slides Stack (Right-aligned artwork with seamless blending) */}
-                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                  {/* Right Side Image Container (Expanded width with CSS mask so left edge completely vanishes to transparent) */}
-                  <div className="hero-art-mask absolute inset-y-0 right-0 w-full md:w-[70%] lg:w-[60%] xl:w-[54%] h-full">
-                    {(homepageData?.featuredSeason || []).map((item, idx) => {
-                      const isCurrent = idx === activeHeroIndex;
-                      return (
-                        <div
-                          key={item.id}
-                          className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${
-                            isCurrent ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-                          }`}
-                        >
-                          <img
-                            src={item.coverImage.extraLarge || item.coverImage.large}
-                            alt={item.title.userPreferred}
-                            className="w-full h-full object-cover object-center md:object-[70%_center] filter brightness-[0.7] md:brightness-[0.9] contrast-105"
-                            loading={idx === 0 ? 'eager' : 'lazy'}
-                          />
-                        </div>
-                      );
-                    })}
+            <section
+              className="relative rounded-3xl overflow-hidden bg-bgSurface border border-borderSubtle transition-all duration-1000 shadow-2xl h-[560px] sm:h-[620px] lg:h-[660px] xl:h-[680px]"
+              style={{
+                boxShadow: currentFeatured
+                  ? `0 20px 50px -10px rgba(0, 0, 0, 0.25), 0 0 50px -10px ${heroArtColor}35`
+                  : undefined,
+              }}
+            >
+              {loadingHomepage ? (
+                <div className="h-full flex items-center justify-center text-textSecondary">
+                  <div className="w-8 h-8 border-2 border-accentPrimary border-t-transparent rounded-full animate-spin mr-3" />
+                  <span>Se încarcă secțiunea Trending Anime...</span>
+                </div>
+              ) : currentFeatured ? (
+                <div className="relative h-full flex flex-col justify-end p-6 sm:p-10 lg:p-14 pb-16 sm:pb-20 lg:pb-24 xl:pb-26">
+                  {/* Dynamic Ambient Artwork Color Glow for Hero Slide */}
+                  <div
+                    className="absolute -right-24 -bottom-24 w-[500px] sm:w-[650px] h-[500px] sm:h-[650px] rounded-full blur-[140px] opacity-35 dark:opacity-25 transition-all duration-1000 pointer-events-none z-10"
+                    style={{ backgroundColor: heroArtColor }}
+                  />
+                  <div
+                    className="absolute -left-20 -top-20 w-[350px] sm:w-[450px] h-[350px] sm:h-[450px] rounded-full blur-[120px] opacity-25 dark:opacity-15 transition-all duration-1000 pointer-events-none z-10"
+                    style={{ backgroundColor: heroArtColor }}
+                  />
 
-                    {/* Subtle color highlight over hero image in dark mode */}
-                    <div
-                      className="absolute inset-0 hidden dark:block opacity-15 transition-all duration-1000 pointer-events-none z-10"
-                      style={{
-                        background: `linear-gradient(to right, transparent 15%, ${heroArtColor} 100%)`,
-                        mixBlendMode: 'screen',
-                      }}
-                    />
+                  {/* Background Image Slides Stack (Right-aligned artwork with seamless blending) */}
+                  <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                    {/* Right Side Image Container (Expanded width with CSS mask so left edge completely vanishes to transparent) */}
+                    <div className="hero-art-mask absolute inset-y-0 right-0 w-full md:w-[70%] lg:w-[60%] xl:w-[54%] h-full">
+                      {(homepageData?.featuredSeason || []).map((item, idx) => {
+                        const isCurrent = idx === activeHeroIndex;
+                        return (
+                          <div
+                            key={item.id}
+                            className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${
+                              isCurrent ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                            }`}
+                          >
+                            <img
+                              src={item.coverImage.extraLarge || item.coverImage.large}
+                              alt={item.title.userPreferred}
+                              className="w-full h-full object-cover object-center md:object-[70%_center] filter brightness-[0.8] md:brightness-[0.95] contrast-105"
+                              loading={idx === 0 ? 'eager' : 'lazy'}
+                            />
+                          </div>
+                        );
+                      })}
+
+                      {/* Subtle color highlight over hero image */}
+                      <div
+                        className="absolute inset-0 opacity-20 dark:opacity-15 transition-all duration-1000 pointer-events-none z-10"
+                        style={{
+                          background: `linear-gradient(to right, transparent 15%, ${heroArtColor} 100%)`,
+                          mixBlendMode: 'multiply',
+                        }}
+                      />
+                    </div>
+
+                    {/* Seamless Blending Gradients Overlay */}
+                    {/* 1. Left-to-Right Solid Gradient covering the entire text area */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-bgSurface via-bgSurface/90 via-25% md:via-35% to-transparent z-20" />
+                    {/* 2. Bottom-to-Top Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-bgSurface via-bgSurface/40 via-10% to-transparent z-20" />
+                    {/* 3. Top-to-Bottom Subtle Edge Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-bgSurface/30 via-transparent to-transparent z-20" />
                   </div>
 
-                  {/* Seamless Blending Gradients Overlay */}
-                  {/* 1. Left-to-Right Solid Gradient covering the entire text area */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-bgSurface via-bgSurface/95 via-30% md:via-40% to-transparent z-20" />
-                  {/* 2. Bottom-to-Top Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-bgSurface via-bgSurface/50 via-15% to-transparent z-20" />
-                  {/* 3. Top-to-Bottom Subtle Edge Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-bgSurface/40 via-transparent to-transparent z-20" />
-                </div>
-
-            {/* Top-Left Badges (Stationary) */}
-            <div className="absolute top-6 left-6 lg:top-8 lg:left-10 z-30 flex items-center gap-2.5">
-              <span className="px-3.5 py-1.5 rounded-full bg-accentPrimary text-white text-xs font-semibold uppercase tracking-normal shadow-lg flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-scoreGold" />
-                Trending • {getDynamicSeasonLabel(currentFeatured)}
-              </span>
-              {currentFeatured.status === 'RELEASING' && (
-                <span className="text-signalLive text-xs font-semibold flex items-center gap-1.5 ml-1 drop-shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-signalLive animate-pulse" />
-                  Sezon Nou
+              {/* Top-Left Badges (Stationary with Geometric Pill Alignment) */}
+              <div className="absolute top-6 left-6 lg:top-8 lg:left-10 z-30 flex items-center gap-2.5">
+                <span className="h-7 rounded-full bg-accentPrimary text-white text-[11px] sm:text-xs font-semibold uppercase tracking-normal shadow-lg inline-flex items-center overflow-hidden">
+                  <span className="w-7 h-7 flex items-center justify-center shrink-0">
+                    <Flame className="w-3.5 h-3.5 text-scoreGold" />
+                  </span>
+                  <span className="pr-3 -ml-1">Trending • {getDynamicSeasonLabel(currentFeatured)}</span>
                 </span>
-              )}
-            </div>
+                {currentFeatured.status === 'RELEASING' && (
+                  <span className="text-signalLive text-xs font-semibold flex items-center gap-1.5 ml-1 drop-shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-signalLive animate-pulse" />
+                    Sezon Nou
+                  </span>
+                )}
+              </div>
 
-            {/* Content Banner (Stationary container with animated info + stationary action buttons) */}
-            <div className="relative z-10 max-w-3xl lg:max-w-4xl space-y-3 sm:space-y-4">
-              {/* Dynamic Information Block (Title, Synopsis, Genre Chips with blur/fade animation) */}
-              <div key={currentFeatured.id} className="space-y-2.5 sm:space-y-3.5 animate-hero-fade">
-                {/* Title (Truncated/Clamped to max 2 lines to keep layout solid and predictable) */}
-                <h1
-                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-textPrimary leading-tight font-heading drop-shadow-md line-clamp-2 min-h-[2.5rem] sm:min-h-[3.25rem] lg:min-h-[3.75rem]"
-                  title={getDisplayTitle(currentFeatured.title)}
-                >
-                  {getDisplayTitle(currentFeatured.title)}
-                </h1>
+              {/* Content Banner (Stationary container with animated info + stationary action buttons) */}
+              <div className="relative z-10 max-w-3xl lg:max-w-4xl space-y-3 sm:space-y-4">
+                {/* Dynamic Information Block (Title, Synopsis, Genre Chips with blur/fade animation) */}
+                <div key={currentFeatured.id} className="space-y-2.5 sm:space-y-3.5 animate-hero-fade">
+                  {/* Title (Truncated/Clamped to max 2 lines to keep layout solid and predictable) */}
+                  <h1
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-textPrimary leading-tight font-heading drop-shadow-md line-clamp-2 min-h-[2.5rem] sm:min-h-[3.25rem] lg:min-h-[3.75rem]"
+                    title={getDisplayTitle(currentFeatured.title)}
+                  >
+                    {getDisplayTitle(currentFeatured.title)}
+                  </h1>
 
-                {/* Synopsis / Description with Smart Fallback handling */}
-                {(() => {
-                  const rawDesc = (currentFeatured.description || '').replace(/<[^>]*>/g, '').trim();
-                  const hasValidDesc = rawDesc.length >= 25;
+                  {/* Synopsis / Description with Smart Fallback handling */}
+                  {(() => {
+                    const rawDesc = (currentFeatured.description || '').replace(/<[^>]*>/g, '').trim();
+                    const hasValidDesc = rawDesc.length >= 25;
 
-                  if (hasValidDesc) {
+                    if (hasValidDesc) {
+                      return (
+                        <p className="text-textSecondary text-xs sm:text-sm line-clamp-4 leading-relaxed max-w-2xl min-h-[4.25rem] sm:min-h-[5rem]">
+                          {rawDesc}
+                        </p>
+                      );
+                    }
+
                     return (
-                      <p className="text-textSecondary text-xs sm:text-sm line-clamp-4 leading-relaxed max-w-2xl min-h-[4.25rem] sm:min-h-[5rem]">
-                        {rawDesc}
-                      </p>
+                      <div className="flex flex-col justify-center space-y-1 max-w-2xl min-h-[4.25rem] sm:min-h-[5rem]">
+                        <p className="text-textSecondary/75 text-xs sm:text-sm italic">
+                          Sinopsis indisponibil momentan.
+                        </p>
+                        <p className="text-textSecondary text-[11px] sm:text-xs">
+                          Producție {currentFeatured.format || currentFeatured.type || 'Anime'} {currentFeatured.genres?.length ? `• ${currentFeatured.genres.slice(0, 3).join(' • ')}` : ''} • Sezonul {getDynamicSeasonLabel(currentFeatured)}
+                        </p>
+                      </div>
                     );
-                  }
+                  })()}
 
-                  return (
-                    <div className="flex flex-col justify-center space-y-1 max-w-2xl min-h-[4.25rem] sm:min-h-[5rem]">
-                      <p className="text-textSecondary/75 text-xs sm:text-sm italic">
-                        Sinopsis indisponibil momentan.
-                      </p>
-                      <p className="text-textSecondary text-[11px] sm:text-xs">
-                        Producție {currentFeatured.format || currentFeatured.type || 'Anime'} {currentFeatured.genres?.length ? `• ${currentFeatured.genres.slice(0, 3).join(' • ')}` : ''} • Sezonul {getDynamicSeasonLabel(currentFeatured)}
-                      </p>
-                    </div>
-                  );
-                })()}
+                  {/* Genres Chips (Fully rounded pills) */}
+                  <div className="flex flex-wrap gap-1.5 pt-0.5 min-h-[28px]">
+                    {currentFeatured.genres.slice(0, 4).map((genre) => (
+                      <span
+                        key={genre}
+                        className="px-3.5 py-1 rounded-full bg-bgSurfaceHover/80 dark:bg-bgSurface border border-borderSubtle text-textSecondary text-[11px] font-medium shadow-sm"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-                {/* Genres Chips (Fully rounded pills) */}
-                <div className="flex flex-wrap gap-1.5 pt-0.5 min-h-[28px]">
-                  {currentFeatured.genres.slice(0, 4).map((genre) => (
-                    <span
-                      key={genre}
-                      className="px-3.5 py-1 rounded-full bg-bgSurface border border-borderSubtle text-textSecondary text-[11px] font-medium"
-                    >
-                      {genre}
+                {/* Action Buttons (Completely stationary, anchored with geometric pill alignment) */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <Link
+                    href={`/media/${currentFeatured.id}`}
+                    className="h-11 sm:h-12 rounded-full bg-accentPrimary hover:opacity-90 text-white font-semibold text-xs sm:text-sm inline-flex items-center shadow-lg transition-all active:scale-95 overflow-hidden"
+                  >
+                    <span className="w-11 sm:w-12 h-11 sm:h-12 flex items-center justify-center shrink-0">
+                      <Play className="w-4 h-4 fill-white" />
                     </span>
-                  ))}
+                    <span className="pr-5 sm:pr-6 -ml-2 text-xs sm:text-sm font-semibold">Vezi Detalii & Episoade</span>
+                  </Link>
+
+                  <button
+                    onClick={() => toggleWatchlist(currentFeatured.id)}
+                    className={`h-11 sm:h-12 rounded-full text-xs sm:text-sm font-semibold inline-flex items-center border transition-all active:scale-95 overflow-hidden ${
+                      savedWatchlistIds.has(currentFeatured.id)
+                        ? 'bg-accentPrimary text-white border-accentPrimary shadow-md'
+                        : 'bg-bgSurface hover:bg-bgSurfaceHover text-textPrimary border-borderSubtle shadow-sm'
+                    }`}
+                  >
+                    <span className="w-11 sm:w-12 h-11 sm:h-12 flex items-center justify-center shrink-0">
+                      <Bookmark className={`w-4 h-4 transition-colors ${savedWatchlistIds.has(currentFeatured.id) ? 'fill-white' : ''}`} />
+                    </span>
+                    <span className="pr-5 sm:pr-6 -ml-2 text-xs sm:text-sm font-semibold">
+                      {savedWatchlistIds.has(currentFeatured.id) ? 'Adăugat în Listă' : 'Adaugă în Watchlist'}
+                    </span>
+                  </button>
                 </div>
               </div>
 
-              {/* Action Buttons (Completely stationary, anchored) */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link
-                  href={`/media/${currentFeatured.id}`}
-                  className="px-6 py-3 rounded-full bg-accentPrimary hover:opacity-90 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all active:scale-95"
-                >
-                  <Play className="w-4 h-4 fill-white" /> Vezi Detalii & Episoade
-                </Link>
-
-                <button
-                  onClick={() => toggleWatchlist(currentFeatured.id)}
-                  className={`px-5 py-3 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-2 border transition-all active:scale-95 ${
-                    savedWatchlistIds.has(currentFeatured.id)
-                      ? 'bg-signalLive text-slate-950 border-signalLive shadow-md'
-                      : 'bg-bgSurface hover:bg-bgSurfaceHover text-textPrimary border-borderSubtle'
-                  }`}
-                >
-                  {savedWatchlistIds.has(currentFeatured.id) ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-slate-950" /> Adăugat în Listă
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" /> Adaugă în Watchlist
-                    </>
-                  )}
-                </button>
+              {/* Carousel Navigation Controls (Sleek Dots & Active Filling Progress Pill with Cubic Bezier) */}
+              <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 z-20 flex items-center gap-2 bg-bgSurface px-3 py-2 rounded-full border border-borderSubtle shadow-xl">
+                {homepageData?.featuredSeason.map((_, idx) => {
+                  const isActive = idx === activeHeroIndex;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveHeroIndex(idx)}
+                      className={`relative h-2 rounded-full overflow-hidden transition-[width,background-color,border-color] duration-700 [transition-timing-function:cubic-bezier(0.25,1,0.5,1)] ${
+                        isActive
+                          ? 'w-10 sm:w-12 bg-bgSurfaceHover border border-borderSubtle'
+                          : 'w-2 bg-borderSubtle hover:bg-textSecondary'
+                      }`}
+                      aria-label={`Slide ${idx + 1}`}
+                    >
+                      {isActive && (
+                        <div
+                          key={activeHeroIndex}
+                          className="h-full bg-accentPrimary rounded-full animate-timer-fill"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
-
-            {/* Carousel Navigation Controls (Sleek Dots & Active Filling Progress Pill with Cubic Bezier) */}
-            <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 z-20 flex items-center gap-2 bg-bgSurface px-3 py-2 rounded-full border border-borderSubtle shadow-xl">
-              {homepageData?.featuredSeason.map((_, idx) => {
-                const isActive = idx === activeHeroIndex;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveHeroIndex(idx)}
-                    className={`relative h-2 rounded-full overflow-hidden transition-[width,background-color,border-color] duration-700 [transition-timing-function:cubic-bezier(0.25,1,0.5,1)] ${
-                      isActive
-                        ? 'w-10 sm:w-12 bg-bgSurfaceHover border border-borderSubtle'
-                        : 'w-2 bg-borderSubtle hover:bg-textSecondary'
-                    }`}
-                    aria-label={`Slide ${idx + 1}`}
-                  >
-                    {isActive && (
-                      <div
-                        key={activeHeroIndex}
-                        className="h-full bg-accentPrimary rounded-full animate-timer-fill"
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
-      </section>
+          ) : null}
+        </section>
+      </div>
     );
   })()}
 
@@ -581,11 +746,11 @@ export default function Homepage() {
                       >
                         {/* Dynamic Ambient Artwork Glow (Tailored for both Dark and Light mode) */}
                         <div
-                          className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full blur-3xl opacity-5 dark:opacity-20 group-hover:opacity-15 dark:group-hover:opacity-35 transition-opacity duration-700 pointer-events-none"
+                          className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full blur-3xl opacity-30 dark:opacity-20 group-hover:opacity-50 dark:group-hover:opacity-35 transition-opacity duration-700 pointer-events-none"
                           style={{ backgroundColor: artColor }}
                         />
                         <div
-                          className="absolute -left-10 -top-10 w-48 h-48 rounded-full blur-3xl opacity-0 dark:opacity-10 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
+                          className="absolute -left-10 -top-10 w-48 h-48 rounded-full blur-3xl opacity-20 dark:opacity-10 group-hover:opacity-35 dark:group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
                           style={{ backgroundColor: artColor }}
                         />
 
@@ -649,34 +814,31 @@ export default function Homepage() {
                             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                           />
 
-                          {/* Dynamic subtle color highlight over image in dark mode */}
+                          {/* Dynamic subtle color highlight over image */}
                           <div
-                            className="absolute inset-0 hidden dark:block opacity-20 group-hover:opacity-35 transition-opacity duration-500 pointer-events-none"
+                            className="absolute inset-0 opacity-20 dark:opacity-20 group-hover:opacity-35 transition-opacity duration-500 pointer-events-none"
                             style={{
                               background: `linear-gradient(to right, transparent 10%, ${artColor} 100%)`,
-                              mixBlendMode: 'screen',
+                              mixBlendMode: 'multiply',
                             }}
                           />
 
-                          {/* Watchlist Toggle Button (Top Right of image) */}
+                          {/* Watchlist Toggle Button (Top Right of image, Always visible with sleek glass & Bookmark save icon) */}
                           <button
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               toggleWatchlist(item.id);
                             }}
-                            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-md active:scale-90 z-20 ${
+                            className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 z-20 ${
                               savedWatchlistIds.has(item.id)
-                                ? 'bg-signalLive text-slate-950 opacity-100'
-                                : 'bg-bgSurface/90 hover:bg-bgSurface text-textPrimary opacity-0 group-hover:opacity-100 border border-borderSubtle'
+                                ? 'bg-accentPrimary text-white shadow-accentPrimary/25'
+                                : 'bg-black/60 hover:bg-accentPrimary text-white/90 hover:text-white border border-white/15'
                             }`}
                             aria-label={savedWatchlistIds.has(item.id) ? 'Elimină din Watchlist' : 'Adaugă în Watchlist'}
+                            title={savedWatchlistIds.has(item.id) ? 'În Watchlist' : 'Adaugă în Watchlist'}
                           >
-                            {savedWatchlistIds.has(item.id) ? (
-                              <CheckCircle2 className="w-4 h-4 text-slate-950" />
-                            ) : (
-                              <Plus className="w-4 h-4" />
-                            )}
+                            <Bookmark className={`w-4 h-4 transition-colors ${savedWatchlistIds.has(item.id) ? 'fill-white' : ''}`} />
                           </button>
                         </div>
                       </Link>
@@ -687,214 +849,256 @@ export default function Homepage() {
             );
           })()}
 
-          {/* SECTION 3: ULTIMELE EPISOADE IEȘITE (RECENTLY AIRED EPISODES) */}
+          {/* SECTION 3: ULTIMELE EPISOADE IEȘITE (RECENTLY AIRED EPISODES - HORIZONTAL CAROUSEL) */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                  <Tv className="w-5 h-5" />
+              <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-bold font-heading text-textPrimary tracking-tight">
+                Ultimele Episoade Ieșite
+              </h2>
+
+              <div className="flex items-center gap-3">
+                {/* Carousel Navigation Buttons */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => {
+                      if (airedCarouselRef.current) {
+                        const w = airedCarouselRef.current.clientWidth;
+                        airedCarouselRef.current.scrollBy({ left: -(w * 0.75), behavior: 'smooth' });
+                      }
+                    }}
+                    className="p-2 rounded-full bg-bgSurface hover:bg-bgSurfaceHover border border-borderSubtle text-textSecondary hover:text-textPrimary transition-all shadow-sm active:scale-95"
+                    aria-label="Scroll la stânga în episoade recente"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (airedCarouselRef.current) {
+                        const w = airedCarouselRef.current.clientWidth;
+                        airedCarouselRef.current.scrollBy({ left: w * 0.75, behavior: 'smooth' });
+                      }
+                    }}
+                    className="p-2 rounded-full bg-bgSurface hover:bg-bgSurfaceHover border border-borderSubtle text-textSecondary hover:text-textPrimary transition-all shadow-sm active:scale-95"
+                    aria-label="Scroll la dreapta în episoade recente"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold font-heading text-textPrimary tracking-normal flex items-center gap-2">
-                    Ultimele Episoade Ieșite
-                  </h2>
-                  <p className="text-xs text-textSecondary">Cele mai proaspete episoade difuzate recent în Japonia & China</p>
-                </div>
+
+                <Link
+                  href="/media?status=RELEASING"
+                  className="hidden sm:flex text-xs font-semibold text-accentPrimary hover:opacity-80 items-center gap-1 transition-opacity ml-2"
+                >
+                  Vezi toate difuzările <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
-              
-              <Link
-                href="/media?status=RELEASING"
-                className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1"
-              >
-                Vezi toate difuzările <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
             </div>
 
-            {/* Recently Aired Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 md:gap-6 lg:gap-8">
-              {(homepageData?.recentlyAired || []).slice(0, 12).map((item) => (
-                <div
-                  key={`${item.media.id}-${item.episodeNumber}`}
-                  className="group relative bg-bgSurface rounded-2xl overflow-hidden border border-borderSubtle hover:border-signalLive/50 transition-all duration-300 flex flex-col shadow-md"
-                >
-                  <div className="relative aspect-[3/4] bg-bgSurfaceHover overflow-hidden">
-                    <img
-                      src={item.media.coverImage.large}
-                      alt={getDisplayTitle(item.media.title)}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            {/* Recently Aired Horizontal Carousel */}
+            <div
+              ref={airedCarouselRef}
+              className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto scrollbar-none no-scrollbar scroll-smooth snap-x snap-mandatory pb-4 pt-1"
+            >
+              {(homepageData?.recentlyAired || []).map((item) => {
+                const artColor = getMediaAccentColor(item.media);
+                const currentProgress = watchedEpisodes[item.media.id] || 0;
+                const isWatched = currentProgress >= item.episodeNumber;
+                const isFresh = isFreshEpisode(item.airDateExact, item.airDateRelative);
+
+                return (
+                  <Link
+                    key={`${item.media.id}-${item.episodeNumber}`}
+                    href={`/media/${item.media.id}`}
+                    className="snap-start group relative bg-bgSurface rounded-3xl overflow-hidden border border-borderSubtle transition-all duration-300 flex flex-col shrink-0 w-[170px] sm:w-[195px] md:w-[215px] lg:w-[225px] shadow-md hover:shadow-2xl hover:-translate-y-1 block text-left cursor-pointer"
+                  >
+                    {/* Subtle Ambient Artwork Glow */}
+                    <div
+                      className="absolute -right-6 -bottom-6 w-36 h-36 rounded-full blur-2xl opacity-20 dark:opacity-0 group-hover:opacity-40 dark:group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+                      style={{ backgroundColor: artColor }}
                     />
 
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-bgPrimary via-bgPrimary/20 to-transparent" />
+                    {/* Artwork Poster Area with True Alpha Mask (Seamless Hover Glow Integration) */}
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-t-3xl bg-transparent">
+                      <div className="vertical-art-mask absolute inset-0">
+                        <img
+                          src={item.thumbnailUrl || item.media.coverImage.extraLarge || item.media.coverImage.large}
+                          alt={getDisplayTitle(item.media.title)}
+                          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                          loading="lazy"
+                        />
+                      </div>
 
-                    {/* Episode Badge */}
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-signalLive text-slate-950 text-[11px] font-medium shadow-md flex items-center gap-1">
-                      <Play className="w-2.5 h-2.5 fill-slate-950" />
-                      EP {item.episodeNumber}
+                      {/* Top Subtle Vignette for Badge Contrast (Protects badges on all artwork colors) */}
+                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/75 via-black/35 to-transparent pointer-events-none z-[4]" />
+
+                      {/* Combined Dynamic Episode & Recency Badge (Top-Left, Clean Borderless & Typographic Baseline Lock) */}
+                      {isFresh ? (
+                        <div className="absolute top-3 left-3 h-6 rounded-full bg-signalLive text-slate-950 shadow-md inline-flex items-center backdrop-blur-sm z-10 overflow-hidden">
+                          <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                            <Sparkles className="w-3 h-3 text-slate-950 fill-slate-950" />
+                          </span>
+                          <span className="pr-2.5 -ml-1 text-[10px] font-bold tracking-tight inline-flex items-center">
+                            <span className="font-black tracking-wide">NOU</span>
+                            <span className="text-slate-950/35 mx-1 font-light text-[11px] select-none">|</span>
+                            <span className="tabular-nums">EP {item.episodeNumber}</span>
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="absolute top-3 left-3 h-6 rounded-full bg-black/70 backdrop-blur-md text-white/90 text-[10px] font-semibold shadow-sm inline-flex items-center z-10 overflow-hidden">
+                          <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                            <Tv className="w-3 h-3 text-white/70" />
+                          </span>
+                          <span className="pr-2.5 -ml-1 tabular-nums">EP {item.episodeNumber}</span>
+                        </div>
+                      )}
+
+                      {/* Rating Badge (Top-Right of Poster) */}
+                      {item.media.scores?.averageScore ? (
+                        <div className="absolute top-3 right-3 h-6 rounded-full bg-black/70 backdrop-blur-md text-scoreGold font-semibold text-[10px] border border-white/10 inline-flex items-center shadow-[0_3px_8px_rgba(0,0,0,0.5)] z-10 overflow-hidden">
+                          <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                            <Star className="w-3 h-3 fill-scoreGold text-scoreGold" />
+                          </span>
+                          <span className="pr-2.5 -ml-1 font-bold tabular-nums">
+                            {item.media.scores.averageScore}
+                          </span>
+                        </div>
+                      ) : null}
+
+                      {/* Floating Info Pill at Bottom of Poster (Secondary, subtle timestamp & format) */}
+                      <div className="absolute bottom-3 left-3 right-3 h-6 flex items-center justify-between text-[9.5px] font-normal text-white/70 bg-black/55 backdrop-blur-md rounded-full px-2.5 shadow-sm z-10 overflow-hidden border border-white/5">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Clock className="w-3 h-3 text-white/50 shrink-0" />
+                          <span className="truncate text-white/60">{item.airDateRelative}</span>
+                        </div>
+                        <span className="text-white/75 font-semibold text-[8.5px] tracking-wider shrink-0 bg-white/10 px-2 py-0.5 rounded-full">
+                          {formatMediaFormat(item.media.format, item.media.type)}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Time Badge */}
-                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] font-medium text-textSecondary bg-bgPrimary/85 backdrop-blur-md px-2 py-1 rounded-md border border-borderSubtle">
-                      <span className="flex items-center gap-1 text-signalLive font-medium">
-                        <Clock className="w-3 h-3 text-signalLive" />
-                        {item.airDateRelative}
-                      </span>
-                      <span className="text-textSecondary uppercase font-medium text-[9px]">{item.media.type}</span>
+                    {/* Details / Footer below Poster */}
+                    <div className="p-4 flex flex-col justify-between flex-1 space-y-3 z-10">
+                      <h3
+                        className="text-sm font-bold text-textPrimary line-clamp-2 group-hover:text-accentPrimary transition-colors leading-snug font-heading min-h-[2.5rem] tracking-tight text-balance"
+                        title={getDisplayCardTitle(item.media.title)}
+                      >
+                        {getDisplayCardTitle(item.media.title)}
+                      </h3>
+
+                      {/* Aligned Action Row: Left Pill Button + Right Circular Bookmark Button */}
+                      <div className="flex items-center gap-2 pt-0.5">
+                        {/* Primary Episode Watch Tracker Pill Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => handleMarkWatched(e, item)}
+                          className={`flex-1 h-9 rounded-full font-bold text-[11px] transition-all duration-200 flex items-center justify-center shadow-sm active:scale-95 z-20 px-3 truncate ${
+                            isWatched
+                              ? 'bg-signalLive text-slate-950 hover:brightness-105 shadow-signalLive/20'
+                              : 'bg-bgSurfaceHover hover:bg-signalLive text-textSecondary hover:text-slate-950 border border-borderSubtle hover:border-transparent'
+                          }`}
+                          aria-label={isWatched ? `Episodul ${item.episodeNumber} vizionat` : `Marchează episodul ${item.episodeNumber} ca vizionat`}
+                        >
+                          <span className="truncate">{isWatched ? `Vizionat (EP ${item.episodeNumber})` : 'Marchează Vizionat'}</span>
+                        </button>
+
+                        {/* Circular Bookmark Button (Perfect Horizontal & Vertical Centering) */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleWatchlist(item.media.id);
+                          }}
+                          className={`w-9 h-9 rounded-full shrink-0 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-90 z-20 ${
+                            savedWatchlistIds.has(item.media.id)
+                              ? 'bg-accentPrimary text-white shadow-accentPrimary/25'
+                              : 'bg-bgSurfaceHover hover:bg-accentPrimary text-textSecondary hover:text-white border border-borderSubtle hover:border-transparent'
+                          }`}
+                          aria-label={savedWatchlistIds.has(item.media.id) ? 'Elimină din Watchlist' : 'Adaugă seria în Watchlist'}
+                          title={savedWatchlistIds.has(item.media.id) ? 'În Watchlist' : 'Adaugă în Watchlist'}
+                        >
+                          <Bookmark className={`w-4 h-4 transition-colors ${savedWatchlistIds.has(item.media.id) ? 'fill-white' : ''}`} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="p-3 flex flex-col justify-between flex-1">
-                    <h3 className="text-xs font-semibold text-textPrimary line-clamp-2 group-hover:text-signalLive transition-colors leading-snug">
-                      {getDisplayTitle(item.media.title)}
-                    </h3>
-
-                    <Link
-                      href={`/media/${item.media.id}`}
-                      className="mt-3 w-full py-1.5 rounded-xl bg-bgSurfaceHover hover:bg-signalLive text-textSecondary hover:text-slate-950 text-[11px] font-semibold text-center transition-colors flex items-center justify-center gap-1"
-                    >
-                      <Eye className="w-3.5 h-3.5" /> Vezi Episodul
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </section>
 
-          {/* SECTION 3: ANIME & MANGA NEWS (BETA) */}
+          {/* SECTION 3: ANIME & MANGA NEWS */}
           <section className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-bgSurface p-4 rounded-2xl border border-borderSubtle shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-accentPrimary/10 border border-accentPrimary/20 text-accentPrimary">
-                  <Newspaper className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold font-heading text-textPrimary tracking-normal">
-                      Noutăți Anime & Manga
-                    </h2>
-                    {/* BETA STATUS BADGE */}
-                    <span className="px-2 py-0.5 rounded-full bg-scoreGold/20 border border-scoreGold/40 text-scoreGold text-[10px] font-semibold tracking-normal uppercase shadow-sm animate-pulse">
-                      BETA
-                    </span>
-                  </div>
-                  <p className="text-xs text-textSecondary">Ultimele știri, anunțuri de sezoane noi și trailer-e din industrie</p>
-                </div>
-              </div>
-
-              <div className="text-[11px] text-textSecondary flex items-center gap-1.5 bg-bgSurfaceHover px-3 py-1.5 rounded-xl border border-borderSubtle">
-                <Info className="w-3.5 h-3.5 text-scoreGold" /> Modul Beta — În curând agregare automată de știri
-              </div>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-bold font-heading text-textPrimary tracking-tight">
+                Noutăți Anime & Manga
+              </h2>
             </div>
 
             {/* News Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {(homepageData?.newsBeta || []).map((news) => (
-                <div
-                  key={news.id}
-                  onClick={() => setSelectedNews(news)}
-                  className="group cursor-pointer bg-bgSurface rounded-2xl overflow-hidden border border-borderSubtle hover:border-accentPrimary/50 transition-all duration-300 flex flex-col justify-between p-4 space-y-3 shadow-sm"
-                >
-                  <div className="space-y-3">
-                    {/* Category Badge & Date */}
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-md bg-accentPrimary/10 border border-accentPrimary/30 text-accentPrimary text-[10px] font-medium uppercase tracking-normal">
-                        {news.tagBadge}
-                      </span>
-                      <span className="text-[10px] text-textSecondary font-medium flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> {news.date}
-                      </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {(homepageData?.newsBeta || []).map((news) => {
+                const badgeConfig = getNewsBadgeConfig(news.tagBadge, news.category);
+                const BadgeIcon = badgeConfig.icon;
+
+                return (
+                  <a
+                    key={news.id}
+                    href={news.url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group bg-bgSurface rounded-3xl overflow-hidden border border-borderSubtle hover:border-accentPrimary/50 transition-all duration-300 flex flex-col justify-between p-4 sm:p-5 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1 block text-left h-full"
+                  >
+                    <div className="space-y-3.5 flex-1 flex flex-col">
+                      {/* Category Badge & Date (Geometric Alignment) */}
+                      <div className="flex items-center justify-between">
+                        <span className={`h-6 rounded-full text-[10px] font-bold shadow-sm inline-flex items-center overflow-hidden tracking-tight ${badgeConfig.className}`}>
+                          <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                            <BadgeIcon className="w-3 h-3" />
+                          </span>
+                          <span className="pr-2.5 -ml-1 uppercase">{badgeConfig.label}</span>
+                        </span>
+                        <span className="text-[11px] text-textSecondary font-medium flex items-center gap-1.5">
+                          <Calendar className="w-3 h-3 text-textMuted" /> {news.date}
+                        </span>
+                      </div>
+
+                      {/* Image Preview if available */}
+                      {news.imageUrl && (
+                        <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-bgSurfaceHover relative shrink-0">
+                          <img
+                            src={news.imageUrl}
+                            alt={news.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      )}
+
+                      {/* Title (Consistent 2-line height) */}
+                      <h3 className="text-sm sm:text-[15px] font-bold text-textPrimary group-hover:text-accentPrimary transition-colors leading-snug line-clamp-2 min-h-[2.6rem] font-heading tracking-tight">
+                        {news.title}
+                      </h3>
+
+                      {/* Summary (Sanitized with fallback 2-line height) */}
+                      <p className="text-xs sm:text-[13px] text-textSecondary line-clamp-2 min-h-[2.4rem] leading-relaxed">
+                        {(news.summary || '').replace(/<[^>]*>?/gm, '')}
+                      </p>
                     </div>
 
-                    {/* Image Preview if available */}
-                    {news.imageUrl && (
-                      <div className="aspect-[16/9] rounded-xl overflow-hidden bg-bgSurfaceHover relative">
-                        <img
-                          src={news.imageUrl}
-                          alt={news.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    )}
-
-                    {/* Title */}
-                    <h3 className="text-sm font-semibold text-textPrimary group-hover:text-accentPrimary transition-colors leading-snug line-clamp-2">
-                      {news.title}
-                    </h3>
-
-                    {/* Summary */}
-                    <p className="text-xs text-textSecondary line-clamp-3 leading-relaxed">
-                      {news.summary}
-                    </p>
-                  </div>
-
-                  {/* Card Footer */}
-                  <div className="pt-2 border-t border-borderSubtle flex items-center justify-between text-[11px] text-textSecondary font-medium">
-                    <span className="text-textSecondary">{news.source}</span>
-                    <span className="text-accentPrimary font-semibold group-hover:underline flex items-center gap-1">
-                      Citește știrea <ChevronRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                </div>
-              ))}
+                    {/* Card Footer (Clean spacing without arbitrary divider) */}
+                    <div className="pt-2 flex items-center justify-between text-xs text-textSecondary font-medium mt-auto">
+                      <span className="text-textSecondary flex items-center gap-1.5 truncate">
+                        <Layers className="w-3 h-3 text-accentPrimary shrink-0" /> {news.source}
+                      </span>
+                      <span className="text-accentPrimary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-1 shrink-0">
+                        Citește știrea <ExternalLink className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           </section>
-
-          {/* NEWS MODAL (BETA) */}
-          {selectedNews && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-              <div className="bg-bgSurface border border-borderSubtle rounded-3xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-6 text-textPrimary">
-                <button
-                  onClick={() => setSelectedNews(null)}
-                  className="absolute top-5 right-5 p-2 rounded-xl bg-bgSurfaceHover text-textSecondary hover:text-textPrimary transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md bg-accentPrimary/10 border border-accentPrimary/30 text-accentPrimary text-[10px] font-medium uppercase tracking-normal">
-                      {selectedNews.tagBadge}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full bg-scoreGold/20 text-scoreGold text-[10px] font-medium uppercase">
-                      BETA ARTICLE
-                    </span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-semibold text-textPrimary leading-tight font-heading">
-                    {selectedNews.title}
-                  </h2>
-                  <div className="flex items-center gap-4 text-xs text-textSecondary font-medium pt-1">
-                    <span>Sursă: <strong className="text-textPrimary">{selectedNews.source}</strong></span>
-                    <span>•</span>
-                    <span>Publicat: {selectedNews.date}</span>
-                    <span>•</span>
-                    <span>{selectedNews.readTime}</span>
-                  </div>
-                </div>
-
-                {selectedNews.imageUrl && (
-                  <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-bgSurfaceHover">
-                    <img src={selectedNews.imageUrl} alt={selectedNews.title} className="w-full h-full object-cover" />
-                  </div>
-                )}
-
-                <div className="space-y-4 text-textSecondary text-xs sm:text-sm leading-relaxed border-t border-borderSubtle pt-4">
-                  <p className="font-semibold text-textPrimary">{selectedNews.summary}</p>
-                  <p>{selectedNews.content}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-bgPrimary border border-borderSubtle text-xs text-textSecondary flex items-center justify-between">
-                  <span>Sistem Beta de Știri Kurogane v0.1.0</span>
-                  <button
-                    onClick={() => setSelectedNews(null)}
-                    className="px-4 py-2 rounded-lg bg-accentPrimary text-white font-semibold text-xs hover:opacity-90 transition-opacity"
-                  >
-                    Închide
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* SECTION 4: RECOMANDĂRI (RECOMMENDED FOR YOU) */}
           <section className="space-y-4">
@@ -919,23 +1123,32 @@ export default function Homepage() {
                   key={item.media.id}
                   className="group bg-bgSurface rounded-2xl overflow-hidden border border-borderSubtle hover:border-badgeViolet/50 transition-all duration-300 flex flex-col justify-between shadow-sm"
                 >
-                  <div className="relative aspect-[3/4] bg-bgSurfaceHover overflow-hidden">
-                    <img
-                      src={item.media.coverImage.large}
-                      alt={getDisplayTitle(item.media.title)}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-
-                    {/* Match Score Badge */}
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-badgeViolet text-slate-950 text-[10px] font-medium shadow-md flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-scoreGold" />
-                      {item.matchPercentage}% Potrivire
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-t-2xl bg-transparent">
+                    <div className="vertical-art-mask absolute inset-0">
+                      <img
+                        src={item.media.coverImage.large}
+                        alt={getDisplayTitle(item.media.title)}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     </div>
 
-                    {/* Rating Badge */}
-                    <div className="absolute top-2 right-2 bg-bgPrimary/85 backdrop-blur-md px-2 py-0.5 rounded-md text-[11px] font-medium text-scoreGold border border-borderSubtle flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-scoreGold text-scoreGold" />
-                      {item.media.scores.averageScore}
+                    {/* Top Vignette for Badges */}
+                    <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-[4]" />
+
+                    {/* Match Score Badge (Geometric Alignment) */}
+                    <div className="absolute top-2.5 left-2.5 h-6 rounded-full bg-badgeViolet text-slate-950 text-[10px] font-semibold shadow-md inline-flex items-center overflow-hidden z-10">
+                      <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                        <Sparkles className="w-3 h-3 text-scoreGold" />
+                      </span>
+                      <span className="pr-2.5 -ml-1">{item.matchPercentage}% Potrivire</span>
+                    </div>
+
+                    {/* Rating Badge (Geometric Alignment) */}
+                    <div className="absolute top-2.5 right-2.5 h-6 bg-bgPrimary/90 backdrop-blur-md text-[11px] font-semibold text-scoreGold border border-borderSubtle rounded-full inline-flex items-center overflow-hidden z-10">
+                      <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                        <Star className="w-3 h-3 fill-scoreGold text-scoreGold" />
+                      </span>
+                      <span className="pr-2.5 -ml-1 tabular-nums">{item.media.scores.averageScore}</span>
                     </div>
                   </div>
 
@@ -949,12 +1162,31 @@ export default function Homepage() {
                       </h3>
                     </div>
 
-                    <Link
-                      href={`/media/${item.media.id}`}
-                      className="w-full py-1.5 rounded-xl bg-bgSurfaceHover hover:bg-badgeViolet text-textSecondary hover:text-slate-950 text-[11px] font-semibold text-center transition-colors block"
-                    >
-                      Vezi Titlul
-                    </Link>
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <Link
+                        href={`/media/${item.media.id}`}
+                        className="flex-1 py-1.5 rounded-xl bg-bgSurfaceHover hover:bg-badgeViolet text-textSecondary hover:text-slate-950 text-[11px] font-semibold text-center transition-colors block"
+                      >
+                        Vezi Titlul
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleWatchlist(item.media.id);
+                        }}
+                        className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-200 shadow-sm active:scale-90 shrink-0 ${
+                          savedWatchlistIds.has(item.media.id)
+                            ? 'bg-accentPrimary text-white shadow-accentPrimary/25'
+                            : 'bg-bgSurfaceHover hover:bg-accentPrimary text-textSecondary hover:text-white border border-borderSubtle'
+                        }`}
+                        aria-label={savedWatchlistIds.has(item.media.id) ? 'Elimină din Watchlist' : 'Adaugă în Watchlist'}
+                        title={savedWatchlistIds.has(item.media.id) ? 'În Watchlist' : 'Adaugă în Watchlist'}
+                      >
+                        <Bookmark className={`w-3.5 h-3.5 transition-colors ${savedWatchlistIds.has(item.media.id) ? 'fill-white' : ''}`} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1048,13 +1280,34 @@ export default function Homepage() {
                       </div>
                     </div>
 
-                    {/* View Button */}
-                    <Link
-                      href={`/media/${item.id}`}
-                      className="p-2.5 rounded-xl bg-bgSurfaceHover hover:bg-accentPrimary text-textSecondary hover:text-white transition-colors shrink-0"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
+                    {/* Actions: Quick Save to Watchlist + View Button */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleWatchlist(item.id);
+                        }}
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 shadow-sm active:scale-90 shrink-0 ${
+                          savedWatchlistIds.has(item.id)
+                            ? 'bg-accentPrimary text-white shadow-accentPrimary/25'
+                            : 'bg-bgSurfaceHover hover:bg-accentPrimary text-textSecondary hover:text-white border border-borderSubtle'
+                        }`}
+                        aria-label={savedWatchlistIds.has(item.id) ? 'Elimină din Watchlist' : 'Adaugă în Watchlist'}
+                        title={savedWatchlistIds.has(item.id) ? 'În Watchlist' : 'Adaugă în Watchlist'}
+                      >
+                        <Bookmark className={`w-4 h-4 transition-colors ${savedWatchlistIds.has(item.id) ? 'fill-white' : ''}`} />
+                      </button>
+
+                      <Link
+                        href={`/media/${item.id}`}
+                        className="p-2.5 rounded-xl bg-bgSurfaceHover hover:bg-accentPrimary text-textSecondary hover:text-white transition-colors shrink-0"
+                        title="Vezi Detalii"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
                   </div>
                 )
               )}

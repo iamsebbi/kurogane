@@ -3,6 +3,7 @@ import cors from 'cors';
 import { dbService } from './services/db';
 import { franchiseService } from './services/franchise';
 import { persistentDb } from './services/db-persistent';
+import { newsAggregationService } from './services/news-rss';
 import { KUROGANE_VERSION, SortOption, ReleaseStatus, MediaSeason, MediaType, MediaFormat, Demographic, WatchlistStatus } from '@kurogane/shared';
 
 const app = express();
@@ -251,6 +252,29 @@ app.get('/api/homepage', async (req: Request, res: Response) => {
     res.json(data);
   } catch (error: any) {
     console.error('[API Error] /api/homepage:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+});
+
+// Get Live RSS Anime & Manga News
+app.get('/api/news', async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string, 10) || 20;
+    const category = req.query.category as string | undefined;
+    const shouldRefresh = req.query.refresh === 'true';
+
+    if (shouldRefresh) {
+      await newsAggregationService.refreshAllFeeds();
+    }
+
+    const articles = newsAggregationService.getLatest(limit, category);
+    res.json({
+      total: newsAggregationService.getAllArticles().length,
+      count: articles.length,
+      articles,
+    });
+  } catch (error: any) {
+    console.error('[API Error] /api/news:', error);
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 });

@@ -155,7 +155,7 @@ export default function Navbar() {
       <header className="sticky top-4 sm:top-5 z-50 px-4 md:px-12 w-full max-w-[1920px] mx-auto flex items-center justify-center gap-3.5 pointer-events-none">
         {/* 1. MAIN FLOATING ISLAND NAVBAR */}
         <nav
-          className="pointer-events-auto h-14 w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl rounded-full bg-bgSurface shadow-xl px-6 sm:px-8 flex items-center justify-between gap-4 sm:gap-8"
+          className="pointer-events-auto h-14 w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl rounded-full bg-bgSurface border border-white/[0.07] shadow-[0_16px_36px_-8px_rgba(0,0,0,0.45),inset_0_1px_0_0_rgba(255,255,255,0.08)] px-6 sm:px-8 flex items-center justify-between gap-4 sm:gap-8 transition-all"
           aria-label="Main Navigation"
         >
           {/* LOGO (Monochrome, Capslock, Tight Letter Spacing) */}
@@ -189,18 +189,20 @@ export default function Navbar() {
                     linkRefs.current[idx] = el;
                   }}
                   href={link.href}
-                  className={`relative z-10 h-10 text-sm sm:text-[15px] rounded-full flex items-center gap-2.5 px-5 sm:px-6 transition-colors duration-200 ${
+                  className={`relative z-10 h-10 text-sm sm:text-[15px] font-semibold rounded-full inline-flex items-center transition-colors duration-200 overflow-hidden ${
                     link.isActive
-                      ? 'text-bgPrimary font-bold'
-                      : 'text-textSecondary hover:text-textPrimary font-semibold'
+                      ? 'text-bgPrimary'
+                      : 'text-textSecondary hover:text-textPrimary'
                   }`}
                 >
-                  <Icon
-                    className={`w-4 h-4 transition-colors duration-200 ${
-                      link.isActive ? 'text-bgPrimary' : 'text-textSecondary'
-                    }`}
-                  />
-                  <span>{link.name}</span>
+                  <span className="w-10 h-10 flex items-center justify-center shrink-0">
+                    <Icon
+                      className={`w-4 h-4 transition-colors duration-200 ${
+                        link.isActive ? 'text-bgPrimary' : 'text-textSecondary'
+                      }`}
+                    />
+                  </span>
+                  <span className="pr-4 sm:pr-5 -ml-1.5">{link.name}</span>
                 </Link>
               );
             })}
@@ -231,7 +233,7 @@ export default function Navbar() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             type="button"
-            className="md:hidden p-2.5 rounded-full bg-bgSurfaceHover text-textSecondary hover:text-textPrimary transition-colors flex items-center justify-center"
+            className="md:hidden p-2.5 rounded-full bg-bgSurfaceHover text-textSecondary hover:text-textPrimary border border-white/[0.06] transition-colors flex items-center justify-center"
             aria-label={mobileMenuOpen ? 'Închide meniul' : 'Deschide meniul'}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -244,7 +246,7 @@ export default function Navbar() {
             {/* Notification Circle Button */}
             <button
               type="button"
-              className="h-14 w-14 rounded-full bg-bgSurface hover:bg-bgSurfaceHover shadow-xl flex items-center justify-center text-textSecondary hover:text-textPrimary hover:scale-105 active:scale-95 transition-all relative group"
+              className="h-14 w-14 rounded-full bg-bgSurface border border-white/[0.07] hover:bg-bgSurfaceHover shadow-[0_16px_36px_-8px_rgba(0,0,0,0.45),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex items-center justify-center text-textSecondary hover:text-textPrimary hover:scale-105 active:scale-95 transition-all relative group"
               title="Notificări"
               aria-label="Notificări"
             >
@@ -255,7 +257,7 @@ export default function Navbar() {
             {/* Account Avatar Circle Button */}
             <Link
               href="/profile"
-              className="h-14 w-14 rounded-full bg-bgSurface hover:bg-bgSurfaceHover shadow-xl flex items-center justify-center overflow-hidden hover:scale-105 hover:ring-2 hover:ring-accentPrimary active:scale-95 transition-all"
+              className="h-14 w-14 rounded-full bg-bgSurface border border-white/[0.07] hover:bg-bgSurfaceHover shadow-[0_16px_36px_-8px_rgba(0,0,0,0.45),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex items-center justify-center overflow-hidden hover:scale-105 hover:ring-2 hover:ring-accentPrimary active:scale-95 transition-all"
               title={user.username ? `Profil: ${user.username}` : 'Profilul Meu'}
               aria-label="Profilul Meu"
             >
@@ -275,7 +277,7 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
       {mobileMenuOpen && (
-        <div className="fixed top-20 inset-x-4 z-50 p-4 rounded-3xl bg-bgSurface shadow-2xl space-y-2 max-w-md mx-auto">
+        <div className="fixed top-20 inset-x-4 z-50 p-4 rounded-3xl bg-bgSurface border border-white/[0.07] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6),inset_0_1px_0_0_rgba(255,255,255,0.08)] space-y-2 max-w-md mx-auto">
           {navLinks.map((link) => {
             const Icon = link.icon;
             return (

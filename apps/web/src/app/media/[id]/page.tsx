@@ -181,16 +181,20 @@ export default function MediaDetailsPage() {
     switch (status) {
       case 'RELEASING':
         return (
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-700/50 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            În difuzare (Airing)
+          <span className="h-7 text-xs font-bold rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-700/50 inline-flex items-center overflow-hidden">
+            <span className="w-7 h-7 flex items-center justify-center shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            </span>
+            <span className="pr-3 -ml-1.5">În difuzare (Airing)</span>
           </span>
         );
       case 'UPCOMING':
         return (
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-950/80 text-indigo-400 border border-indigo-700/50 flex items-center gap-1.5">
-            <Clock className="w-3 h-3" />
-            Sezon viitor (Upcoming)
+          <span className="h-7 text-xs font-bold rounded-full bg-indigo-950/80 text-indigo-400 border border-indigo-700/50 inline-flex items-center overflow-hidden">
+            <span className="w-7 h-7 flex items-center justify-center shrink-0">
+              <Clock className="w-3.5 h-3.5" />
+            </span>
+            <span className="pr-3 -ml-1.5">Sezon viitor (Upcoming)</span>
           </span>
         );
       case 'FINISHED':
@@ -207,13 +211,13 @@ export default function MediaDetailsPage() {
   const getSeasonIcon = (season?: string) => {
     switch (season) {
       case 'WINTER':
-        return <Snowflake className="w-3.5 h-3.5 text-cyan-400 inline mr-1" />;
+        return <Snowflake className="w-3.5 h-3.5 text-cyan-400" />;
       case 'SPRING':
-        return <Flower2 className="w-3.5 h-3.5 text-pink-400 inline mr-1" />;
+        return <Flower2 className="w-3.5 h-3.5 text-pink-400" />;
       case 'SUMMER':
-        return <Sun className="w-3.5 h-3.5 text-amber-400 inline mr-1" />;
+        return <Sun className="w-3.5 h-3.5 text-amber-400" />;
       case 'FALL':
-        return <Leaf className="w-3.5 h-3.5 text-orange-400 inline mr-1" />;
+        return <Leaf className="w-3.5 h-3.5 text-orange-400" />;
       default:
         return null;
     }
@@ -225,9 +229,12 @@ export default function MediaDetailsPage() {
       <div className="max-w-6xl mx-auto px-4 pt-6 pb-2">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-textSecondary hover:text-textPrimary transition-colors bg-bgSurface border border-borderSubtle px-3.5 py-1.5 rounded-full shadow-sm"
+          className="h-8 inline-flex items-center text-xs font-semibold text-textSecondary hover:text-textPrimary transition-colors bg-bgSurface border border-borderSubtle rounded-full shadow-sm overflow-hidden"
         >
-          <ArrowLeft className="w-4 h-4" /> Înapoi la Căutare & Descoperire
+          <span className="w-8 h-8 flex items-center justify-center shrink-0">
+            <ArrowLeft className="w-4 h-4" />
+          </span>
+          <span className="pr-3.5 -ml-1.5">Înapoi la Căutare & Descoperire</span>
         </Link>
       </div>
 
@@ -266,10 +273,16 @@ export default function MediaDetailsPage() {
                       {media.demographic}
                     </span>
                   )}
-                  <span className="text-xs font-mono text-textSecondary bg-bgSurfaceHover px-3 py-1 rounded-full border border-borderSubtle flex items-center">
-                    {getSeasonIcon(media.season)}
-                    {media.year ? `${media.season ? media.season + ' ' : ''}${media.year}` : 'N/A'}
-                  </span>
+                  {media.season && (
+                    <span className="h-7 text-xs font-mono text-textSecondary bg-bgSurfaceHover rounded-full border border-borderSubtle inline-flex items-center overflow-hidden">
+                      <span className="w-7 h-7 flex items-center justify-center shrink-0">
+                        {getSeasonIcon(media.season)}
+                      </span>
+                      <span className="pr-3 -ml-1.5">
+                        {media.year ? `${media.season} ${media.year}` : media.season}
+                      </span>
+                    </span>
+                  )}
                 </div>
 
                 {/* Main Titles */}
