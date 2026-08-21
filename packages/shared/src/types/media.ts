@@ -193,7 +193,9 @@ export interface RecentlyAiredEpisode {
 export interface RecommendedMediaItem {
   media: MediaItem;
   recommendationReason: string;
-  matchPercentage: number;
+  matchPercentage?: number;
+  isPersonalized?: boolean;
+  badgeLabel?: string;
 }
 
 export interface HomepageData {

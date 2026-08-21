@@ -36,7 +36,10 @@ export default function RecommendationsPage() {
     async function fetchRecs() {
       try {
         setLoading(true);
-        const res = await fetch(`${API_BASE}/homepage`);
+        const token = typeof window !== 'undefined' ? localStorage.getItem('kurogane_token') : null;
+        const res = await fetch(`${API_BASE}/homepage`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (res.ok) {
           const data = await res.json();
           const recMedia = (data.recommendations || []).map((r: any) => r.media).filter(Boolean);

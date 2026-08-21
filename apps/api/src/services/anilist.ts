@@ -272,7 +272,7 @@ interface AniListMedia {
   };
 }
 
-function mapAniListToMediaItem(item: AniListMedia): MediaItem {
+export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
   let mediaType: MediaType = item.type === 'MANGA' ? 'MANGA' : 'ANIME';
   if (item.countryOfOrigin === 'CN') {
     mediaType = item.type === 'MANGA' ? 'MANHUA' : 'DONGHUA';
@@ -509,17 +509,64 @@ export async function fetchAniListRecentlyAired(limit: number = 12): Promise<Rec
   }
 }
 
+const CONTINUOUS_SHOWS_BLACKLIST = [
+  'one piece',
+  'detective conan',
+  'case closed',
+  'crayon shin-chan',
+  'chibi maruko-chan',
+  'sazae-san',
+  'doraemon',
+  'pokemon',
+  'pokémon',
+  'boruto',
+  'yu-gi-oh',
+  'yu-gi-oh!',
+  'ninjala',
+  'precure',
+  'pretty cure',
+  'soreike! anpanman',
+  'anpanman',
+  'meitantei conan',
+];
+
 // Helper methods for specific AniList Live Rankings
 export async function fetchAniListTop100(): Promise<MediaItem[]> {
   return fetchAniListRankings(['SCORE_DESC'], undefined, 100, 'ANIME');
 }
 
-export async function fetchAniListTopAiring(): Promise<MediaItem[]> {
-  return fetchAniListRankings(['POPULARITY_DESC'], 'RELEASING', 12, 'ANIME');
+export async function fetchAniListTopAiring(limit: number = 12): Promise<MediaItem[]> {
+  const allAiring = await fetchAniListRankings(['POPULARITY_DESC'], 'RELEASING', 40, 'ANIME');
+  const currentYear = new Date().getFullYear();
+
+  const filtered = allAiring.filter((item) => {
+    if (item.format && !['TV', 'TV_SHORT', 'ONA', 'MOVIE'].includes(item.format)) return false;
+
+    const titleLower = (item.title.userPreferred || item.title.english || item.title.romaji || '').toLowerCase();
+    if (CONTINUOUS_SHOWS_BLACKLIST.some((b) => titleLower.includes(b))) return false;
+
+    // Exclude continuous running series (>50 episodes) that started before current/previous year
+    if (item.episodes && item.episodes > 50 && item.year && item.year < currentYear - 1) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return filtered.slice(0, limit);
 }
 
-export async function fetchAniListTopUpcoming(): Promise<MediaItem[]> {
-  return fetchAniListRankings(['POPULARITY_DESC'], 'NOT_YET_RELEASED', 12, 'ANIME');
+export async function fetchAniListTopUpcoming(limit: number = 12): Promise<MediaItem[]> {
+  const allUpcoming = await fetchAniListRankings(['POPULARITY_DESC'], 'NOT_YET_RELEASED', 30, 'ANIME');
+
+  const filtered = allUpcoming.filter((item) => {
+    if (item.format && !['TV', 'TV_SHORT', 'ONA', 'MOVIE'].includes(item.format)) return false;
+    const titleLower = (item.title.userPreferred || item.title.english || item.title.romaji || '').toLowerCase();
+    if (CONTINUOUS_SHOWS_BLACKLIST.some((b) => titleLower.includes(b))) return false;
+    return true;
+  });
+
+  return filtered.slice(0, limit);
 }
 
 export function getCurrentAnimeSeason(): { season: 'WINTER' | 'SPRING' | 'SUMMER' | 'FALL'; year: number } {

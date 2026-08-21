@@ -26,6 +26,7 @@ import {
   fetchAniListFeatured,
   fetchAniListRecentlyAired,
 } from './anilist';
+import { anilistCacheService } from './anilist-cache';
 import { newsAggregationService } from './news-rss';
 
 const TAG_TAXONOMY_PATH = path.join(__dirname, '../data/tag-taxonomy.json');
@@ -127,8 +128,9 @@ class JSONDatabaseService {
   private offlineItems: MediaItem[] = [];
   private indexedOffline: IndexedItem[] = [];
 
-  // O(1) Fast lookup index by ID
+  // O(1) Fast lookup index by ID and AniList ID
   private itemsById: Map<string, MediaItem> = new Map();
+  private itemsByAnilistId: Map<number, MediaItem> = new Map();
 
   // Inverted Index Map (Token -> Set of offline array indices)
   private invertedIndex: Map<string, Set<number>> = new Map();
@@ -180,6 +182,8 @@ class JSONDatabaseService {
 
       this.offlineItems = [];
       this.indexedOffline = [];
+      this.itemsById.clear();
+      this.itemsByAnilistId.clear();
       this.invertedIndex.clear();
       this.genreToIndices.clear();
       this.similarityCache.clear();
@@ -266,11 +270,13 @@ class JSONDatabaseService {
           ? raw.synonyms.find((s: string) => /^[A-Za-z0-9\s:!?,.'"-]+$/.test(s))
           : undefined;
 
-        const rawScore = raw.score?.arithmeticMean ? Number(raw.score.arithmeticMean.toFixed(1)) : 0;
-        const estimatedReviews = rawScore > 0 ? Math.round(500 + rawScore * 450) : 0;
-        const weightedScore = rawScore > 0
-          ? Number(((rawScore * estimatedReviews + 7.0 * 100) / (estimatedReviews + 100)).toFixed(1))
-          : 0;
+        // Scores are sourced strictly from AniList cache (default 0 if not yet hydrated)
+        const cachedScore = anilistId ? anilistCacheService.getCachedScore(anilistId) : null;
+        const initialScore = cachedScore || {
+          averageScore: 0,
+          reviewCount: 0,
+          weightedScore: 0,
+        };
 
         const mediaItem: MediaItem = {
           id: anilistId ? `anilist-${anilistId}` : `offline-${i}`,
@@ -297,11 +303,7 @@ class JSONDatabaseService {
           },
           year: mYear,
           season: mSeason,
-          scores: {
-            averageScore: rawScore,
-            reviewCount: estimatedReviews,
-            weightedScore,
-          },
+          scores: initialScore,
           source: 'LOCAL_OFFLINE_DB',
         };
 
@@ -309,6 +311,7 @@ class JSONDatabaseService {
         this.itemsById.set(mediaItem.id, mediaItem);
         if (anilistId) {
           this.itemsById.set(`anilist-${anilistId}`, mediaItem);
+          this.itemsByAnilistId.set(anilistId, mediaItem);
         }
 
         const normTitle = normalize(raw.title || '');
@@ -655,21 +658,28 @@ class JSONDatabaseService {
 
     return items
       .sort((a, b) => {
+        const aTitle = a.item.title?.userPreferred || a.item.title?.english || a.item.title?.romaji || '';
+        const bTitle = b.item.title?.userPreferred || b.item.title?.english || b.item.title?.romaji || '';
+        const aScore = a.item.scores?.averageScore || 0;
+        const bScore = b.item.scores?.averageScore || 0;
+        const aReviews = a.item.scores?.reviewCount || 0;
+        const bReviews = b.item.scores?.reviewCount || 0;
+
         switch (effectiveSort) {
           case 'RELEVANCE':
-            return (b.score || 0) - (a.score || 0) || b.item.scores.averageScore - a.item.scores.averageScore;
+            return (b.score || 0) - (a.score || 0) || bScore - aScore;
           case 'SCORE_DESC':
-            return b.item.scores.averageScore - a.item.scores.averageScore || b.item.scores.reviewCount - a.item.scores.reviewCount;
+            return bScore - aScore || bReviews - aReviews;
           case 'POPULARITY_DESC':
-            return b.item.scores.reviewCount - a.item.scores.reviewCount || b.item.scores.averageScore - a.item.scores.averageScore;
+            return bReviews - aReviews || bScore - aScore;
           case 'YEAR_DESC':
-            return (b.item.year || 0) - (a.item.year || 0) || b.item.scores.averageScore - a.item.scores.averageScore;
+            return (b.item.year || 0) - (a.item.year || 0) || bScore - aScore;
           case 'YEAR_ASC':
-            return (a.item.year || 9999) - (b.item.year || 9999) || b.item.scores.averageScore - a.item.scores.averageScore;
+            return (a.item.year || 9999) - (b.item.year || 9999) || bScore - aScore;
           case 'TITLE_ASC':
-            return a.item.title.userPreferred.localeCompare(b.item.title.userPreferred);
+            return aTitle.localeCompare(bTitle);
           default:
-            return b.item.scores.averageScore - a.item.scores.averageScore;
+            return bScore - aScore;
         }
       })
       .map((entry) => entry.item);
@@ -963,11 +973,36 @@ class JSONDatabaseService {
       results = this.sortItems(candidates, sortBy, true);
     }
 
+    // Enrich results with official AniList scores from cache (score 0 if not present)
+    const enrichedResults = results.slice(0, limit).map((item) => {
+      if (item.source === 'LOCAL_OFFLINE_DB' || item.source === 'LOCAL_JSON') {
+        const cached = anilistCacheService.getCachedScore(item.anilistId);
+        return {
+          ...item,
+          scores: cached || {
+            averageScore: 0,
+            reviewCount: 0,
+            weightedScore: 0,
+          },
+        };
+      }
+      return item;
+    });
+
+    // Non-blocking background fetch of missing scores for search results that have an anilistId
+    const missingAnilistIds = enrichedResults
+      .map((i) => i.anilistId)
+      .filter((id): id is number => typeof id === 'number' && !anilistCacheService.getCachedScore(id));
+
+    if (missingAnilistIds.length > 0) {
+      anilistCacheService.fetchMediaBatch(missingAnilistIds).catch(() => {});
+    }
+
     const totalPages = Math.ceil(totalMatches / limit) || 1;
     const executionTimeMs = Date.now() - startTime;
 
     const response: SearchResponse = {
-      results: results.slice(0, limit),
+      results: enrichedResults,
       total: totalMatches,
       sourcesUsed,
       query,
@@ -989,7 +1024,8 @@ class JSONDatabaseService {
 
   public async getHomepageData(userWatchlist?: any[], favoriteGenres?: string[]): Promise<HomepageData> {
     const isCleanTitle = (item: MediaItem): boolean => {
-      const t = item.title.userPreferred.trim();
+      const t = (item.title?.userPreferred || item.title?.english || item.title?.romaji || '').trim();
+      if (!t) return false;
       // Exclude titles starting with quotes, brackets, or weird symbols
       if (/^[!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~]/.test(t)) return false;
       const tagsLower = (item.genres || []).map((g) => g.toLowerCase());
@@ -1004,7 +1040,7 @@ class JSONDatabaseService {
     };
 
     const validOfflineAllCategories = this.offlineItems.filter(
-      (i) => i.scores.averageScore > 0 && i.coverImage.large && isCleanTitle(i)
+      (i) => (i.scores?.averageScore || 0) > 0 && i.coverImage?.large && isCleanTitle(i)
     );
 
     const validOffline = validOfflineAllCategories.filter((i) => i.type === 'ANIME');
@@ -1029,9 +1065,9 @@ class JSONDatabaseService {
       .filter((i) => {
         if (i.type !== 'ANIME') return false;
         if (!i.format || !['TV', 'MOVIE', 'ONA'].includes(i.format)) return false;
-        if (i.scores.averageScore < 7.4) return false;
+        if ((i.scores?.averageScore || 0) < 7.4) return false;
 
-        const titleLower = i.title.userPreferred.toLowerCase();
+        const titleLower = (i.title?.userPreferred || i.title?.english || i.title?.romaji || '').toLowerCase();
         if (continuousShowsBlacklist.some((b) => titleLower.includes(b))) return false;
 
         // Exclude shows with > 50 episodes unless released recently
@@ -1041,8 +1077,8 @@ class JSONDatabaseService {
       })
       .sort(
         (a, b) =>
-          (b.scores.reviewCount || 0) * (b.scores.averageScore || 1) -
-          (a.scores.reviewCount || 0) * (a.scores.averageScore || 1)
+          (b.scores?.reviewCount || 0) * (b.scores?.averageScore || 1) -
+          (a.scores?.reviewCount || 0) * (a.scores?.averageScore || 1)
       );
 
     const fallbackFeatured = trendingSeasonCandidates.slice(0, 8);
@@ -1082,89 +1118,38 @@ class JSONDatabaseService {
     // 3. News Feed (Auto-Aggregated Live RSS News from official feeds)
     const newsBeta: NewsArticle[] = newsAggregationService.getLatest(4);
 
-    // 4. Recomandări (Personalizate dacă există Watchlist/Profil, altfel Curated High Rating Media)
+    // 4. Recomandări (Direct din AniList SWR Cache cu Batching pe Watchlist/Favorite)
     let recommendations: RecommendedMediaItem[] = [];
 
     const userWatchlistIds = new Set((userWatchlist || []).map((w: any) => w.mediaId));
-    const userGenreScores: Record<string, number> = {};
+    const watchlistAnilistIds: number[] = [];
 
-    if (favoriteGenres && favoriteGenres.length > 0) {
-      for (const fg of favoriteGenres) {
-        const fgLower = fg.toLowerCase();
-        userGenreScores[fgLower] = (userGenreScores[fgLower] || 0) + 5;
-      }
-    }
     if (userWatchlist && userWatchlist.length > 0) {
       for (const item of userWatchlist) {
-        const scoreBonus = item.score && item.score >= 7 ? item.score : 5;
-        if (item.mediaItem?.genres) {
-          for (const g of item.mediaItem.genres) {
-            const gLower = g.toLowerCase();
-            userGenreScores[gLower] = (userGenreScores[gLower] || 0) + scoreBonus;
+        if (item.mediaItem?.anilistId) {
+          watchlistAnilistIds.push(item.mediaItem.anilistId);
+        } else if (item.mediaId) {
+          if (item.mediaId.startsWith('anilist-')) {
+            const parsed = parseInt(item.mediaId.replace('anilist-', ''), 10);
+            if (!isNaN(parsed)) watchlistAnilistIds.push(parsed);
+          } else {
+            const local = this.itemsById.get(item.mediaId);
+            if (local?.anilistId) watchlistAnilistIds.push(local.anilistId);
           }
         }
       }
     }
 
-    const hasUserPreferences = Object.keys(userGenreScores).length > 0;
-
-    if (hasUserPreferences) {
-      const scoredRecommendations = [...validOfflineAllCategories]
-        .filter((i) => !userWatchlistIds.has(i.id) && i.scores.averageScore >= 6.5)
-        .map((item) => {
-          const itemGenresLower = item.genres.map((g) => g.toLowerCase());
-          let preferenceScore = 0;
-          const matchedGenres: string[] = [];
-
-          for (const g of itemGenresLower) {
-            if (userGenreScores[g]) {
-              preferenceScore += userGenreScores[g];
-              matchedGenres.push(g);
-            }
-          }
-
-          const matchPct = Math.min(
-            99,
-            Math.max(75, Math.round(75 + preferenceScore * 1.5 + (item.scores.averageScore - 7) * 2))
-          );
-
-          const matchedLabel = matchedGenres
-            .slice(0, 2)
-            .map((g) => g.charAt(0).toUpperCase() + g.slice(1))
-            .join(' & ');
-
-          return {
-            media: item,
-            recommendationReason: `${matchPct}% Potrivire · Bazat pe preferințele tale pentru ${matchedLabel || item.type}`,
-            matchPercentage: matchPct,
-          };
-        })
-        .filter((r) => r.matchPercentage >= 78)
-        .sort((a, b) => b.matchPercentage - a.matchPercentage || b.media.scores.averageScore - a.media.scores.averageScore)
-        .slice(0, 10);
-
-      recommendations = scoredRecommendations;
+    if (watchlistAnilistIds.length > 0 || (favoriteGenres && favoriteGenres.length > 0)) {
+      recommendations = await anilistCacheService.fetchPersonalizedRecommendations(
+        watchlistAnilistIds,
+        favoriteGenres,
+        userWatchlistIds
+      );
     }
 
     if (recommendations.length === 0) {
-      const recommendationReasons = [
-        '99% Potrivire · Capodoperă vizuală și poveste captivantă',
-        '98% Potrivire · Recomandat pentru iubitorii de Dark Fantasy & Action',
-        '96% Potrivire · Producție de vârf apreciată unanim de comunitate',
-        '95% Potrivire · Animație excepțională și coloană sonoră memorabilă',
-        '94% Potrivire · Univers bine conturat cu bătălii strategice',
-        '92% Potrivire · Recomandat pe baza titlurilor favorite',
-      ];
-
-      recommendations = [...validOfflineAllCategories]
-        .filter((i) => (i.year && i.year >= 2020) || i.scores.averageScore >= 8.2)
-        .sort((a, b) => b.scores.averageScore - a.scores.averageScore)
-        .slice(0, 10)
-        .map((item, idx) => ({
-          media: item,
-          recommendationReason: recommendationReasons[idx % recommendationReasons.length],
-          matchPercentage: 99 - idx,
-        }));
+      recommendations = await anilistCacheService.fetchGuestRecommendations(12);
     }
 
     // Safe parallel fetch for live AniList rankings & schedule
@@ -1191,7 +1176,7 @@ class JSONDatabaseService {
         ? airingRes.value.filter((item) => item.type === 'ANIME')
         : [...validOffline]
             .filter((i) => i.type === 'ANIME' && (i.status === 'RELEASING' || (i.year && i.year >= 2024)))
-            .sort((a, b) => b.scores.averageScore - a.scores.averageScore || (b.year || 0) - (a.year || 0))
+            .sort((a, b) => (b.scores?.averageScore || 0) - (a.scores?.averageScore || 0) || (b.year || 0) - (a.year || 0))
             .slice(0, 10);
 
     let topUpcoming =
@@ -1199,7 +1184,7 @@ class JSONDatabaseService {
         ? upcomingRes.value.filter((item) => item.type === 'ANIME')
         : [...validOffline]
             .filter((i) => i.type === 'ANIME' && (i.status === 'UPCOMING' || (i.year && i.year >= 2025)))
-            .sort((a, b) => (b.year || 0) - (a.year || 0) || b.scores.averageScore - a.scores.averageScore)
+            .sort((a, b) => (b.year || 0) - (a.year || 0) || (b.scores?.averageScore || 0) - (a.scores?.averageScore || 0))
             .slice(0, 10);
 
     let top100 =
@@ -1212,14 +1197,14 @@ class JSONDatabaseService {
                 (i.format === 'TV' || i.format === 'MOVIE' || i.format === 'ONA' || i.format === 'OVA') &&
                 i.status !== 'UPCOMING' &&
                 (!i.year || i.year <= 2025) &&
-                i.scores.averageScore >= 7.0 &&
-                i.scores.averageScore <= 9.9
+                (i.scores?.averageScore || 0) >= 7.0 &&
+                (i.scores?.averageScore || 0) <= 9.9
             )
             .sort(
               (a, b) =>
-                (b.scores.weightedScore || b.scores.averageScore) -
-                  (a.scores.weightedScore || a.scores.averageScore) ||
-                (b.scores.reviewCount || 0) - (a.scores.reviewCount || 0) ||
+                (b.scores?.weightedScore || b.scores?.averageScore || 0) -
+                  (a.scores?.weightedScore || a.scores?.averageScore || 0) ||
+                (b.scores?.reviewCount || 0) - (a.scores?.reviewCount || 0) ||
                 (b.year || 0) - (a.year || 0)
             )
             .slice(0, 100);
