@@ -20,7 +20,7 @@ class DefaultFirebaseOptions {
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: String.fromEnvironment(
       'FIREBASE_WEB_API_KEY',
-      defaultValue: 'AIzaSy_FIREBASE_WEB_KEY_PLACEHOLDER',
+      defaultValue: 'FIREBASE_WEB_API_KEY_PLACEHOLDER',
     ),
     appId: '1:141330897882:web:5ce77a022ecfdadbce3ee3',
     messagingSenderId: '141330897882',
@@ -32,7 +32,7 @@ class DefaultFirebaseOptions {
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: String.fromEnvironment(
       'FIREBASE_ANDROID_API_KEY',
-      defaultValue: 'AIzaSy_FIREBASE_ANDROID_KEY_PLACEHOLDER',
+      defaultValue: 'FIREBASE_ANDROID_API_KEY_PLACEHOLDER',
     ),
     appId: '1:141330897882:android:d51904299d22aa09ce3ee3',
     messagingSenderId: '141330897882',
@@ -44,7 +44,7 @@ class DefaultFirebaseOptions {
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: String.fromEnvironment(
       'FIREBASE_IOS_API_KEY',
-      defaultValue: 'AIzaSy_FIREBASE_IOS_KEY_PLACEHOLDER',
+      defaultValue: 'FIREBASE_IOS_API_KEY_PLACEHOLDER',
     ),
     appId: '1:141330897882:ios:5ce77a022ecfdadbce3ee3',
     messagingSenderId: '141330897882',
