@@ -9,7 +9,7 @@ export const ANILIST_REQUEST_HEADERS: Record<string, string> = {
 };
 
 const SEARCH_MEDIA_QUERY = `
-query ($search: String, $type: MediaType, $format: MediaFormat, $status: MediaStatus, $genre_in: [String], $countryOfOrigin: CountryCode, $season: MediaSeason, $seasonYear: Int, $sort: [MediaSort], $page: Int, $perPage: Int) {
+query ($search: String, $type: MediaType, $format: MediaFormat, $status: MediaStatus, $genre_in: [String], $tag_in: [String], $countryOfOrigin: CountryCode, $season: MediaSeason, $seasonYear: Int, $sort: [MediaSort], $page: Int, $perPage: Int) {
   Page(page: $page, perPage: $perPage) {
     pageInfo {
       total
@@ -18,7 +18,7 @@ query ($search: String, $type: MediaType, $format: MediaFormat, $status: MediaSt
       lastPage
       hasNextPage
     }
-    media(search: $search, type: $type, format: $format, status: $status, genre_in: $genre_in, countryOfOrigin: $countryOfOrigin, season: $season, seasonYear: $seasonYear, sort: $sort, isAdult: false) {
+    media(search: $search, type: $type, format: $format, status: $status, genre_in: $genre_in, tag_in: $tag_in, countryOfOrigin: $countryOfOrigin, season: $season, seasonYear: $seasonYear, sort: $sort, isAdult: false) {
       id
       title {
         romaji
@@ -340,6 +340,46 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
   };
 }
 
+export const MICROTAG_TO_ANILIST_TAGS: Record<string, string> = {
+  'Overpowered MC': 'Super Power',
+  'Isekai': 'Isekai',
+  'Anti-Hero': 'Anti-Hero',
+  'Xianxia': 'Martial Arts',
+  'Cyberpunk': 'Cyberpunk',
+  'Post-Apocalyptic': 'Post-Apocalyptic',
+  'Time Travel': 'Time Manipulation',
+  'High Fantasy': 'Magic',
+  'Revenge': 'Revenge',
+  'System': 'Super Power',
+  'Female Protagonist': 'Female Protagonist',
+  'School Life': 'School',
+  'Virtual Reality': 'Virtual World',
+  'Murim': 'Martial Arts',
+  'Regression': 'Time Manipulation',
+  'Mecha': 'Super Robot',
+  'Psychological': 'Psychological',
+  'Survival': 'Survival',
+  'Romance': 'Romance',
+  'Harem': 'Female Harem',
+  'Slice of Life': 'Iyashikei',
+  'Sports': 'Sports',
+  'Music': 'Music',
+  'Horror': 'Horror',
+  'Military': 'Military',
+  'Historical': 'Historical',
+  'Mythology': 'Mythology',
+  'Martial Arts': 'Martial Arts',
+  'Detective': 'Detective',
+  'Super Power': 'Super Power',
+  'Space': 'Space Opera',
+  'Gore': 'Body Horror',
+  'Vampire': 'Vampires',
+  'Demons': 'Mythology',
+  'Magic': 'Magic',
+  'Tower': 'Dungeon',
+  'Solo Player': 'Anti-Hero',
+};
+
 export async function searchAniList(
   queryOrOptions?: string | SearchQueryOptions,
   fallbackLimit: number = 24
@@ -406,6 +446,14 @@ export async function searchAniList(
       variables.genre_in = genres;
     }
 
+    const microTags = opts.microTags && opts.microTags.length > 0 ? opts.microTags : opts.microTag ? [opts.microTag] : [];
+    if (microTags.length > 0) {
+      const resolvedTags = microTags.map(t => MICROTAG_TO_ANILIST_TAGS[t] || t).filter(Boolean);
+      if (resolvedTags.length > 0) {
+        variables.tag_in = resolvedTags;
+      }
+    }
+
     if (opts.sortBy) {
       switch (opts.sortBy) {
         case 'SCORE_DESC':
@@ -432,7 +480,13 @@ export async function searchAniList(
       variables.sort = opts.query?.trim() ? ['SEARCH_MATCH', 'POPULARITY_DESC'] : ['POPULARITY_DESC'];
     }
 
-    const response = await fetch(ANILIST_GRAPHQL_URL, {
+    const cacheKey = JSON.stringify(variables);
+    const cached = searchCache[cacheKey];
+    if (cached && Date.now() - cached.timestamp < SEARCH_CACHE_TTL) {
+      return cached.data;
+    }
+
+    let response = await fetch(ANILIST_GRAPHQL_URL, {
       method: 'POST',
       headers: ANILIST_REQUEST_HEADERS,
       body: JSON.stringify({
@@ -441,8 +495,25 @@ export async function searchAniList(
       }),
     });
 
+    if (response.status === 429) {
+      console.warn(`[AniList API] Rate limited (429), attempting quick retry / cache fallback...`);
+      if (cached) {
+        return cached.data;
+      }
+      await new Promise(res => setTimeout(res, 800));
+      response = await fetch(ANILIST_GRAPHQL_URL, {
+        method: 'POST',
+        headers: ANILIST_REQUEST_HEADERS,
+        body: JSON.stringify({
+          query: SEARCH_MEDIA_QUERY,
+          variables,
+        }),
+      });
+    }
+
     if (!response.ok) {
       console.warn(`[AniList API] Failed response: ${response.status} ${response.statusText}`);
+      if (cached) return cached.data;
       return { items: [], total: 0 };
     }
 
@@ -451,17 +522,28 @@ export async function searchAniList(
     const mediaList: AniListMedia[] = pageData?.media || [];
     const total = pageData?.pageInfo?.total || mediaList.length;
 
-    return {
+    const result = {
       items: mediaList.map(mapAniListToMediaItem),
       total,
     };
+
+    if (result.items.length > 0) {
+      searchCache[cacheKey] = {
+        data: result,
+        timestamp: Date.now(),
+      };
+    }
+
+    return result;
   } catch (error) {
     console.error('[AniList API Error]:', error);
     return { items: [], total: 0 };
   }
 }
 
-// 30-minute in-memory cache for live AniList rankings
+// 30-minute in-memory cache for search and rankings
+const searchCache: Record<string, { data: { items: MediaItem[]; total: number }; timestamp: number }> = {};
+const SEARCH_CACHE_TTL = 30 * 60 * 1000; // 30 mins
 const rankingsCache: Record<string, { data: MediaItem[]; timestamp: number }> = {};
 const RANKINGS_CACHE_TTL = 30 * 60 * 1000; // 30 mins
 

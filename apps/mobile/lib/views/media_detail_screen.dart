@@ -10,6 +10,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/pill_badge.dart';
 import '../widgets/watch_order_tree_view.dart';
 import '../widgets/media_card.dart';
+import '../widgets/media_rating_sheet.dart';
 import 'auth/login_screen.dart';
 
 class MediaDetailScreen extends ConsumerStatefulWidget {
@@ -211,52 +212,119 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
 
                           const SizedBox(height: 10),
 
-                          // Add / Edit Watchlist Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 38,
-                            child: Builder(
-                              builder: (context) {
-                                final watchlistAsync = ref.watch(watchlistProvider);
-                                final existingRecord = watchlistAsync.maybeWhen(
-                                  data: (list) => list.where((w) => w.mediaId == item.id).firstOrNull,
-                                  orElse: () => null,
-                                );
+                          // Add / Edit Watchlist & Rate Buttons
+                          Builder(
+                            builder: (context) {
+                              final watchlistAsync = ref.watch(watchlistProvider);
+                              final existingRecord = watchlistAsync.maybeWhen(
+                                data: (list) => list.where((w) => w.mediaId == item.id).firstOrNull,
+                                orElse: () => null,
+                              );
 
-                                if (existingRecord != null) {
-                                  return ElevatedButton.icon(
-                                    onPressed: () => _showAddToWatchlistModal(context, item),
-                                    icon: Icon(
-                                      PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.fill),
-                                      size: 16,
-                                      color: Colors.black,
-                                    ),
-                                    label: Text(
-                                      '${_getStatusLabel(existingRecord.status)} • Ep. ${existingRecord.progressEpisodes}',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w800,
-                                        fontFamily: 'Google Sans',
+                              if (existingRecord != null) {
+                                return Row(
+                                  children: [
+                                    // Buton Status & Episoade
+                                    Expanded(
+                                      flex: 6,
+                                      child: SizedBox(
+                                        height: 38,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () => MediaRatingSheet.show(
+                                            context,
+                                            media: item,
+                                            currentWatchlistRecord: existingRecord,
+                                          ),
+                                          icon: Icon(
+                                            PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.fill),
+                                            size: 15,
+                                            color: Colors.black,
+                                          ),
+                                          label: Text(
+                                            '${_getStatusLabel(existingRecord.status)} • Ep. ${existingRecord.progressEpisodes}',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w800,
+                                              fontFamily: 'Google Sans',
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: _getStatusColor(existingRecord.status),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                            elevation: 0,
+                                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: _getStatusColor(existingRecord.status),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                      elevation: 0,
-                                    ),
-                                  );
-                                }
+                                    const SizedBox(width: 8),
 
-                                return ElevatedButton.icon(
-                                  onPressed: () => _showAddToWatchlistModal(context, item),
+                                    // Buton Notă (⭐ 9.0 sau ⭐ Notează)
+                                    Expanded(
+                                      flex: 4,
+                                      child: SizedBox(
+                                        height: 38,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () => MediaRatingSheet.show(
+                                            context,
+                                            media: item,
+                                            currentWatchlistRecord: existingRecord,
+                                          ),
+                                          icon: Icon(
+                                            PhosphorIcons.star(
+                                              existingRecord.score != null && existingRecord.score! > 0
+                                                  ? PhosphorIconsStyle.fill
+                                                  : PhosphorIconsStyle.bold,
+                                            ),
+                                            size: 14,
+                                            color: const Color(0xFFFBBF24),
+                                          ),
+                                          label: Text(
+                                            existingRecord.score != null && existingRecord.score! > 0
+                                                ? '${existingRecord.score!.toStringAsFixed(1)} / 10'
+                                                : 'Notează',
+                                            style: TextStyle(
+                                              color: context.textPrimary,
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w800,
+                                              fontFamily: 'Google Sans',
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: context.bgSurface,
+                                            side: BorderSide(color: context.borderSubtle),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                            elevation: 0,
+                                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+
+                              return SizedBox(
+                                width: double.infinity,
+                                height: 38,
+                                child: ElevatedButton.icon(
+                                  onPressed: () => MediaRatingSheet.show(
+                                    context,
+                                    media: item,
+                                    currentWatchlistRecord: null,
+                                  ),
                                   icon: Icon(
                                     PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
                                     size: 16,
                                     color: context.onPrimary,
                                   ),
                                   label: Text(
-                                    '+ Adaugă în Listă',
+                                    '+ Adaugă în Listă & Notează',
                                     style: TextStyle(
                                       color: context.onPrimary,
                                       fontSize: 12.5,
@@ -269,9 +337,9 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                     elevation: 0,
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

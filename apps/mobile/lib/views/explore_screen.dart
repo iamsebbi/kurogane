@@ -34,10 +34,38 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 350), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       ref.read(searchFiltersProvider.notifier).state =
           ref.read(searchFiltersProvider).copyWith(query: query);
     });
+  }
+
+  void _resetAllFilters() {
+    HapticFeedback.mediumImpact();
+    _searchController.clear();
+    ref.read(searchFiltersProvider.notifier).state = SearchFilterState();
+  }
+
+  void _changeSort(String newSort) {
+    HapticFeedback.selectionClick();
+    ref.read(searchFiltersProvider.notifier).state =
+        ref.read(searchFiltersProvider).copyWith(sortBy: newSort);
+  }
+
+  String _getSortLabel(String sortBy) {
+    switch (sortBy) {
+      case 'SCORE_DESC':
+        return 'Scor';
+      case 'POPULARITY_DESC':
+        return 'Popularitate';
+      case 'YEAR_DESC':
+        return 'An';
+      case 'TITLE_ASC':
+        return 'Titlu (A-Z)';
+      case 'RELEVANCE':
+      default:
+        return 'Relevanță';
+    }
   }
 
   @override
@@ -48,21 +76,25 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final bool hasActiveFilters = filters.genres.isNotEmpty ||
         filters.microTags.isNotEmpty ||
         filters.type != 'ALL' ||
-        filters.format != 'ALL' ||
-        (filters.minScore != null && filters.minScore! > 0);
+        filters.format != 'ALL';
+
+    final bool isUserFiltering = hasActiveFilters || filters.query.trim().isNotEmpty;
 
     final topInset = MediaQuery.of(context).padding.top;
-    final headerTotalHeight = topInset + 176.0;
+    final headerTotalHeight = topInset + 180.0;
 
     return Scaffold(
       backgroundColor: context.bgPrimary,
       body: Stack(
         children: [
-          // 1. Scrollable Results (Scrolls smoothly underneath the Frosted Glass Header)
+          // 1. Scrollable Results Area
           Positioned.fill(
             child: searchResultsAsync.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.accentPrimary),
+              loading: () => Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: headerTotalHeight / 2),
+                  child: const CircularProgressIndicator(color: AppColors.accentPrimary),
+                ),
               ),
               error: (err, stack) => Center(
                 child: Padding(
@@ -70,11 +102,17 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(PhosphorIcons.warningCircle(PhosphorIconsStyle.bold), size: 48, color: AppColors.alertCoral),
+                      Icon(PhosphorIcons.warningCircle(PhosphorIconsStyle.bold),
+                          size: 48, color: AppColors.alertCoral),
                       const SizedBox(height: 16),
                       Text(
-                        'Eroare la căutare',
-                        style: TextStyle(color: context.textPrimary, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Google Sans'),
+                        'Eroare la încărcarea conținutului',
+                        style: TextStyle(
+                          color: context.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Google Sans',
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -82,11 +120,23 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         style: TextStyle(color: context.textSecondary, fontSize: 13),
                         textAlign: TextAlign.center,
                       ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () => ref.invalidate(searchResultsProvider),
+                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                        label: const Text('Reîncearcă'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.accentPrimary,
+                          foregroundColor: context.onPrimary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
               data: (results) {
+                // Honest Empty State when user searches / filters and nothing matches
                 if (results.isEmpty) {
                   return Center(
                     child: Padding(
@@ -94,53 +144,148 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold), size: 48, color: context.textMuted),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Niciun rezultat găsit',
-                            style: TextStyle(
-                              color: context.textPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Google Sans',
+                          Container(
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: context.bgSurface,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold),
+                              size: 42,
+                              color: context.textMuted,
                             ),
                           ),
+                          const SizedBox(height: 18),
+                          Text(
+                            isUserFiltering ? 'Niciun rezultat găsit' : 'Catalogul este gol',
+                            style: TextStyle(
+                              color: context.textPrimary,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Zalando Sans Expanded',
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            isUserFiltering
+                                ? 'Nu am găsit titluri care să corespundă criteriilor alese.\nÎncearcă să resetezi sau să lărgești filtrele.'
+                                : 'Verifică conexiunea la serverul Kurogane.',
+                            style: TextStyle(
+                              color: context.textSecondary,
+                              fontSize: 13,
+                              fontFamily: 'Google Sans',
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (isUserFiltering) ...[
+                            const SizedBox(height: 20),
+                            ElevatedButton.icon(
+                              onPressed: _resetAllFilters,
+                              icon: const Icon(Icons.refresh_rounded, size: 17),
+                              label: const Text('Resetează toate filtrele'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: context.accentPrimary,
+                                foregroundColor: context.onPrimary,
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
                   );
                 }
 
-                // AnimatedSwitcher for Grid <-> List toggle
+                // Show subtle honest banner if user applied specific filters and results are few (<= 5)
+                final bool showFewResultsBanner = isUserFiltering && results.length <= 5;
+
                 return AnimatedSwitcher(
                   duration: const Duration(milliseconds: 220),
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeInCubic,
-                  child: _isGridView
-                      ? GridView.builder(
-                          key: const ValueKey('explore_grid_view'),
-                          padding: EdgeInsets.fromLTRB(16, headerTotalHeight + 6, 16, 90),
-                          physics: const BouncingScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.63,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 14,
+                  child: CustomScrollView(
+                    key: ValueKey('explore_scroll_${_isGridView ? "grid" : "list"}'),
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      // Top Spacing for frosted header
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: headerTotalHeight + 8),
+                      ),
+
+                      // Optional Honest Information Banner for few matches
+                      if (showFewResultsBanner)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: context.accentPrimary.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: context.accentPrimary.withValues(alpha: 0.22),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    PhosphorIcons.info(PhosphorIconsStyle.bold),
+                                    size: 18,
+                                    color: context.accentPrimary,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Doar ${results.length} ${results.length == 1 ? "rezultat găsit" : "rezultate găsite"} pentru selecția ta. Încearcă să lărgești filtrele pentru mai multe titluri.',
+                                      style: TextStyle(
+                                        color: context.textPrimary,
+                                        fontSize: 12,
+                                        fontFamily: 'Google Sans',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          itemCount: results.length,
-                          itemBuilder: (context, index) {
-                            return MediaCard(item: results[index], width: double.infinity);
-                          },
-                        )
-                      : ListView.builder(
-                          key: const ValueKey('explore_list_view'),
-                          padding: EdgeInsets.fromLTRB(16, headerTotalHeight + 6, 16, 90),
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: results.length,
-                          itemBuilder: (context, index) {
-                            return _buildExploreListItem(context, results[index]);
-                          },
                         ),
+
+                      // Main Results (Grid or List)
+                      if (_isGridView)
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+                          sliver: SliverGrid(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.63,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 14,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                return MediaCard(item: results[index], width: double.infinity);
+                              },
+                              childCount: results.length,
+                            ),
+                          ),
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                return _buildExploreListItem(context, results[index]);
+                              },
+                              childCount: results.length,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -155,15 +300,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
-                  color: context.bgPrimary.withValues(alpha: context.isDarkMode ? 0.76 : 0.84),
+                  color: context.bgPrimary.withValues(alpha: context.isDarkMode ? 0.78 : 0.86),
                   child: SafeArea(
                     bottom: false,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Top Header: Title + Floating Glass Filter Circle Button (iOS Style)
+                        // Top Header: Title + Floating Glass Filter Circle Button
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 12, 16, 10),
+                          padding: const EdgeInsets.fromLTRB(20, 12, 16, 8),
                           child: Row(
                             children: [
                               Expanded(
@@ -179,9 +324,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                 ),
                               ),
 
-                              // Floating Filter Button (52px, Glass Blur 18, iOS Floating Design)
+                              // Floating Filter Button
                               _ExploreFloatingCircleButton(
-                                size: 52,
+                                size: 48,
                                 onTap: () {
                                   showModalBottomSheet(
                                     context: context,
@@ -197,15 +342,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                     Icon(
                                       PhosphorIcons.slidersHorizontal(PhosphorIconsStyle.bold),
                                       color: hasActiveFilters ? context.accentPrimary : context.textPrimary,
-                                      size: 22,
+                                      size: 21,
                                     ),
                                     if (hasActiveFilters)
                                       Positioned(
-                                        top: 11,
-                                        right: 11,
+                                        top: 9,
+                                        right: 9,
                                         child: Container(
-                                          width: 9,
-                                          height: 9,
+                                          width: 8.5,
+                                          height: 8.5,
                                           decoration: const BoxDecoration(
                                             color: AppColors.alertCoral,
                                             shape: BoxShape.circle,
@@ -219,11 +364,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           ),
                         ),
 
-                        // Search Bar (iOS Stadium Style without border)
+                        // Search Bar
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                           child: Container(
-                            height: 48,
+                            height: 46,
                             decoration: BoxDecoration(
                               color: context.bgSurface.withValues(alpha: context.isDarkMode ? 0.85 : 0.95),
                               borderRadius: BorderRadius.circular(24),
@@ -233,7 +378,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               onChanged: _onSearchChanged,
                               style: TextStyle(
                                 color: context.textPrimary,
-                                fontSize: 14,
+                                fontSize: 13.5,
                                 fontFamily: 'Google Sans',
                                 fontWeight: FontWeight.w500,
                               ),
@@ -247,7 +392,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                 prefixIcon: Icon(
                                   PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold),
                                   color: context.textSecondary,
-                                  size: 20,
+                                  size: 19,
                                 ),
                                 suffixIcon: ValueListenableBuilder<TextEditingValue>(
                                   valueListenable: _searchController,
@@ -264,7 +409,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                         child: Icon(
                                           PhosphorIcons.x(PhosphorIconsStyle.bold),
                                           color: context.textSecondary,
-                                          size: 21,
+                                          size: 20,
                                         ),
                                       ),
                                     );
@@ -272,33 +417,22 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                 ),
                                 suffixIconConstraints: const BoxConstraints(minWidth: 38, minHeight: 38),
                                 border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 13),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 12),
                               ),
                             ),
                           ),
                         ),
 
-                        // Sub-bar: Info / Active Filters count + iOS Sliding Grid / List Switch
+                        // Sub-bar: Dedicated Sort Dropdown (Left) & Grid/List Switch (Right)
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(18, 2, 16, 10),
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Result count or filter label
-                              searchResultsAsync.maybeWhen(
-                                data: (list) => Text(
-                                  '${list.length} ${list.length == 1 ? "rezultat" : "rezultate"}',
-                                  style: TextStyle(
-                                    color: context.textSecondary,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: 'Google Sans',
-                                  ),
-                                ),
-                                orElse: () => const SizedBox.shrink(),
-                              ),
+                              // Left: Dedicated Sort Selector Menu
+                              _buildSortSelector(context, filters.sortBy),
 
-                              // Sliding Segmented Toggle (Grid / List)
+                              // Right: Sliding Segmented Toggle (Grid / List)
                               _buildSlidingViewSwitch(context),
                             ],
                           ),
@@ -315,22 +449,129 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     );
   }
 
+  IconData _getSortPhosphorIcon(String sortBy) {
+    switch (sortBy) {
+      case 'SCORE_DESC':
+        return PhosphorIcons.star(PhosphorIconsStyle.fill);
+      case 'POPULARITY_DESC':
+        return PhosphorIcons.fire(PhosphorIconsStyle.fill);
+      case 'YEAR_DESC':
+        return PhosphorIcons.calendar(PhosphorIconsStyle.bold);
+      case 'TITLE_ASC':
+        return PhosphorIcons.sortAscending(PhosphorIconsStyle.bold);
+      case 'RELEVANCE':
+      default:
+        return PhosphorIcons.target(PhosphorIconsStyle.bold);
+    }
+  }
+
+  Widget _buildSortSelector(BuildContext context, String currentSort) {
+    return PopupMenuButton<String>(
+      onSelected: _changeSort,
+      color: context.bgSurface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      elevation: 6,
+      itemBuilder: (context) => [
+        _buildSortMenuItem(context, 'RELEVANCE', 'Relevanță', PhosphorIcons.target(PhosphorIconsStyle.bold), currentSort),
+        _buildSortMenuItem(context, 'SCORE_DESC', 'Scor', PhosphorIcons.star(PhosphorIconsStyle.fill), currentSort),
+        _buildSortMenuItem(context, 'POPULARITY_DESC', 'Popularitate', PhosphorIcons.fire(PhosphorIconsStyle.fill), currentSort),
+        _buildSortMenuItem(context, 'YEAR_DESC', 'An (Recent)', PhosphorIcons.calendar(PhosphorIconsStyle.bold), currentSort),
+        _buildSortMenuItem(context, 'TITLE_ASC', 'Titlu (A-Z)', PhosphorIcons.sortAscending(PhosphorIconsStyle.bold), currentSort),
+      ],
+      child: Container(
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: context.bgSurface.withValues(alpha: context.isDarkMode ? 0.80 : 0.92),
+          borderRadius: BorderRadius.circular(19),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _getSortPhosphorIcon(currentSort),
+              size: 15,
+              color: context.accentPrimary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              _getSortLabel(currentSort),
+              style: TextStyle(
+                color: context.textPrimary,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Google Sans',
+              ),
+            ),
+            const SizedBox(width: 5),
+            Icon(
+              PhosphorIcons.caretDown(PhosphorIconsStyle.bold),
+              size: 13,
+              color: context.textMuted,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildSortMenuItem(
+    BuildContext context,
+    String value,
+    String label,
+    IconData icon,
+    String currentSort,
+  ) {
+    final isSelected = value == currentSort;
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: isSelected ? context.accentPrimary : context.textSecondary,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? context.accentPrimary : context.textPrimary,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                fontSize: 13,
+                fontFamily: 'Google Sans',
+              ),
+            ),
+          ),
+          if (isSelected)
+            Icon(
+              PhosphorIcons.check(PhosphorIconsStyle.bold),
+              size: 16,
+              color: context.accentPrimary,
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSlidingViewSwitch(BuildContext context) {
-    const double switchWidth = 74.0;
-    const double switchHeight = 36.0;
-    const double thumbPadding = 3.0;
-    const double thumbSize = switchHeight - (thumbPadding * 2); // 30.0
+    const double switchWidth = 148.0;
+    const double switchHeight = 38.0;
+    const double thumbPadding = 3.5;
+    const double thumbWidth = (switchWidth - (thumbPadding * 2)) / 2;
+    const double thumbHeight = switchHeight - (thumbPadding * 2);
 
     return Container(
       width: switchWidth,
       height: switchHeight,
       decoration: BoxDecoration(
-        color: context.bgSurface.withValues(alpha: context.isDarkMode ? 0.75 : 0.90),
-        borderRadius: BorderRadius.circular(switchHeight / 2),
+        color: context.bgSurface.withValues(alpha: context.isDarkMode ? 0.80 : 0.92),
+        borderRadius: BorderRadius.circular(19),
       ),
       child: Stack(
         children: [
-          // Sliding Bubble Indicator
+          // Sliding Capsule Indicator without glow/shadow
           AnimatedAlign(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
@@ -338,48 +579,80 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: thumbPadding),
               child: Container(
-                width: thumbSize,
-                height: thumbSize,
+                width: thumbWidth,
+                height: thumbHeight,
                 decoration: BoxDecoration(
                   color: context.accentPrimary,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(thumbHeight / 2),
                 ),
               ),
             ),
           ),
 
-          // 2 Interactive Icons on top of the track
+          // Interactive Tabs (Icon + Text)
           Row(
             children: [
-              // Grid Icon
+              // Grilă Tab
               Expanded(
                 child: GestureDetector(
                   onTap: () {
+                    HapticFeedback.selectionClick();
                     if (!_isGridView) setState(() => _isGridView = true);
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Center(
-                    child: Icon(
-                      PhosphorIcons.squaresFour(PhosphorIconsStyle.bold),
-                      size: 17,
-                      color: _isGridView ? context.onPrimary : context.textSecondary,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          PhosphorIcons.squaresFour(PhosphorIconsStyle.bold),
+                          size: 15,
+                          color: _isGridView ? context.onPrimary : context.textSecondary,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Grilă',
+                          style: TextStyle(
+                            color: _isGridView ? context.onPrimary : context.textSecondary,
+                            fontWeight: _isGridView ? FontWeight.w800 : FontWeight.w600,
+                            fontSize: 12.5,
+                            fontFamily: 'Google Sans',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
 
-              // List Icon
+              // Listă Tab
               Expanded(
                 child: GestureDetector(
                   onTap: () {
+                    HapticFeedback.selectionClick();
                     if (_isGridView) setState(() => _isGridView = false);
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Center(
-                    child: Icon(
-                      PhosphorIcons.listBullets(PhosphorIconsStyle.bold),
-                      size: 17,
-                      color: !_isGridView ? context.onPrimary : context.textSecondary,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          PhosphorIcons.listBullets(PhosphorIconsStyle.bold),
+                          size: 15,
+                          color: !_isGridView ? context.onPrimary : context.textSecondary,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Listă',
+                          style: TextStyle(
+                            color: !_isGridView ? context.onPrimary : context.textSecondary,
+                            fontWeight: !_isGridView ? FontWeight.w800 : FontWeight.w600,
+                            fontSize: 12.5,
+                            fontFamily: 'Google Sans',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -455,7 +728,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           clipBehavior: Clip.antiAlias,
           child: Row(
             children: [
-              // 1. Left Poster with Gradient Blending into Card Body
+              // Left Poster
               SizedBox(
                 width: 78,
                 height: 98,
@@ -475,8 +748,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         ),
                       ),
                     ),
-
-                    // Horizontal Right Gradient Fade (Blends poster smoothly into card background)
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
@@ -498,14 +769,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 ),
               ),
 
-              // 2. Right Content Area: Title + Year/Season & Top-Right Score Badge
+              // Right Content Area
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 12, 14, 12),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title and Subtitle Column
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -540,8 +810,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           ],
                         ),
                       ),
-
-                      // Top-Right Score Badge (Exact match with Grid View badge)
                       if (formattedScore != null) ...[
                         const SizedBox(width: 8),
                         Container(
@@ -587,7 +855,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   }
 }
 
-/// Scale tile interaction for Explore View cards
 class _ExploreCardScaleTile extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
@@ -628,7 +895,6 @@ class _ExploreCardScaleTileState extends State<_ExploreCardScaleTile> {
   }
 }
 
-/// Floating Circle Button in iOS Liquid Glass Style (Matching Home Screen)
 class _ExploreFloatingCircleButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;

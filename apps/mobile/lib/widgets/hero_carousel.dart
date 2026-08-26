@@ -163,9 +163,6 @@ class _HeroCarouselState extends State<HeroCarousel> {
 
         if (dotSize == 0.0) return const SizedBox.shrink();
 
-        final activeColor = context.textPrimary;
-        final inactiveColor = context.isDarkMode ? AppColors.textMuted : AppColors.lightTextMuted;
-
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
@@ -174,7 +171,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
           height: dotSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: distance == 0 ? activeColor : inactiveColor.withValues(alpha: opacity),
+            color: Colors.white.withValues(alpha: opacity),
           ),
         );
       }),
@@ -186,272 +183,273 @@ class _HeroCarouselState extends State<HeroCarousel> {
     if (widget.items.isEmpty) return const SizedBox.shrink();
 
     final screenHeight = MediaQuery.sizeOf(context).height;
-    // Înălțime maximă 50% din viewport height
-    final heroHeight = (screenHeight * 0.46).clamp(390.0, 440.0);
+    final heroHeight = (screenHeight * 0.46).clamp(380.0, 430.0);
     final safeCurrentIndex = _currentPage.clamp(0, widget.items.length - 1);
     final item = widget.items[safeCurrentIndex];
     final bannerUrl = item.bannerImage ?? item.coverImage.large;
 
-    return ClipRect(
-      clipBehavior: Clip.hardEdge,
-      child: SizedBox(
-        height: heroHeight,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _openDetail(context, item),
-          onHorizontalDragEnd: (details) {
-            if (details.primaryVelocity != null) {
-              if (details.primaryVelocity! < -120) {
-                _nextPage();
-              } else if (details.primaryVelocity! > 120) {
-                _prevPage();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(26),
+        child: Container(
+          height: heroHeight,
+          decoration: BoxDecoration(
+            color: context.bgSurface,
+            borderRadius: BorderRadius.circular(26),
+          ),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _openDetail(context, item),
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity != null) {
+                if (details.primaryVelocity! < -120) {
+                  _nextPage();
+                } else if (details.primaryVelocity! > 120) {
+                  _prevPage();
+                }
               }
-            }
-          },
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // 1. Imagine cu Tranziție Sincronizată Blur-Fade stil iOS și ClipRect strict
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                switchInCurve: Curves.easeInOutCubic,
-                switchOutCurve: Curves.easeInOutCubic,
-                transitionBuilder: _buildBlurFadeTransition,
-                child: SizedBox(
-                  key: ValueKey<String>('bg_${item.id}_$safeCurrentIndex'),
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: CachedNetworkImage(
-                    imageUrl: bannerUrl,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.center,
-                    placeholder: (context, url) => Container(color: context.bgSurface),
-                    errorWidget: (context, url, error) => Container(color: context.bgSurface),
-                  ),
-                ),
-              ),
-
-              // 2. Vertical Gradient Mask static deasupra fundalului (fără scurgeri vizuale)
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        context.bgPrimary.withValues(alpha: 0.2),
-                        context.bgPrimary.withValues(alpha: 0.8),
-                        context.bgPrimary,
-                      ],
-                      stops: const [0.0, 0.35, 0.75, 1.0],
+            },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // 1. Background Image with synchronized Blur-Fade transition
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  switchInCurve: Curves.easeInOutCubic,
+                  switchOutCurve: Curves.easeInOutCubic,
+                  transitionBuilder: _buildBlurFadeTransition,
+                  child: SizedBox(
+                    key: ValueKey<String>('hero_bg_${item.id}_$safeCurrentIndex'),
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: CachedNetworkImage(
+                      imageUrl: bannerUrl,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                      placeholder: (context, url) => Container(color: context.bgSurface),
+                      errorWidget: (context, url, error) => Container(color: context.bgSurface),
                     ),
                   ),
                 ),
-              ),
 
-              // 3. Blocul de Conținut: Poziție Fixă, Badges Statice, Tranziție Blur-Fade pe Titlu & Subtitlu
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 34,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Badges Row (Complet static — fără nicio tranziție de blur)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Badge Trending (fără border, blur saturat)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
-                          child: BackdropFilter(
-                            filter: _glassFilter,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: context.bgSurface.withValues(
-                                    alpha: context.isDarkMode ? 0.75 : 0.88),
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.auto_awesome, size: 12, color: context.textPrimary),
-                                  const SizedBox(width: 4.5),
-                                  Text(
-                                    _getCurrentSeasonText(),
-                                    style: TextStyle(
-                                      color: context.textPrimary,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Text "Sezon Nou" plasat direct lângă badge în culoare deschisă
-                        if (_isNewSeason(item)) ...[
-                          const SizedBox(width: 10),
-                          Text(
-                            'Sezon Nou',
-                            style: TextStyle(
-                              color: context.textPrimary,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
+                // 2. Cinematic Vertical Gradient Overlay inside the bounded card
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.15),
+                          Colors.black.withValues(alpha: 0.65),
+                          Colors.black.withValues(alpha: 0.94),
                         ],
-                      ],
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // Titlu & Genuri (Animat fluid cu Blur-Fade sincronizat cu imaginea)
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      switchInCurve: Curves.easeInOutCubic,
-                      switchOutCurve: Curves.easeInOutCubic,
-                      transitionBuilder: _buildBlurFadeTransition,
-                      child: KeyedSubtree(
-                        key: ValueKey<String>('text_${item.id}_$safeCurrentIndex'),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Titlu cu înălțime rezervată fixă
-                            SizedBox(
-                              height: 52,
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  item.title.userPreferred,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: 'Zalando Sans Expanded',
-                                    color: context.textPrimary,
-                                    fontSize: 21,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.15,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 4),
-
-                            // Genuri, Format și An
-                            SizedBox(
-                              height: 18,
-                              child: Text(
-                                [
-                                  item.format ?? item.type,
-                                  if (item.year != null) '${item.year}',
-                                  ...item.genres.take(3),
-                                ].join(' • '),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: context.textSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        stops: const [0.0, 0.40, 0.72, 1.0],
                       ),
                     ),
+                  ),
+                ),
 
-                    const SizedBox(height: 14),
-
-                    // Butoane de Acțiune (Complet Statice — Nu se re-animează între slide-uri)
-                    Row(
-                      children: [
-                        // Buton Principal: "Vezi Serie" (Doar text, Pill shape, 44px)
-                        SizedBox(
-                          height: 44,
-                          child: ElevatedButton(
-                            onPressed: () => _openDetail(context, item),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: context.accentPrimary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
-                              shape: const StadiumBorder(),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              'Vezi Serie',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 13.5,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 10),
-
-                        // Buton Secundar: Watchlist (Cerc complet de 44px, fără border, blur saturat)
-                        InkWell(
-                          onTap: () => _openDetail(context, item),
-                          borderRadius: BorderRadius.circular(999),
-                          child: ClipOval(
+                // 3. Content Block inside the Card
+                Positioned(
+                  left: 18,
+                  right: 18,
+                  bottom: 26,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Badges Row
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Badge Trending (Frosted glass over card)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(999),
                             child: BackdropFilter(
                               filter: _glassFilter,
                               child: Container(
-                                width: 44,
-                                height: 44,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: context.bgSurface.withValues(
-                                      alpha: context.isDarkMode ? 0.75 : 0.88),
-                                  boxShadow: [
-                                    if (!context.isDarkMode)
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.06),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
+                                  color: Colors.white.withValues(alpha: 0.18),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.auto_awesome, size: 12, color: Colors.white),
+                                    const SizedBox(width: 4.5),
+                                    Text(
+                                      _getCurrentSeasonText(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        fontFamily: 'Google Sans',
                                       ),
+                                    ),
                                   ],
                                 ),
-                                child: Center(
-                                  child: Icon(
-                                    PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
-                                    size: 22,
-                                    color: context.textPrimary,
+                              ),
+                            ),
+                          ),
+
+                          // Text "Sezon Nou"
+                          if (_isNewSeason(item)) ...[
+                            const SizedBox(width: 10),
+                            const Text(
+                              'Sezon Nou',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Google Sans',
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Title & Subtitle with smooth blur-fade transition
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 400),
+                        switchInCurve: Curves.easeInOutCubic,
+                        switchOutCurve: Curves.easeInOutCubic,
+                        transitionBuilder: _buildBlurFadeTransition,
+                        child: KeyedSubtree(
+                          key: ValueKey<String>('hero_text_${item.id}_$safeCurrentIndex'),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Title with fixed reserved height
+                              SizedBox(
+                                height: 50,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    item.title.userPreferred,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontFamily: 'Zalando Sans Expanded',
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.15,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              // Formats & Genres
+                              SizedBox(
+                                height: 18,
+                                child: Text(
+                                  [
+                                    item.format ?? item.type,
+                                    if (item.year != null) '${item.year}',
+                                    ...item.genres.take(3),
+                                  ].join(' • '),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.82),
+                                    fontSize: 12,
+                                    fontFamily: 'Google Sans',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      // Action Buttons Row
+                      Row(
+                        children: [
+                          // "Vezi Serie" Button (Warm Beige CTA with high contrast dark text)
+                          SizedBox(
+                            height: 44,
+                            child: ElevatedButton(
+                              onPressed: () => _openDetail(context, item),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFF5EFE6),
+                                foregroundColor: const Color(0xFF181614),
+                                padding: const EdgeInsets.symmetric(horizontal: 22),
+                                shape: const StadiumBorder(),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Vezi Serie',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF181614),
+                                  fontSize: 13.5,
+                                  fontFamily: 'Google Sans',
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          // Bookmark Button
+                          InkWell(
+                            onTap: () => _openDetail(context, item),
+                            borderRadius: BorderRadius.circular(999),
+                            child: ClipOval(
+                              child: BackdropFilter(
+                                filter: _glassFilter,
+                                child: Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white.withValues(alpha: 0.20),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // 4. Indicator Puncte cu Scaling Dinamic (Punctul activ e cel mai mare, adiacentele medii, exterioarele mici)
-              Positioned(
-                bottom: 12,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: _buildScalingDotsIndicator(
-                    context,
-                    widget.items.length,
-                    safeCurrentIndex,
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+
+                // 4. Scaling dots indicator at the bottom of the Card
+                Positioned(
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: _buildScalingDotsIndicator(
+                      context,
+                      widget.items.length,
+                      safeCurrentIndex,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

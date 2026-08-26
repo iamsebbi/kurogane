@@ -52,7 +52,6 @@ class SearchFilterState {
   final List<String> genres;
   final List<String> microTags;
   final String sortBy;
-  final double? minScore;
 
   SearchFilterState({
     this.query = '',
@@ -63,7 +62,6 @@ class SearchFilterState {
     this.genres = const [],
     this.microTags = const [],
     this.sortBy = 'RELEVANCE',
-    this.minScore,
   });
 
   SearchFilterState copyWith({
@@ -75,7 +73,6 @@ class SearchFilterState {
     List<String>? genres,
     List<String>? microTags,
     String? sortBy,
-    double? minScore,
   }) {
     return SearchFilterState(
       query: query ?? this.query,
@@ -86,7 +83,6 @@ class SearchFilterState {
       genres: genres ?? this.genres,
       microTags: microTags ?? this.microTags,
       sortBy: sortBy ?? this.sortBy,
-      minScore: minScore ?? this.minScore,
     );
   }
 }
@@ -99,7 +95,7 @@ final searchResultsProvider = FutureProvider<List<MediaItem>>((ref) async {
   final client = ref.watch(apiClientProvider);
   final filters = ref.watch(searchFiltersProvider);
 
-  return await client.searchMedia(
+  final results = await client.searchMedia(
     query: filters.query,
     type: filters.type,
     format: filters.format,
@@ -108,8 +104,48 @@ final searchResultsProvider = FutureProvider<List<MediaItem>>((ref) async {
     genres: filters.genres,
     microTags: filters.microTags,
     sortBy: filters.sortBy,
-    minScore: filters.minScore,
+    limit: 50,
   );
+
+  if (results.isNotEmpty) {
+    return results;
+  }
+
+  // Dacă utilizatorul este în starea inițială Explore (fără query/filtre active),
+  // populăm garantat ecranul de Explore cu 30-50 de titluri populare și sezoniere!
+  final bool hasActiveFilters = filters.genres.isNotEmpty ||
+      filters.microTags.isNotEmpty ||
+      filters.type != 'ALL' ||
+      filters.format != 'ALL' ||
+      filters.status != 'ALL';
+
+  if (!hasActiveFilters && filters.query.trim().isEmpty) {
+    try {
+      final homeData = await client.getHomepage();
+      final Set<String> seenIds = {};
+      final List<MediaItem> exploreInitial = [];
+
+      void addItems(List<MediaItem> list) {
+        for (final item in list) {
+          if (seenIds.add(item.id)) {
+            exploreInitial.add(item);
+          }
+        }
+      }
+
+      addItems(homeData.heroItems);
+      addItems(homeData.featuredSeason);
+      addItems(homeData.topAiring);
+      addItems(homeData.trendingSeason);
+      addItems(homeData.top100);
+
+      if (exploreInitial.isNotEmpty) {
+        return exploreInitial.take(50).toList();
+      }
+    } catch (_) {}
+  }
+
+  return results;
 });
 
 // Quick Search Provider (Live Title / Acronym search)

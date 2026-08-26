@@ -12,13 +12,15 @@ import '../../models/watchlist_item.dart';
 
 class ApiClient {
   late final Dio _dio;
+  static String? _workingBaseUrl;
 
   ApiClient({String? customBaseUrl}) {
+    final initialBaseUrl = customBaseUrl ?? _workingBaseUrl ?? ApiConstants.baseUrl;
     _dio = Dio(
       BaseOptions(
-        baseUrl: customBaseUrl ?? ApiConstants.baseUrl,
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
+        baseUrl: initialBaseUrl,
+        connectTimeout: const Duration(seconds: 4),
+        receiveTimeout: const Duration(seconds: 8),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -64,10 +66,46 @@ class ApiClient {
     );
   }
 
+  Future<Response<dynamic>?> _get(String path, {Map<String, dynamic>? queryParameters}) async {
+    // 1. Try current working URL first
+    try {
+      final response = await _dio.get(path, queryParameters: queryParameters);
+      if (response.statusCode == 200) {
+        _workingBaseUrl = _dio.options.baseUrl;
+        return response;
+      }
+    } catch (e) {
+      debugPrint('[ApiClient] Request failed on ${_dio.options.baseUrl}$path: $e');
+    }
+
+    // 2. Try candidate fallback URLs
+    final candidates = ApiConstants.candidateBaseUrls.where((u) => u != _dio.options.baseUrl);
+    for (final candidateUrl in candidates) {
+      try {
+        final fallbackDio = Dio(BaseOptions(
+          baseUrl: candidateUrl,
+          connectTimeout: const Duration(seconds: 3),
+          receiveTimeout: const Duration(seconds: 6),
+          headers: _dio.options.headers,
+        ));
+        final response = await fallbackDio.get(path, queryParameters: queryParameters);
+        if (response.statusCode == 200) {
+          _workingBaseUrl = candidateUrl;
+          _dio.options.baseUrl = candidateUrl;
+          debugPrint('[ApiClient] Switched working baseUrl to $candidateUrl');
+          return response;
+        }
+      } catch (_) {
+        // Continue to next candidate URL
+      }
+    }
+    return null;
+  }
+
   Future<HomepageData> getHomepage() async {
     try {
-      final response = await _dio.get(ApiConstants.homepage);
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _get(ApiConstants.homepage);
+      if (response != null && response.data != null) {
         return HomepageData.fromJson(response.data as Map<String, dynamic>);
       }
       return HomepageData();
@@ -90,30 +128,30 @@ class ApiClient {
     int page = 1,
     int limit = 30,
   }) async {
+    final queryParams = <String, dynamic>{
+      'q': query,
+      'type': type,
+      'format': format,
+      'status': status,
+      'demographic': demographic,
+      'sortBy': sortBy,
+      'page': page,
+      'limit': limit,
+    };
+
+    if (genres.isNotEmpty) {
+      queryParams['genres'] = genres.join(',');
+    }
+    if (microTags.isNotEmpty) {
+      queryParams['microTags'] = microTags.join(',');
+    }
+    if (minScore != null && minScore > 0) {
+      queryParams['minScore'] = minScore;
+    }
+
     try {
-      final queryParams = <String, dynamic>{
-        'q': query,
-        'type': type,
-        'format': format,
-        'status': status,
-        'demographic': demographic,
-        'sortBy': sortBy,
-        'page': page,
-        'limit': limit,
-      };
-
-      if (genres.isNotEmpty) {
-        queryParams['genres'] = genres.join(',');
-      }
-      if (microTags.isNotEmpty) {
-        queryParams['microTags'] = microTags.join(',');
-      }
-      if (minScore != null && minScore > 0) {
-        queryParams['minScore'] = minScore;
-      }
-
-      final response = await _dio.get(ApiConstants.search, queryParameters: queryParams);
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _get(ApiConstants.search, queryParameters: queryParams);
+      if (response != null && response.data != null) {
         final results = response.data['results'] as List<dynamic>? ?? [];
         return results.map((e) => MediaItem.fromJson(e as Map<String, dynamic>)).toList();
       }
@@ -126,8 +164,8 @@ class ApiClient {
 
   Future<MediaItem?> getMediaById(String id) async {
     try {
-      final response = await _dio.get('${ApiConstants.mediaDetail}/$id');
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _get('${ApiConstants.mediaDetail}/$id');
+      if (response != null && response.data != null) {
         return MediaItem.fromJson(response.data as Map<String, dynamic>);
       }
       return null;
@@ -139,8 +177,8 @@ class ApiClient {
 
   Future<WatchOrderGuide?> getWatchOrder(String id) async {
     try {
-      final response = await _dio.get('${ApiConstants.mediaDetail}/$id/watch-order');
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _get('${ApiConstants.mediaDetail}/$id/watch-order');
+      if (response != null && response.data != null) {
         return WatchOrderGuide.fromJson(response.data as Map<String, dynamic>);
       }
       return null;
@@ -152,8 +190,8 @@ class ApiClient {
 
   Future<List<MediaItem>> getSimilarMedia(String id) async {
     try {
-      final response = await _dio.get('${ApiConstants.mediaDetail}/$id/similar');
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _get('${ApiConstants.mediaDetail}/$id/similar');
+      if (response != null && response.data != null) {
         final similarList = response.data['similarItems'] as List<dynamic>? ?? [];
         return similarList.map((e) => MediaItem.fromJson(e['item'] as Map<String, dynamic>)).toList();
       }
@@ -166,8 +204,8 @@ class ApiClient {
 
   Future<List<NewsArticle>> getNews({int limit = 20}) async {
     try {
-      final response = await _dio.get(ApiConstants.news, queryParameters: {'limit': limit});
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _get(ApiConstants.news, queryParameters: {'limit': limit});
+      if (response != null && response.data != null) {
         final articles = response.data['articles'] as List<dynamic>? ?? [];
         return articles.map((e) => NewsArticle.fromJson(e as Map<String, dynamic>)).toList();
       }
@@ -180,8 +218,8 @@ class ApiClient {
 
   Future<List<WatchlistItemRecord>> getWatchlist() async {
     try {
-      final response = await _dio.get(ApiConstants.watchlist);
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _get(ApiConstants.watchlist);
+      if (response != null && response.data != null) {
         final items = response.data['items'] as List<dynamic>? ?? [];
         return items.map((e) => WatchlistItemRecord.fromJson(e as Map<String, dynamic>)).toList();
       }

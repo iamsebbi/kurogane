@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
@@ -28,7 +29,6 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
   late String _selectedFormat;
   late List<String> _selectedGenres;
   late List<String> _selectedMicroTags;
-  late double _minScore;
   late String _sortBy;
 
   bool _showAllMicroTags = false;
@@ -81,7 +81,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
     _MicroTagItem(tag: 'High Fantasy', label: 'High Fantasy', icon: PhosphorIcons.castleTurret(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Revenge', label: 'Revenge', icon: PhosphorIcons.fire(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'System', label: 'System', icon: PhosphorIcons.cpu(PhosphorIconsStyle.bold)),
-    // Progressive disclosure extended list (37 total)
+    // Progressive disclosure extended list
     _MicroTagItem(tag: 'Female Protagonist', label: 'Female Lead', icon: PhosphorIcons.user(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'School Life', label: 'School Life', icon: PhosphorIcons.graduationCap(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Virtual Reality', label: 'VR & Gaming', icon: PhosphorIcons.gameController(PhosphorIconsStyle.bold)),
@@ -98,15 +98,15 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
     _MicroTagItem(tag: 'Horror', label: 'Horror', icon: PhosphorIcons.ghost(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Military', label: 'Military', icon: PhosphorIcons.target(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Historical', label: 'Historical', icon: PhosphorIcons.scroll(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Vampire', label: 'Vampire', icon: PhosphorIcons.drop(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Demon', label: 'Demon', icon: PhosphorIcons.maskHappy(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Magic', label: 'Magic', icon: PhosphorIcons.magicWand(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Space', label: 'Space', icon: PhosphorIcons.planet(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Mythology', label: 'Mythology', icon: PhosphorIcons.sparkle(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Martial Arts', label: 'Martial Arts', icon: PhosphorIcons.handFist(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Detective', label: 'Detective', icon: PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Comedy', label: 'Comedy', icon: PhosphorIcons.smiley(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Dark Fantasy', label: 'Dark Fantasy', icon: PhosphorIcons.moon(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Dungeon', label: 'Dungeon', icon: PhosphorIcons.door(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Necromancer', label: 'Necromancer', icon: PhosphorIcons.bone(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Super Power', label: 'Super Power', icon: PhosphorIcons.star(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Space', label: 'Space', icon: PhosphorIcons.planet(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Gore', label: 'Gore', icon: PhosphorIcons.drop(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Vampire', label: 'Vampire', icon: PhosphorIcons.moon(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Demons', label: 'Demons', icon: PhosphorIcons.maskHappy(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Magic', label: 'Magic', icon: PhosphorIcons.magicWand(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Tower', label: 'Tower', icon: PhosphorIcons.buildings(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Solo Player', label: 'Solo Player', icon: PhosphorIcons.userFocus(PhosphorIconsStyle.bold)),
   ];
@@ -119,30 +119,30 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
     _selectedFormat = currentFilters.format;
     _selectedGenres = List.from(currentFilters.genres);
     _selectedMicroTags = List.from(currentFilters.microTags);
-    _minScore = currentFilters.minScore ?? 0.0;
     _sortBy = currentFilters.sortBy;
   }
 
   void _resetFilters() {
+    HapticFeedback.mediumImpact();
     setState(() {
       _selectedType = 'ALL';
       _selectedFormat = 'ALL';
       _selectedGenres.clear();
       _selectedMicroTags.clear();
-      _minScore = 0.0;
       _sortBy = 'RELEVANCE';
     });
   }
 
   void _applyFilters() {
-    ref.read(searchFiltersProvider.notifier).state = ref.read(searchFiltersProvider).copyWith(
-          type: _selectedType,
-          format: _selectedFormat,
-          genres: _selectedGenres,
-          microTags: _selectedMicroTags,
-          minScore: _minScore > 0 ? _minScore : null,
-          sortBy: _sortBy,
-        );
+    HapticFeedback.lightImpact();
+    ref.read(searchFiltersProvider.notifier).state = SearchFilterState(
+      query: ref.read(searchFiltersProvider).query,
+      type: _selectedType,
+      format: _selectedFormat,
+      genres: List.from(_selectedGenres),
+      microTags: List.from(_selectedMicroTags),
+      sortBy: _sortBy,
+    );
     Navigator.of(context).pop();
   }
 
@@ -153,30 +153,22 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     final visibleMicroTags = _showAllMicroTags ? _allMicroTags : _allMicroTags.take(10).toList();
-    final scoreColor = context.isDarkMode ? AppColors.scoreGold : AppColors.lightScoreGold;
 
     return Container(
       constraints: BoxConstraints(
-        maxHeight: screenHeight * 0.90,
+        maxHeight: screenHeight * 0.88,
       ),
       decoration: BoxDecoration(
         color: context.bgSurface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: context.isDarkMode ? 0.45 : 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, -4),
-          ),
-        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. Top Fixed Header: Accessible Drag Handle + Title & Reset Action
+          // 1. Top Fixed Header: Drag Handle & Title
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 16, 10),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             child: Column(
               children: [
                 // Full Rounded Drag Handle
@@ -192,9 +184,8 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                 ),
                 const SizedBox(height: 14),
 
-                // Header Row
+                // Header Title
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Filtre Avansate',
@@ -206,22 +197,6 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                         letterSpacing: -0.3,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: _resetFilters,
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                        child: Text(
-                          'Resetează',
-                          style: TextStyle(
-                            color: context.isDarkMode ? AppColors.alertCoral : AppColors.lightAlertCoral,
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Google Sans',
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
@@ -230,7 +205,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
 
           const SizedBox(height: 4),
 
-          // 2. Scrollable Body (Clean Whitespace Hierarchy, Zero Borders, High Contrast)
+          // 2. Scrollable Body (Clean Whitespace Hierarchy, Zero Shadows/Glows)
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -262,97 +237,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
 
                   _buildSectionSpacing(),
 
-                  // --- SECTION 3: Scor Minim Slider with Explicit Scale Labels ---
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildSectionTitle(context, 'Scor Minim'),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: scoreColor.withValues(alpha: context.isDarkMode ? 0.20 : 0.18),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.star_rounded,
-                              size: 13,
-                              color: scoreColor,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              _minScore > 0 ? '${_minScore.toStringAsFixed(1)} / 10' : 'Oricare',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: scoreColor,
-                                fontSize: 12,
-                                fontFamily: 'Google Sans',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: scoreColor,
-                      inactiveTrackColor: context.bgPrimary,
-                      thumbColor: scoreColor,
-                      overlayColor: scoreColor.withValues(alpha: 0.2),
-                      trackHeight: 4.0,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
-                    ),
-                    child: Slider(
-                      value: _minScore,
-                      min: 0.0,
-                      max: 9.5,
-                      divisions: 19,
-                      onChanged: (val) => setState(() => _minScore = val),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '0.0 (Oricare)',
-                          style: TextStyle(
-                            color: context.textMuted,
-                            fontSize: 11,
-                            fontFamily: 'Google Sans',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '5.0',
-                          style: TextStyle(
-                            color: context.textMuted,
-                            fontSize: 11,
-                            fontFamily: 'Google Sans',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '9.5 (Capodopere)',
-                          style: TextStyle(
-                            color: context.textMuted,
-                            fontSize: 11,
-                            fontFamily: 'Google Sans',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  _buildSectionSpacing(),
-
-                  // --- SECTION 4: Genuri (Full Rounded Multi-Select Pills, Solid High Contrast) ---
+                  // --- SECTION 3: Genuri (Full Rounded Multi-Select Pills, Solid Flat Colors) ---
                   _buildSectionTitle(context, 'Genuri'),
                   const SizedBox(height: 10),
                   Wrap(
@@ -381,7 +266,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
 
                   _buildSectionSpacing(),
 
-                  // --- SECTION 5: Micro-Tag-uri & Trope-uri (Full Rounded, Coral Accent, High Contrast) ---
+                  // --- SECTION 4: Micro-Tag-uri & Trope-uri (Full Rounded, Flat High Contrast) ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -475,30 +360,58 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
             ),
           ),
 
-          // 3. Sticky Bottom Footer: Full Rounded Stadium "Aplică Filtrele"
+          // 3. Sticky Bottom Footer: Reset Circle Button (Left) + Stadium "Aplică Filtrele" (Right)
           Container(
             padding: EdgeInsets.fromLTRB(20, 12, 20, (bottomInset > 0 ? bottomInset : bottomPadding) + 12),
             color: context.bgSurface,
-            child: SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _applyFilters,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: context.accentPrimary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                ),
-                child: Text(
-                  'Aplică Filtrele',
-                  style: TextStyle(
-                    color: context.onPrimary,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                    fontFamily: 'Google Sans',
+            child: Row(
+              children: [
+                // Intuitive Circle Reset Button with Phosphor Icon
+                GestureDetector(
+                  onTap: _resetFilters,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: context.bgPrimary,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      PhosphorIcons.arrowsCounterClockwise(PhosphorIconsStyle.bold),
+                      size: 21,
+                      color: context.isDarkMode ? AppColors.alertCoral : AppColors.lightAlertCoral,
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 12),
+
+                // Expanded "Aplică Filtrele" Button
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _applyFilters,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.accentPrimary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
+                      ),
+                      child: Text(
+                        'Aplică Filtrele',
+                        style: TextStyle(
+                          color: context.onPrimary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          fontFamily: 'Google Sans',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -522,7 +435,6 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
     return const SizedBox(height: 22);
   }
 
-  /// Full-Rounded (Stadium/Capsule) Connected Segmented Control (Zero Borders)
   Widget _buildSegmentedControl({
     required BuildContext context,
     required List<String> options,
@@ -530,72 +442,73 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
     required ValueChanged<String> onSelected,
   }) {
     return Container(
-      height: 40,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: context.bgPrimary,
         borderRadius: BorderRadius.circular(999),
       ),
-      padding: const EdgeInsets.all(4),
-      child: ListView.builder(
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: options.length,
-        itemBuilder: (context, index) {
-          final opt = options[index];
-          final isSelected = selectedOption == opt;
-
-          return GestureDetector(
-            onTap: () => onSelected(opt),
-            behavior: HitTestBehavior.opaque,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: isSelected ? context.accentPrimary : Colors.transparent,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                opt,
-                style: TextStyle(
-                  color: isSelected ? context.onPrimary : context.textSecondary,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  fontSize: 12,
-                  fontFamily: 'Google Sans',
+        child: Row(
+          children: options.map((opt) {
+            final isSelected = opt == selectedOption;
+            return GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                onSelected(opt);
+              },
+              behavior: HitTestBehavior.opaque,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7.5),
+                decoration: BoxDecoration(
+                  color: isSelected ? context.accentPrimary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  opt == 'ALL' ? 'Toate' : opt,
+                  style: TextStyle(
+                    color: isSelected ? context.onPrimary : context.textSecondary,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    fontSize: 12.5,
+                    fontFamily: 'Google Sans',
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 
-  /// Full-Rounded (Stadium/Pill) Multi-Select Pill with Solid High-Contrast Selection
   Widget _buildMultiSelectPill({
     required BuildContext context,
     required String label,
     IconData? icon,
     required bool isSelected,
-    Color? activeColor,
-    Color? activeTextColor,
+    required Color activeColor,
+    required Color activeTextColor,
     required VoidCallback onTap,
   }) {
-    final effectiveBgColor = isSelected
-        ? (activeColor ?? context.accentPrimary)
-        : context.bgPrimary;
-    final effectiveFgColor = isSelected
-        ? (activeTextColor ?? context.onPrimary)
-        : context.textPrimary;
-
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.symmetric(horizontal: icon != null ? 10 : 12, vertical: 7),
         decoration: BoxDecoration(
-          color: effectiveBgColor,
+          color: isSelected
+              ? activeColor
+              : context.isDarkMode
+                  ? context.bgPrimary
+                  : context.bgPrimary.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(999),
         ),
         child: Row(
@@ -604,28 +517,20 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
             if (icon != null) ...[
               Icon(
                 icon,
-                size: 13.5,
-                color: effectiveFgColor,
+                size: 14,
+                color: isSelected ? activeTextColor : context.textSecondary,
               ),
               const SizedBox(width: 5),
             ],
             Text(
               label,
               style: TextStyle(
-                color: effectiveFgColor,
+                color: isSelected ? activeTextColor : context.textPrimary,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 fontSize: 12.5,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 fontFamily: 'Google Sans',
               ),
             ),
-            if (isSelected) ...[
-              const SizedBox(width: 4.5),
-              Icon(
-                PhosphorIcons.check(PhosphorIconsStyle.bold),
-                size: 11.5,
-                color: effectiveFgColor,
-              ),
-            ],
           ],
         ),
       ),

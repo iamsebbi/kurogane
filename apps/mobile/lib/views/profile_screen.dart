@@ -1,13 +1,21 @@
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../core/constants/app_colors.dart';
 import '../core/theme/theme_provider.dart';
+import '../models/watchlist_item.dart';
+import '../providers/anilist_provider.dart';
+import '../providers/api_providers.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/pill_badge.dart';
 import 'auth/login_screen.dart';
 import 'auth/register_screen.dart';
+import 'media_detail_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -28,60 +36,117 @@ class ProfileScreen extends ConsumerWidget {
         ? user.displayName!
         : (user.email?.split('@')[0] ?? 'Membru Kurogane');
 
-    final username = user.email?.split('@')[0] ?? 'membru';
+    final username = (user.displayName != null && user.displayName!.isNotEmpty)
+        ? user.displayName!.toLowerCase().replaceAll(' ', '_')
+        : (user.email?.split('@')[0] ?? 'membru');
+
+    // Date Live din Watchlist (Sincronizate automat cu orice acțiune din aplicație)
+    final watchlistAsync = ref.watch(watchlistProvider);
+    final List<WatchlistItemRecord> watchlist = watchlistAsync.value ?? [];
+
+    // Stare AniList Sync
+    final anilistState = ref.watch(anilistProvider);
+
+    // Statistici calculate dinamic
+    final int completedCount = watchlist.where((i) => i.status == 'COMPLETED').length;
+    final int watchingCount = watchlist.where((i) => i.status == 'WATCHING').length;
+    final int totalEpisodes = watchlist.fold<int>(0, (sum, i) => sum + i.progressEpisodes);
+
+    final scoredItems = watchlist.where((i) => i.score != null && i.score! > 0).toList();
+    final String avgScoreStr = scoredItems.isNotEmpty
+        ? (scoredItems.fold<double>(0.0, (sum, i) => sum + i.score!) / scoredItems.length).toStringAsFixed(1)
+        : '—';
+
+    // Genuri favorite calculate dinamic din anime-urile din listă
+    final Map<String, int> genreCounts = {};
+    for (final item in watchlist) {
+      if (item.mediaItem?.genres != null) {
+        for (final g in item.mediaItem!.genres) {
+          genreCounts[g] = (genreCounts[g] ?? 0) + 1;
+        }
+      }
+    }
+    final sortedGenres = genreCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final List<String> userTags = sortedGenres.isNotEmpty
+        ? sortedGenres.take(4).map((e) => '#${e.key}').toList()
+        : ['#Shonen', '#Fantasy', '#AnimeLover', '#Kurogane'];
+
+    // Imagine de cover dinamică: dacă userul are anime-uri, folosim banner-ul primului anime
+    final dynamicCover = watchlist.isNotEmpty && watchlist.first.mediaItem?.bannerImage != null
+        ? watchlist.first.mediaItem!.bannerImage!
+        : _defaultCoverImage;
 
     return Scaffold(
       backgroundColor: context.bgPrimary,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        slivers: [
-          // 1. Hero Header cu Imagine mare & Gradient Fade
-          _buildSliverHeader(context, ref, user),
+      body: RefreshIndicator(
+        color: context.accentPrimary,
+        backgroundColor: context.bgSurface,
+        onRefresh: () async {
+          await ref.read(watchlistProvider.notifier).fetchWatchlist();
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          slivers: [
+            // 1. Hero Header cu Imagine mare & Gradient Fade
+            _buildSliverHeader(context, ref, user, dynamicCover),
 
-          // 2. Conținut Profil (Creator Card Layout)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 14),
+            // 2. Conținut Profil (Creator Card Layout)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 14),
 
-                  // Nume + Username + Badge Acțiune
-                  _buildIdentitySection(context, displayName, username),
+                    // Nume + Username + Badge Acțiune
+                    _buildIdentitySection(context, displayName, username),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Rând de Statistici Inline (cu Divider Vertical)
-                  _buildInlineStatsRow(context),
+                    // Rând de Statistici Inline Live (Sincronizat cu Watchlist)
+                    _buildInlineStatsRow(
+                      context,
+                      completedCount: completedCount,
+                      watchingCount: watchingCount,
+                      totalEpisodes: totalEpisodes,
+                      avgScore: avgScoreStr,
+                    ),
 
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
-                  // Secțiune Bio / Citat & Tag-uri
-                  _buildBioSection(context),
+                    // Secțiune Bio / Citat & Tag-uri dinamice
+                    _buildBioSection(context, userTags),
 
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
-                  // Buton Principal CTA Gradient (Edit Profile)
-                  _buildPrimaryCtaButton(context),
+                    // Buton Principal CTA Gradient (Edit Profile)
+                    _buildPrimaryCtaButton(context, ref, user, displayName),
 
-                  const SizedBox(height: 36),
+                    const SizedBox(height: 36),
 
-                  // Secțiune "Activitate Recentă" (Echivalent Chats / Grid)
-                  _buildRecentActivitySection(context),
+                    // Secțiune "Conturi Conectate" (Sincronizare AniList 2-Way)
+                    _buildConnectedAccountsSection(context, ref, anilistState),
 
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 36),
 
-                  // Buton Deconectare
-                  _buildLogoutButton(context, ref),
+                    // Secțiune "Activitate Recentă" (Anime-uri reale din Watchlist-ul utilizatorului)
+                    _buildRecentActivitySection(context, watchlist, watchlistAsync.isLoading),
 
-                  // Spațiere generoasă pentru Floating Navigation Bar
-                  const SizedBox(height: 120),
-                ],
+                    const SizedBox(height: 28),
+
+                    // Buton Deconectare
+                    _buildLogoutButton(context, ref),
+
+                    // Spațiere generoasă pentru Floating Navigation Bar
+                    const SizedBox(height: 120),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -93,7 +158,7 @@ class ProfileScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Navigation Bar (iOS System Design, Left & Right 52px Floating Buttons fără border)
+            // Top Navigation Bar
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: Row(
@@ -133,7 +198,7 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     const SizedBox(height: 20),
 
-                    // Icon Simplu Phosphor (fără glow, fără gradient squircle)
+                    // Icon Simplu Phosphor
                     Icon(
                       PhosphorIcons.userCircle(PhosphorIconsStyle.regular),
                       size: 72,
@@ -157,9 +222,9 @@ class ProfileScreen extends ConsumerWidget {
 
                     const SizedBox(height: 8),
 
-                    // Subtitlu explicativ scurtat
+                    // Subtitlu explicativ
                     Text(
-                      'Conectează-te pentru a-ți accesa profilul și lista de anime-uri.',
+                      'Conectează-te pentru a-ți accesa profilul și lista de anime-uri sincronizată.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: context.textSecondary,
@@ -170,17 +235,17 @@ class ProfileScreen extends ConsumerWidget {
 
                     const SizedBox(height: 36),
 
-                    // Lista simplificată (fără border, fără background, iconițe în cerc monocrom adaptat la temă)
+                    // Lista caracteristici
                     _buildSimplifiedFeatureItem(
                       context: context,
                       icon: PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
-                      title: 'Watchlist Personalizat',
+                      title: 'Watchlist Sincronizat Live',
                     ),
                     const SizedBox(height: 18),
                     _buildSimplifiedFeatureItem(
                       context: context,
                       icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.bold),
-                      title: 'Comunitate & Recenzii',
+                      title: 'Statistici & Episoade Urmărite',
                     ),
                     const SizedBox(height: 18),
                     _buildSimplifiedFeatureItem(
@@ -191,7 +256,7 @@ class ProfileScreen extends ConsumerWidget {
 
                     const SizedBox(height: 42),
 
-                    // Buton Principal Conectare (Capital letters, normal spacing, solid accent, tap feedback)
+                    // Buton Principal Conectare
                     _InteractiveScaleButton(
                       onTap: () => LoginScreen.show(context),
                       child: Container(
@@ -215,7 +280,7 @@ class ProfileScreen extends ConsumerWidget {
 
                     const SizedBox(height: 14),
 
-                    // Buton Secundar Înregistrare (Capital letters, normal spacing, tap feedback)
+                    // Buton Secundar Înregistrare
                     _InteractiveScaleButton(
                       onTap: () => RegisterScreen.show(context),
                       child: Container(
@@ -290,7 +355,8 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildSliverHeader(
     BuildContext context,
     WidgetRef ref,
-    dynamic user,
+    fb.User user,
+    String coverImageUrl,
   ) {
     final double headerHeight = MediaQuery.of(context).size.height * 0.42;
 
@@ -319,7 +385,7 @@ class ProfileScreen extends ConsumerWidget {
             )
           : null,
       actions: [
-        // Buton Setări ⚙️ (52px floating button iOS design)
+        // Buton Setări ⚙️ (52px floating button)
         Padding(
           padding: const EdgeInsets.only(right: 20.0),
           child: Center(
@@ -344,11 +410,12 @@ class ProfileScreen extends ConsumerWidget {
           fit: StackFit.expand,
           children: [
             // Imagine de fundal Portrait / Banner
-            Image.network(
-              _defaultCoverImage,
+            CachedNetworkImage(
+              imageUrl: coverImageUrl,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
-              errorBuilder: (_, __, ___) => Container(
+              placeholder: (context, url) => Container(color: context.bgSurface),
+              errorWidget: (_, __, ___) => Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -389,12 +456,12 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
 
-            // Gradient de jos pentru topirea lină în fundalul paginii
+            // Gradient de jos pentru tranzitie lina spre bgPrimary
             Positioned(
+              bottom: 0,
               left: 0,
               right: 0,
-              bottom: 0,
-              height: 180,
+              height: 220,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -468,7 +535,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
 
-              // Handle (@username)
+              // Handle (@username) + Badge Verificat
               Row(
                 children: [
                   Text(
@@ -518,20 +585,26 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // --- 3. RÂND STATISTICI INLINE (VERTICAL DIVIDERS) ---
-  Widget _buildInlineStatsRow(BuildContext context) {
+  // --- 3. RÂND STATISTICI INLINE (SINCRONIZATE DIN WATCHLIST) ---
+  Widget _buildInlineStatsRow(
+    BuildContext context, {
+    required int completedCount,
+    required int watchingCount,
+    required int totalEpisodes,
+    required String avgScore,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildInlineStatItem(context, '0', 'Completate'),
+          _buildInlineStatItem(context, '$completedCount', 'Completate'),
           _buildVerticalStatDivider(context),
-          _buildInlineStatItem(context, '0', 'În Curs'),
+          _buildInlineStatItem(context, '$watchingCount', 'În Curs'),
           _buildVerticalStatDivider(context),
-          _buildInlineStatItem(context, '0', 'Episoade'),
+          _buildInlineStatItem(context, '$totalEpisodes', 'Episoade'),
           _buildVerticalStatDivider(context),
-          _buildInlineStatItem(context, '—', 'Scor Mediu'),
+          _buildInlineStatItem(context, avgScore, 'Scor Mediu'),
         ],
       ),
     );
@@ -575,12 +648,12 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // --- 4. SECȚIUNE BIO, MOTTO & TAG-URI ---
-  Widget _buildBioSection(BuildContext context) {
+  // --- 4. SECȚIUNE BIO, MOTTO & TAG-URI DINAMICE ---
+  Widget _buildBioSection(BuildContext context, List<String> tags) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Citat / Motto Italic între ghilimele
+        // Citat / Motto Italic
         Text(
           '„Un nou capitol în fiecare sezon.”',
           style: TextStyle(
@@ -596,7 +669,7 @@ class ProfileScreen extends ConsumerWidget {
 
         // Descriere / Detalii Profil
         Text(
-          'Anime & Manga Enthusiast • Membru Comunitate\nTokyo ➔ București',
+          'Anime & Manga Enthusiast • Membru Kurogane Universe\nSincronizat live pe mobil & AniList.',
           style: TextStyle(
             color: context.textSecondary.withValues(alpha: 0.85),
             fontSize: 13.5,
@@ -607,16 +680,11 @@ class ProfileScreen extends ConsumerWidget {
 
         const SizedBox(height: 16),
 
-        // Tag-uri rotunjite (Pills)
+        // Tag-uri rotunjite (calculate dinamic din preferințe)
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: [
-            _buildInterestTag(context, '#Shonen'),
-            _buildInterestTag(context, '#DarkFantasy'),
-            _buildInterestTag(context, '#Cyberpunk'),
-            _buildInterestTag(context, '#Isekai'),
-          ],
+          children: tags.map((t) => _buildInterestTag(context, t)).toList(),
         ),
       ],
     );
@@ -646,7 +714,12 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   // --- 5. BUTON PRINCIPAL CTA GRADIENT (EDIT PROFILE) ---
-  Widget _buildPrimaryCtaButton(BuildContext context) {
+  Widget _buildPrimaryCtaButton(
+    BuildContext context,
+    WidgetRef ref,
+    fb.User user,
+    String currentDisplayName,
+  ) {
     return Container(
       width: double.infinity,
       height: 52,
@@ -674,15 +747,7 @@ class ProfileScreen extends ConsumerWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(26),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Editarea profilului va fi disponibilă în curând.'),
-                behavior: SnackBarBehavior.floating,
-                duration: Duration(seconds: 2),
-              ),
-            );
-          },
+          onTap: () => _showEditProfileSheet(context, ref, user, currentDisplayName),
           child: const Center(
             child: Text(
               'EDITEAZĂ PROFILUL',
@@ -699,39 +764,238 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // --- 6. SECȚIUNE ACTIVITATE RECENTĂ / FAVORITE (CHATS STYLE) ---
-  Widget _buildRecentActivitySection(BuildContext context) {
-    const List<_RecentActivityItem> items = [
-      _RecentActivityItem(
-        title: 'Solo Leveling',
-        imageUrl:
-            'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80',
-        membersCount: '150k',
-        score: '9.4',
-      ),
-      _RecentActivityItem(
-        title: 'Jujutsu Kaisen',
-        imageUrl:
-            'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80',
-        membersCount: '280k',
-        score: '9.1',
-      ),
-      _RecentActivityItem(
-        title: 'Chainsaw Man',
-        imageUrl:
-            'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=600&q=80',
-        membersCount: '95k',
-        score: '8.9',
-      ),
-      _RecentActivityItem(
-        title: 'Demon Slayer',
-        imageUrl:
-            'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
-        membersCount: '410k',
-        score: '9.3',
-      ),
-    ];
+  // --- 6. SECȚIUNE CONTURI CONECTATE (ANILIST 2-WAY SYNC) ---
+  Widget _buildConnectedAccountsSection(
+    BuildContext context,
+    WidgetRef ref,
+    AnilistState anilistState,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Conturi Conectate',
+              style: TextStyle(
+                fontFamily: 'Zalando Sans Expanded',
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: context.textPrimary,
+                letterSpacing: -0.3,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                '2-Way Sync',
+                style: TextStyle(
+                  color: Color(0xFF3B82F6),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
 
+        // AniList Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.bgSurface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: anilistState.isConnected
+                  ? const Color(0xFF3B82F6).withValues(alpha: 0.4)
+                  : context.borderSubtle,
+            ),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  // Logo / Avatar AniList
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: anilistState.isConnected && anilistState.user?.avatarUrl != null
+                        ? CachedNetworkImage(
+                            imageUrl: anilistState.user!.avatarUrl!,
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            width: 44,
+                            height: 44,
+                            color: const Color(0xFF2B2D42),
+                            child: const Center(
+                              child: Text(
+                                'AL',
+                                style: TextStyle(
+                                  color: Color(0xFF3B82F6),
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                  ),
+                  const SizedBox(width: 14),
+
+                  // Detalii Conexiune
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          anilistState.isConnected
+                              ? '@${anilistState.user!.name}'
+                              : 'AniList Account',
+                          style: TextStyle(
+                            fontFamily: 'Zalando Sans Expanded',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: context.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          anilistState.isConnected
+                              ? '✓ Sincronizare 2-Way Activă'
+                              : 'Sincronizează notele și progresul mondial',
+                          style: TextStyle(
+                            color: anilistState.isConnected
+                                ? const Color(0xFF10B981)
+                                : context.textSecondary,
+                            fontSize: 12,
+                            fontWeight: anilistState.isConnected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Buton Conectare / Deconectare
+                  if (!anilistState.isConnected)
+                    ElevatedButton(
+                      onPressed: () => _showAnilistConnectModal(context, ref),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B82F6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Conectează',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                        ),
+                      ),
+                    )
+                  else
+                    IconButton(
+                      icon: Icon(
+                        PhosphorIcons.linkBreak(PhosphorIconsStyle.bold),
+                        color: AppColors.alertCoral,
+                        size: 20,
+                      ),
+                      onPressed: () async {
+                        await ref.read(anilistProvider.notifier).disconnect();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Te-ai deconectat de la AniList.'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                ],
+              ),
+
+              // Acțiuni suplimentare când este conectat: 1-Click Import
+              if (anilistState.isConnected) ...[
+                const SizedBox(height: 12),
+                Divider(height: 1, color: context.borderSubtle),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Importă anime-urile din AniList',
+                      style: TextStyle(
+                        color: context.textSecondary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: anilistState.isSyncing
+                          ? null
+                          : () async {
+                              HapticFeedback.mediumImpact();
+                              final count = await ref
+                                  .read(anilistProvider.notifier)
+                                  .importCollectionToKurogane();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Au fost importate $count anime-uri din AniList!'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            },
+                      icon: anilistState.isSyncing
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold),
+                              size: 14,
+                              color: const Color(0xFF3B82F6),
+                            ),
+                      label: Text(
+                        anilistState.isSyncing ? 'Se importă...' : '1-Click Sync',
+                        style: const TextStyle(
+                          color: Color(0xFF3B82F6),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- 7. SECȚIUNE ACTIVITATE RECENTĂ (ANIME-URI REALE DIN WATCHLIST) ---
+  Widget _buildRecentActivitySection(
+    BuildContext context,
+    List<WatchlistItemRecord> watchlist,
+    bool isLoading,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -748,130 +1012,614 @@ class ProfileScreen extends ConsumerWidget {
                 letterSpacing: -0.3,
               ),
             ),
-            Icon(
-              PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
-              size: 16,
-              color: context.textSecondary,
-            ),
+            if (watchlist.isNotEmpty)
+              Text(
+                '${watchlist.length} titluri',
+                style: TextStyle(
+                  color: context.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 16),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: items.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 14,
-            crossAxisSpacing: 14,
-            childAspectRatio: 1.45,
+
+        if (isLoading && watchlist.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        else if (watchlist.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            decoration: BoxDecoration(
+              color: context.bgSurface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: context.borderSubtle),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
+                  size: 40,
+                  color: context.textMuted,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Niciun anime în listă încă',
+                  style: TextStyle(
+                    fontFamily: 'Zalando Sans Expanded',
+                    color: context.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Adaugă anime-uri în Watchlist din ecranul Explorează sau Acasă pentru a-ți urmări progresul aici.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: context.textSecondary,
+                    fontSize: 12.5,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: watchlist.take(6).length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 14,
+              childAspectRatio: 1.40,
+            ),
+            itemBuilder: (context, index) {
+              final item = watchlist[index];
+              return _buildActivityCard(context, item);
+            },
           ),
-          itemBuilder: (context, index) {
-            final item = items[index];
-            return _buildActivityCard(context, item);
-          },
-        ),
       ],
     );
   }
 
-  Widget _buildActivityCard(BuildContext context, _RecentActivityItem item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.bgSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.borderSubtle),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Row(
-        children: [
-          // Thumbnail Imagine
-          Expanded(
-            flex: 4,
-            child: SizedBox.expand(
-              child: Image.network(
-                item.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: context.bgPrimary,
-                  child: Icon(
-                    PhosphorIcons.image(PhosphorIconsStyle.bold),
-                    color: context.textMuted,
-                    size: 20,
-                  ),
+  Widget _buildActivityCard(BuildContext context, WatchlistItemRecord item) {
+    final media = item.mediaItem;
+    final title = media?.title.userPreferred ?? 'Anime #${item.mediaId}';
+    final imageUrl = media?.coverImage.large ?? media?.coverImage.medium ?? '';
+    final episodesText = 'Ep ${item.progressEpisodes}${media?.episodes != null ? " / ${media!.episodes}" : ""}';
+
+    String statusLabel = 'În Curs';
+    Color statusColor = context.accentPrimary;
+    if (item.status == 'COMPLETED') {
+      statusLabel = 'Completat';
+      statusColor = const Color(0xFF10B981);
+    } else if (item.status == 'PLAN_TO_WATCH') {
+      statusLabel = 'Plănuit';
+      statusColor = const Color(0xFF6366F1);
+    } else if (item.status == 'ON_HOLD') {
+      statusLabel = 'În Așteptare';
+      statusColor = const Color(0xFFF59E0B);
+    }
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => MediaDetailScreen(
+              mediaId: item.mediaId,
+              initialItem: item.mediaItem,
+            ),
+          ),
+        );
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.bgSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.borderSubtle),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          children: [
+            // Thumbnail Imagine
+            Expanded(
+              flex: 4,
+              child: SizedBox.expand(
+                child: imageUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.cover,
+                        errorWidget: (_, __, ___) => Container(
+                          color: context.bgPrimary,
+                          child: Icon(
+                            PhosphorIcons.image(PhosphorIconsStyle.bold),
+                            color: context.textMuted,
+                            size: 20,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        color: context.bgPrimary,
+                        child: Icon(
+                          PhosphorIcons.image(PhosphorIconsStyle.bold),
+                          color: context.textMuted,
+                          size: 20,
+                        ),
+                      ),
+              ),
+            ),
+
+            // Informații Text Sincronizate
+            Expanded(
+              flex: 5,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Status Pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        statusLabel,
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Google Sans',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+
+                    // Titlu
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Zalando Sans Expanded',
+                        color: context.textPrimary,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+
+                    // Progres Episoade & Scor
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            episodesText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: context.textSecondary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (item.score != null && item.score! > 0) ...[
+                          Icon(
+                            PhosphorIcons.star(PhosphorIconsStyle.fill),
+                            size: 10,
+                            color: const Color(0xFFFBBF24),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            item.score!.toStringAsFixed(1),
+                            style: TextStyle(
+                              color: context.textPrimary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
 
-          // Informații Text
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
+  // --- 8. MODAL CONECTARE ANILIST ---
+  void _showAnilistConnectModal(BuildContext context, WidgetRef ref) {
+    final tokenController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetCtx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+            decoration: BoxDecoration(
+              color: context.bgSurface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: context.borderSubtle,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'AL',
+                          style: TextStyle(
+                            color: Color(0xFF3B82F6),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Conectare Cont AniList',
+                      style: TextStyle(
+                        fontFamily: 'Zalando Sans Expanded',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: context.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Conectează-ți contul AniList pentru a sincroniza automat notele (1–10), statusul și progresul episoadelor în baza de date mondială.',
+                  style: TextStyle(
+                    color: context.textSecondary,
+                    fontSize: 13,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Buton Deschidere Link AniList
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    const url = 'https://anilist.co/api/v2/oauth/authorize?client_id=20894&response_type=token';
+                    final uri = Uri.parse(url);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  },
+                  icon: const Icon(Icons.open_in_browser, color: Color(0xFF3B82F6), size: 18),
+                  label: const Text(
+                    '1. Deschide AniList pentru a obține Token-ul',
+                    style: TextStyle(color: Color(0xFF3B82F6), fontSize: 12.5, fontWeight: FontWeight.w700),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF3B82F6)),
+                    minimumSize: const Size(double.infinity, 44),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                Text(
+                  '2. Lipește Token-ul de Acces',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: context.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: context.bgPrimary,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: context.borderSubtle),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: tokenController,
+                          style: TextStyle(color: context.textPrimary, fontSize: 13),
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Lipește token-ul AniList...',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(PhosphorIcons.clipboard(PhosphorIconsStyle.bold), size: 18),
+                        onPressed: () async {
+                          final data = await Clipboard.getData('text/plain');
+                          if (data?.text != null) {
+                            tokenController.text = data!.text!;
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final token = tokenController.text.trim();
+                      if (token.isNotEmpty) {
+                        final success = await ref.read(anilistProvider.notifier).connect(token);
+                        if (success) {
+                          if (sheetCtx.mounted) Navigator.of(sheetCtx).pop();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Contul AniList a fost conectat cu succes!'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        } else {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Eroare: Token-ul este invalid.')),
+                            );
+                          }
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3B82F6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Conectează Contul',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // --- 9. MODAL EDITARE PROFIL ---
+  void _showEditProfileSheet(
+    BuildContext context,
+    WidgetRef ref,
+    fb.User user,
+    String currentDisplayName,
+  ) {
+    final nameController = TextEditingController(text: currentDisplayName);
+    final currentHandle = user.email?.split('@')[0] ?? 'membru';
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetCtx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+            decoration: BoxDecoration(
+              color: context.bgSurface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              border: Border.all(color: context.borderSubtle),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: context.borderSubtle,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'Editează Profilul',
+                  style: TextStyle(
+                    fontFamily: 'Zalando Sans Expanded',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: context.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 1. Handle Permanent (Read-Only)
+                Text(
+                  'Handle Unic (Permanent)',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: context.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: context.bgPrimary.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: context.borderSubtle.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
                     children: [
                       Icon(
-                        PhosphorIcons.users(PhosphorIconsStyle.bold),
-                        size: 11,
+                        PhosphorIcons.lockKey(PhosphorIconsStyle.bold),
+                        size: 16,
                         color: context.textMuted,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 10),
                       Text(
-                        item.membersCount,
+                        '@$currentHandle',
                         style: TextStyle(
                           color: context.textSecondary,
-                          fontSize: 10.5,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Fix',
+                        style: TextStyle(
+                          color: context.textMuted,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    item.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Zalando Sans Expanded',
-                      color: context.textPrimary,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
+                ),
+
+                const SizedBox(height: 16),
+
+                // 2. Nume Afișat (Display Name - Editabil)
+                Text(
+                  'Nume Afișat (Display Name)',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: context.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: context.bgPrimary,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: context.borderSubtle),
+                  ),
+                  child: TextField(
+                    controller: nameController,
+                    style: TextStyle(color: context.textPrimary, fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Introdu numele tău...',
+                      hintStyle: TextStyle(color: context.textMuted),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(
-                        PhosphorIcons.star(PhosphorIconsStyle.fill),
-                        size: 11,
-                        color: const Color(0xFFFBBF24),
+                ),
+                const SizedBox(height: 24),
+
+                // Buton Salvare
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final newName = nameController.text.trim();
+                      if (newName.isNotEmpty) {
+                        try {
+                          await user.updateDisplayName(newName);
+                          ref.invalidate(currentUserProvider);
+                          if (sheetCtx.mounted) Navigator.of(sheetCtx).pop();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Numele a fost actualizat cu succes!'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Eroare: $e')),
+                            );
+                          }
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.accentPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      const SizedBox(width: 3),
-                      Text(
-                        item.score,
-                        style: TextStyle(
-                          color: context.textPrimary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Salvează Modificările',
+                      style: TextStyle(
+                        color: context.onPrimary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
                       ),
-                    ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  // --- 7. BUTON DECONECTARE PE PAGINĂ (PENTRU LOGAȚI) ---
+  // --- 10. BUTON DECONECTARE PE PAGINĂ (PENTRU LOGAȚI) ---
   Widget _buildLogoutButton(BuildContext context, WidgetRef ref) {
     return OutlinedButton.icon(
       onPressed: () => _confirmSignOut(context, ref),
@@ -903,7 +1651,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // --- 8. MODAL SETĂRI & PREFERINȚE (TRIGGERAT DIN ⚙️) ---
+  // --- 11. MODAL SETĂRI & PREFERINȚE (TRIGGERAT DIN ⚙️) ---
   void _showSettingsSheet(BuildContext parentContext, WidgetRef ref, bool isGuest) {
     showModalBottomSheet(
       context: parentContext,
@@ -999,82 +1747,42 @@ class ProfileScreen extends ConsumerWidget {
                   _buildSettingsTile(
                     context: consumerCtx,
                     icon: PhosphorIcons.info(PhosphorIconsStyle.bold),
-                    title: 'Despre Kurogane v1.0',
-                    hasSwitch: false,
+                    title: 'Despre Kurogane Anime App',
+                    subtitle: 'Versiunea 1.0.0 • Build Premium',
+                    onTap: () {
+                      showAboutDialog(
+                        context: parentContext,
+                        applicationName: 'Kurogane Anime',
+                        applicationVersion: '1.0.0',
+                        applicationLegalese: '© 2026 Kurogane. Toate drepturile rezervate.',
+                      );
+                    },
                   ),
 
-                  const SizedBox(height: 20),
-
-                  // Buton Autentificare sau Deconectare în funcție de starea user-ului
-                  if (isUserLoggedIn)
-                    OutlinedButton.icon(
-                      onPressed: () async {
+                  if (isUserLoggedIn) ...[
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
                         Navigator.of(sheetCtx).pop();
-                        await ref.read(authControllerProvider.notifier).signOut();
-                        if (parentContext.mounted) {
-                          ScaffoldMessenger.of(parentContext).showSnackBar(
-                            const SnackBar(
-                              content: Text('Te-ai deconectat cu succes.'),
-                              behavior: SnackBarBehavior.floating,
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        }
+                        _confirmSignOut(parentContext, ref);
                       },
                       icon: Icon(
                         PhosphorIcons.signOut(PhosphorIconsStyle.bold),
                         size: 18,
-                        color: AppColors.alertCoral,
-                      ),
-                      label: const Text(
-                        'Deconectează-te',
-                        style: TextStyle(
-                          color: AppColors.alertCoral,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: AppColors.alertCoral.withValues(alpha: 0.4),
-                        ),
-                        backgroundColor: AppColors.alertCoral.withValues(alpha: 0.08),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    )
-                  else
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(sheetCtx).pop();
-                        LoginScreen.show(parentContext);
-                      },
-                      icon: Icon(
-                        PhosphorIcons.signIn(PhosphorIconsStyle.bold),
-                        size: 18,
                         color: Colors.white,
                       ),
-                      label: const Text(
-                        'Autentifică-te în Cont',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                      ),
+                      label: const Text('Deconectează-te de la cont'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: consumerCtx.accentPrimary,
+                        backgroundColor: AppColors.alertCoral,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
                         minimumSize: const Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
+                        elevation: 0,
                       ),
                     ),
+                  ],
                 ],
               ),
             );
@@ -1084,104 +1792,129 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  static Widget _buildSettingsTile({
+  Widget _buildSettingsTile({
     required BuildContext context,
     required IconData icon,
     required String title,
-    required bool hasSwitch,
-    bool switchValue = true,
+    String? subtitle,
+    bool hasSwitch = false,
+    bool switchValue = false,
     ValueChanged<bool>? onSwitchChanged,
+    VoidCallback? onTap,
   }) {
     return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: context.accentPrimary, size: 20),
+      contentPadding: const EdgeInsets.symmetric(vertical: 4),
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: context.bgSurfaceHover,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: context.accentPrimary, size: 20),
+      ),
       title: Text(
         title,
         style: TextStyle(
           color: context.textPrimary,
-          fontSize: 13.5,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
       ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: TextStyle(color: context.textSecondary, fontSize: 12),
+            )
+          : null,
       trailing: hasSwitch
           ? Switch(
               value: switchValue,
-              activeTrackColor: context.accentPrimary,
-              thumbColor: const WidgetStatePropertyAll(Colors.white),
-              onChanged: onSwitchChanged,
+              onChanged: onSwitchChanged ?? (_) {},
+              activeThumbColor: context.accentPrimary,
             )
-          : Icon(
-              PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
-              color: context.textMuted,
-              size: 16,
-            ),
+          : (onTap != null
+              ? Icon(
+                  PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
+                  size: 16,
+                  color: context.textSecondary,
+                )
+              : null),
+      onTap: onTap,
     );
   }
 
-  static Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
-    if (!context.mounted) return;
-    final confirmed = await showDialog<bool>(
+  // --- DIALOG CONFIRMARE DECONECTARE ---
+  void _confirmSignOut(BuildContext context, WidgetRef ref) {
+    showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        backgroundColor: dialogCtx.bgSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: context.bgSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           'Deconectare',
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
-            color: dialogCtx.textPrimary,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            color: context.textPrimary,
           ),
         ),
         content: Text(
-          'Ești sigur că vrei să te deconectezi de pe acest cont?',
-          style: TextStyle(color: dialogCtx.textSecondary, fontSize: 13.5),
+          'Sigur vrei să te deconectezi din contul Kurogane?',
+          style: TextStyle(color: context.textSecondary, fontSize: 14),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogCtx).pop(false),
-            child: Text('Anulează', style: TextStyle(color: dialogCtx.textSecondary)),
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(
+              'Anulează',
+              style: TextStyle(
+                color: context.textSecondary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(dialogCtx).pop(true),
+            onPressed: () async {
+              Navigator.of(dialogCtx).pop();
+              await ref.read(authControllerProvider.notifier).signOut();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Te-ai deconectat cu succes.'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.alertCoral,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
             ),
             child: const Text(
-              'Deconectare',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              'Deconectează-te',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
             ),
           ),
         ],
       ),
     );
-
-    if (confirmed == true) {
-      await ref.read(authControllerProvider.notifier).signOut();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Te-ai deconectat cu succes.'),
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    }
   }
 }
 
-// --- FLOATING CIRCLE BUTTON IDENTIC CU HOME SCREEN (52px, ZERO BORDER, GLASS EFFECT, TAP FEEDBACK) ---
+/// Floating Circle Button in Liquid Glass Style (52px)
 class _ProfileFloatingCircleButton extends StatefulWidget {
-  final double size;
-  final VoidCallback onTap;
   final Widget child;
+  final VoidCallback onTap;
+  final double size;
 
   const _ProfileFloatingCircleButton({
-    required this.size,
-    required this.onTap,
     required this.child,
+    required this.onTap,
+    this.size = 52,
   });
 
   @override
@@ -1190,21 +1923,15 @@ class _ProfileFloatingCircleButton extends StatefulWidget {
 
 class _ProfileFloatingCircleButtonState extends State<_ProfileFloatingCircleButton> {
   bool _isPressed = false;
-
-  static final ImageFilter _glassFilter = ImageFilter.compose(
-    outer: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-    inner: const ColorFilter.matrix(<double>[
-      1.6296, -0.5720, -0.0576, 0, 0,
-     -0.1704,  1.2280, -0.0576, 0, 0,
-     -0.1704, -0.5720,  1.7424, 0, 0,
-      0,       0,       0,      1, 0,
-    ]),
-  );
+  static final _glassFilter = ImageFilter.blur(sigmaX: 18, sigmaY: 18);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapDown: (_) {
+        HapticFeedback.lightImpact();
+        setState(() => _isPressed = true);
+      },
       onTapUp: (_) {
         setState(() => _isPressed = false);
         widget.onTap();
@@ -1212,7 +1939,7 @@ class _ProfileFloatingCircleButtonState extends State<_ProfileFloatingCircleButt
       onTapCancel: () => setState(() => _isPressed = false),
       behavior: HitTestBehavior.opaque,
       child: AnimatedScale(
-        scale: _isPressed ? 1.15 : 1.0,
+        scale: _isPressed ? 1.12 : 1.0,
         duration: const Duration(milliseconds: 140),
         curve: Curves.easeOutBack,
         child: ClipOval(
@@ -1230,9 +1957,12 @@ class _ProfileFloatingCircleButtonState extends State<_ProfileFloatingCircleButt
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(
-                        alpha: context.isDarkMode ? (_isPressed ? 0.5 : 0.35) : (_isPressed ? 0.12 : 0.08)),
-                    blurRadius: _isPressed ? 14 : 10,
-                    offset: const Offset(0, 4),
+                      alpha: context.isDarkMode
+                          ? (_isPressed ? 0.45 : 0.28)
+                          : (_isPressed ? 0.12 : 0.06),
+                    ),
+                    blurRadius: _isPressed ? 12 : 8,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -1246,6 +1976,7 @@ class _ProfileFloatingCircleButtonState extends State<_ProfileFloatingCircleButt
   }
 }
 
+/// Interactive button with touch scale feedback
 class _InteractiveScaleButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
@@ -1265,7 +1996,10 @@ class _InteractiveScaleButtonState extends State<_InteractiveScaleButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapDown: (_) {
+        HapticFeedback.lightImpact();
+        setState(() => _isPressed = true);
+      },
       onTapUp: (_) {
         setState(() => _isPressed = false);
         widget.onTap();
@@ -1273,25 +2007,11 @@ class _InteractiveScaleButtonState extends State<_InteractiveScaleButton> {
       onTapCancel: () => setState(() => _isPressed = false),
       behavior: HitTestBehavior.opaque,
       child: AnimatedScale(
-        scale: _isPressed ? 0.96 : 1.0,
-        duration: const Duration(milliseconds: 130),
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
         curve: Curves.easeOutCubic,
         child: widget.child,
       ),
     );
   }
-}
-
-class _RecentActivityItem {
-  final String title;
-  final String imageUrl;
-  final String membersCount;
-  final String score;
-
-  const _RecentActivityItem({
-    required this.title,
-    required this.imageUrl,
-    required this.membersCount,
-    required this.score,
-  });
 }

@@ -1,19 +1,43 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConstants {
-  // Default development baseUrl:
-  // Android Emulator uses 10.0.2.2 to access host machine's localhost
-  // iOS Simulator / Desktop uses localhost:4000
+  static const String _configuredUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: '',
+  );
+
+  static const String cloudBaseUrl = 'https://kurogane.onrender.com';
+
   static String get baseUrl {
-    // În Release (aplicația instalată pe telefon, fără cablu sau debugger):
-    if (kReleaseMode) {
-      return 'https://kurogane.onrender.com';
+    if (_configuredUrl.isNotEmpty) {
+      return _configuredUrl;
     }
-    if (kIsWeb) {
+    if (kDebugMode) {
+      if (kIsWeb) return 'http://localhost:4000';
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        return 'http://127.0.0.1:4000';
+      }
       return 'http://localhost:4000';
     }
-    // În Debug: compatibil cu adb reverse tcp:4000 tcp:4000 pe telefon fizic și emulator
-    return 'http://127.0.0.1:4000';
+    return cloudBaseUrl;
+  }
+
+  static List<String> get candidateBaseUrls {
+    if (_configuredUrl.isNotEmpty) {
+      return [_configuredUrl];
+    }
+    if (kDebugMode) {
+      if (kIsWeb) return ['http://localhost:4000', cloudBaseUrl];
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        return [
+          'http://127.0.0.1:4000', // Physical phone with adb reverse
+          'http://10.0.2.2:4000',   // Android Studio Emulator
+          cloudBaseUrl,             // Cloud fallback
+        ];
+      }
+      return ['http://localhost:4000', cloudBaseUrl];
+    }
+    return [cloudBaseUrl];
   }
 
   // Endpoints

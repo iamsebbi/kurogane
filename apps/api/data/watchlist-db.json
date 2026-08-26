@@ -287,5 +287,65 @@
       },
       "source": "ANILIST"
     }
+  },
+  {
+    "id": "witem-1787744943301-0205e",
+    "userId": "unit-test-user-temp",
+    "mediaId": "custom-media-offline-test",
+    "status": "WATCHING",
+    "progressEpisodes": 3,
+    "score": 9.5,
+    "notes": null,
+    "createdAt": "2026-08-26T11:49:05.567616+00:00",
+    "updatedAt": "2026-08-26T11:49:03.301+00:00"
+  },
+  {
+    "id": "witem-1787755939676-h98pq",
+    "userId": "nChpD9wljtR8HRV2ns2KjchFwWK2",
+    "mediaId": "anilist-194829",
+    "status": "WATCHING",
+    "score": 6.5,
+    "progressEpisodes": 4,
+    "notes": null,
+    "createdAt": "2026-08-26T14:52:19.676Z",
+    "updatedAt": "2026-08-26T14:52:19.676Z",
+    "mediaItem": {
+      "id": "anilist-194829",
+      "anilistId": 194829,
+      "title": {
+        "romaji": "Katainaka no Ossan, Kensei ni Naru II",
+        "english": "From Old Country Bumpkin to Master Swordsman II",
+        "native": "片田舎のおっさん、剣聖になるII",
+        "userPreferred": "Katainaka no Ossan, Kensei ni Naru II"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "RELEASING",
+      "season": "SUMMER",
+      "episodes": 12,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Action",
+        "Adventure",
+        "Comedy",
+        "Fantasy"
+      ],
+      "description": "The second season of Katainaka no Ossan, Kensei ni Naru.",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx194829-bZKwhfo60EuF.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx194829-bZKwhfo60EuF.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx194829-bZKwhfo60EuF.jpg",
+        "color": "#aed6e4"
+      },
+      "bannerImage": null,
+      "year": 2026,
+      "scores": {
+        "averageScore": 7,
+        "reviewCount": 1792,
+        "weightedScore": 7
+      },
+      "source": "ANILIST"
+    }
   }
 ]

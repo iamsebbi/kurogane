@@ -67,6 +67,23 @@ function loadTagTaxonomy(): TagTaxonomy {
 
 const TAG_TAXONOMY = loadTagTaxonomy();
 
+export function classifyMicroTags(item: Partial<MediaItem>): string[] {
+  const text = `${item.title?.userPreferred || ''} ${item.title?.english || ''} ${item.title?.romaji || ''} ${item.description || ''} ${(item.genres || []).join(' ')}`.toLowerCase();
+  const matched = new Set<string>(item.microTags || []);
+
+  for (const rule of TAG_TAXONOMY.microTags) {
+    if (matched.has(rule.label)) continue;
+    for (const pattern of rule.patterns) {
+      if (text.includes(pattern.toLowerCase())) {
+        matched.add(rule.label);
+        break;
+      }
+    }
+  }
+
+  return Array.from(matched);
+}
+
 interface IndexedItem {
   item: MediaItem;
   normTitle: string;
@@ -471,11 +488,13 @@ class JSONDatabaseService {
 
     // Multi-MicroTag matching (AND logic - item must contain all requested micro-tags)
     if (microTagsList.length > 0) {
-      if (!item.microTags || item.microTags.length === 0) return false;
-      const itemTagsLower = item.microTags.map((t) => t.toLowerCase());
-      const allMatch = microTagsList.every((reqT) =>
-        itemTagsLower.some((it) => it.includes(reqT.toLowerCase()))
-      );
+      const itemMicroTags = item.microTags && item.microTags.length > 0 ? item.microTags : classifyMicroTags(item);
+      if (itemMicroTags.length === 0) return false;
+      const itemTagsLower = itemMicroTags.map((t) => t.toLowerCase());
+      const allMatch = microTagsList.every((reqT) => {
+        const reqLower = reqT.toLowerCase();
+        return itemTagsLower.some((it) => it.includes(reqLower) || reqLower.includes(it));
+      });
       if (!allMatch) return false;
     }
 
