@@ -19,13 +19,13 @@ export const RSS_SOURCES: RSSSource[] = [
     categoryDefault: 'ANIME',
   },
   {
-    name: 'Crunchyroll News',
-    url: 'https://cr-news-api-service.prd.crunchyroll.com/v1/en-US/rss',
+    name: 'Otaku USA Magazine',
+    url: 'https://otakuusamagazine.com/feed/',
     categoryDefault: 'ANIME',
   },
   {
-    name: 'Otaku USA Magazine',
-    url: 'https://otakuusamagazine.com/feed/',
+    name: 'Anime News Network (News)',
+    url: 'https://www.animenewsnetwork.com/news/rss.xml?ann-edition=us',
     categoryDefault: 'ANIME',
   },
 ];
@@ -213,6 +213,7 @@ class NewsAggregationService {
         console.error('[News RSS] Periodic refresh error:', err);
       });
     }, 60 * 60 * 1000);
+    this.intervalTimer.unref();
   }
 
   private loadPersistedNews(): void {

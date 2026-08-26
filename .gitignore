@@ -17,10 +17,34 @@ build
 
 # Local Environment files
 .env
-.env.local
-.env.development.local
-.env.production.local
+.env*.local
+*.env
+*.env.local
 
-# IDE settings
+# IDE & Editor settings
 .vscode/
 .idea/
+*.iml
+
+# Binary Installers & Large Extensions
+*.exe
+*.msi
+*.vsix
+*.dmg
+*.pkg
+*.apk
+*.aab
+
+# Flutter / Dart ephemeral artifacts
+apps/mobile/.dart_tool/
+apps/mobile/build/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/.metadata
+apps/mobile/package_config.json
+apps/mobile/package_graph.json
+
+# Database & Cache files
+*.db
+*.sqlite
+*.sqlite-journal

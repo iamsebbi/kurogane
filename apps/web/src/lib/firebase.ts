@@ -13,19 +13,27 @@ import {
 } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyDzAIkmKmj8z8g9mZdGRvzzVygtxYwVdUU',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'kurogane-c3c14.firebaseapp.com',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'kurogane-c3c14',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'kurogane-c3c14.firebasestorage.app',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '141330897882',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:141330897882:web:5ce77a022ecfdadbce3ee3',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
 };
 
-// Initialize Firebase (singleton)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey && firebaseConfig.projectId
+);
 
-export const isFirebaseConfigured = true;
+// Initialize Firebase (singleton)
+const app =
+  getApps().length === 0 && isFirebaseConfigured
+    ? initializeApp(firebaseConfig)
+    : getApps().length > 0
+      ? getApps()[0]
+      : null;
+
+const auth = app ? getAuth(app) : (null as any);
 
 export interface FirebaseAuthUser {
   id: string;
@@ -169,6 +177,10 @@ class FirebaseAuthService {
    * Listen to Firebase native auth state changes across all tabs
    */
   public onAuthStateChange(callback: (user: FirebaseAuthUser | null, token: string | null) => void) {
+    if (!auth) {
+      callback(null, null);
+      return () => {};
+    }
     return onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         const idToken = await fbUser.getIdToken();
@@ -190,6 +202,7 @@ class FirebaseAuthService {
    * Sign Out from Firebase Auth
    */
   public async signOut(): Promise<void> {
+    if (!auth) return;
     try {
       await fbSignOut(auth);
     } catch (err) {

@@ -148,7 +148,19 @@ class JSONDatabaseService {
   private CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes TTL
   private maxCacheSize = 500;
   private similarityCache: Map<string, SimilarMediaResponse> = new Map();
+  private maxSimilarityCacheSize = 500;
   private fuzzyWordCache: Map<string, string[]> = new Map();
+  private maxFuzzyCacheSize = 1000;
+
+  private setInLruMap<K, V>(map: Map<K, V>, key: K, value: V, maxSize: number): void {
+    if (map.size >= maxSize && !map.has(key)) {
+      const firstKey = map.keys().next().value;
+      if (firstKey !== undefined) {
+        map.delete(firstKey);
+      }
+    }
+    map.set(key, value);
+  }
 
   constructor() {
     this.initialize();
@@ -157,11 +169,19 @@ class JSONDatabaseService {
   public initialize(): void {
     this.searchCache.clear();
     this.similarityCache.clear();
+    this.fuzzyWordCache.clear();
     this.loadOfflineDatabase();
   }
 
   private loadOfflineDatabase(): void {
-    console.log('[API Service] Online cloud mode: Using live AniList GraphQL API directly.');
+    const cachedItems = anilistCacheService.getAllCachedMedia();
+    for (const item of cachedItems) {
+      this.itemsById.set(item.id, item);
+      if (item.anilistId) {
+        this.itemsByAnilistId.set(item.anilistId, item);
+      }
+    }
+    console.log(`[API Service] Online cloud mode: Loaded ${this.itemsById.size} media items into memory.`);
   }
 
   private buildCuratedShelves(): void {
@@ -279,20 +299,31 @@ class JSONDatabaseService {
     const targetFormat = target.format;
     const targetScore = target.scores.averageScore;
 
-    const candidateIndices = new Set<number>();
-    for (const g of targetGenres) {
-      const indices = this.genreToIndices.get(g);
-      if (indices) {
-        for (const idx of indices) {
-          candidateIndices.add(idx);
+    const scored: { item: MediaItem; similarityScore: number; commonGenres: string[] }[] = [];
+
+    const candidateItems: MediaItem[] = [];
+    if (this.offlineItems.length > 0) {
+      const candidateIndices = new Set<number>();
+      for (const g of targetGenres) {
+        const indices = this.genreToIndices.get(g);
+        if (indices) {
+          for (const idx of indices) {
+            candidateIndices.add(idx);
+          }
+        }
+      }
+      for (const idx of candidateIndices) {
+        if (this.offlineItems[idx]) candidateItems.push(this.offlineItems[idx]);
+      }
+    } else {
+      for (const item of this.itemsById.values()) {
+        if (item && item.id !== target.id) {
+          candidateItems.push(item);
         }
       }
     }
 
-    const scored: { item: MediaItem; similarityScore: number; commonGenres: string[] }[] = [];
-
-    for (const idx of candidateIndices) {
-      const item = this.offlineItems[idx];
+    for (const item of candidateItems) {
       if (!item || item.id === target.id) continue;
       if (item.scores.averageScore === 0) continue;
 
@@ -351,7 +382,7 @@ class JSONDatabaseService {
       similarItems: scored.slice(0, 20),
     };
 
-    this.similarityCache.set(targetId, result);
+    this.setInLruMap(this.similarityCache, targetId, result, this.maxSimilarityCacheSize);
 
     return {
       ...result,
@@ -377,7 +408,7 @@ class JSONDatabaseService {
       }
     }
 
-    this.fuzzyWordCache.set(queryToken, matches);
+    this.setInLruMap(this.fuzzyWordCache, queryToken, matches, this.maxFuzzyCacheSize);
     return matches;
   }
 
@@ -740,10 +771,18 @@ class JSONDatabaseService {
     }
 
     // 2. Search AniList API
-    const shouldFetchAniList = source === 'anilist' || (source === 'all' && query.trim().length > 0);
+    const shouldFetchAniList = source === 'anilist' || source === 'all';
 
     if (shouldFetchAniList) {
-      const aniListResults = await searchAniList(query, limit);
+      const aniListResponse = await searchAniList(options, limit);
+      const aniListResults = aniListResponse.items;
+
+      for (const item of aniListResults) {
+        this.itemsById.set(item.id, item);
+        if (item.anilistId) {
+          this.itemsByAnilistId.set(item.anilistId, item);
+        }
+      }
 
       const existingAnilistIds = new Set(
         results.map((r) => r.anilistId).filter(Boolean)
@@ -762,7 +801,7 @@ class JSONDatabaseService {
       });
 
       results.push(...filteredAniList);
-      totalMatches += filteredAniList.length;
+      totalMatches = Math.max(totalMatches, aniListResponse.total || filteredAniList.length);
       sourcesUsed.push('ANILIST');
     }
 
@@ -841,7 +880,8 @@ class JSONDatabaseService {
       return true;
     };
 
-    const validOfflineAllCategories = this.offlineItems.filter(
+    const allKnownItems = this.offlineItems.length > 0 ? this.offlineItems : Array.from(this.itemsById.values());
+    const validOfflineAllCategories = allKnownItems.filter(
       (i) => (i.scores?.averageScore || 0) > 0 && i.coverImage?.large && isCleanTitle(i)
     );
 

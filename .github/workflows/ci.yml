@@ -1,0 +1,34 @@
+name: Kurogane CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    name: Build & Validate Monorepo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci || npm install
+
+      - name: 🔨 Build Shared Package & Apps
+        run: npm run build
+
+      - name: 🧪 Run Automated Unit Tests
+        run: npm test
+
+      - name: 🔍 Monorepo Lint & Style Check
+        run: npm run lint

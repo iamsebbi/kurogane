@@ -3,143 +3,289 @@
     "id": "witem-1787308893292-y179q",
     "userId": "1c5p40pOfhNxq5COee863a6Uw122",
     "mediaId": "anilist-204466",
-    "status": "WATCHING",
-    "progressEpisodes": 8,
+    "status": "COMPLETED",
+    "progressEpisodes": 16,
+    "notes": null,
     "createdAt": "2026-08-21T10:41:33.292Z",
-    "updatedAt": "2026-08-21T10:41:33.292Z",
+    "updatedAt": "2026-08-25T20:43:53.343Z",
     "mediaItem": {
       "id": "anilist-204466",
       "anilistId": 204466,
       "title": {
-        "userPreferred": "Otome Kaijuu Caraméliser",
+        "romaji": "Otome Kaijuu Caraméliser",
         "english": "KAIJU GIRL CARAMELISE",
-        "romaji": "Otome Kaijuu Caraméliser"
+        "native": "乙女怪獣キャラメリゼ",
+        "userPreferred": "Otome Kaijuu Caraméliser"
       },
       "type": "ANIME",
       "format": "TV",
-      "status": "UPCOMING",
-      "demographic": "Seinen",
-      "microTags": [
-        "Female Protagonist",
-        "School Life",
-        "Romance",
-        "Slice of Life",
-        "Magic",
-        "Comedy"
-      ],
-      "episodes": 1,
-      "genres": [
-        "based on a manga",
-        "cgi",
-        "comedy",
-        "contemporary fantasy",
-        "drama",
-        "fantasy",
-        "female protagonist",
-        "henshin",
-        "heroine of strong character",
-        "heterosexual",
-        "high school",
-        "japanese production",
-        "kaiju",
-        "magical girl",
-        "monster",
-        "monster girl",
-        "monster girls",
-        "monsters",
-        "present",
-        "romance",
-        "romantic comedy",
-        "school",
-        "school life",
-        "seinen",
-        "shapeshifting",
-        "slapstick",
-        "slice of life",
-        "supernatural",
-        "tokusatsu",
-        "urban",
-        "urban fantasy"
-      ],
-      "description": "Synonyms: KAIJU GIRL CARAMELISE, Kaiju Girl Caramelise, Meiden Kaiju Carameliser, Monster Maiden Caramelize",
-      "coverImage": {
-        "large": "https://cdn.myanimelist.net/images/anime/1981/156340.jpg",
-        "medium": "https://cdn.myanimelist.net/images/anime/1981/156340t.jpg",
-        "color": "#3b82f6"
-      },
-      "year": 2026,
+      "status": "RELEASING",
       "season": "SUMMER",
-      "scores": {
-        "averageScore": 0,
-        "reviewCount": 0,
-        "weightedScore": 0
+      "episodes": 12,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Comedy",
+        "Romance",
+        "Supernatural"
+      ],
+      "description": "Kuroe Akaishi just wants a normal high school life—but that’s impossible with a rare condition that turns her into a giant kaiju whenever her emotions spike! Things get even worse when she falls for Arata Minami, the most popular boy in class. Now every blush, heartbeat, and crush could trigger a monster transformation. Can Kuroe survive high school love before it destroys everything around her?!\n\n(Source: Crunchyroll)",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx204466-vXMvIs4VOoQd.png",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx204466-vXMvIs4VOoQd.png",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx204466-vXMvIs4VOoQd.png",
+        "color": "#e45d78"
       },
-      "source": "LOCAL_OFFLINE_DB"
+      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/204466-cpbNGN9qHrGP.jpg",
+      "year": 2026,
+      "scores": {
+        "averageScore": 7.5,
+        "reviewCount": 2630,
+        "weightedScore": 7.5
+      },
+      "source": "ANILIST"
     }
   },
   {
     "id": "witem-1787308910057-697bb",
     "userId": "1c5p40pOfhNxq5COee863a6Uw122",
     "mediaId": "anilist-180136",
-    "status": "WATCHING",
-    "progressEpisodes": 0,
+    "status": "COMPLETED",
+    "progressEpisodes": 41,
+    "notes": null,
     "createdAt": "2026-08-21T10:41:50.057Z",
-    "updatedAt": "2026-08-21T10:41:50.057Z",
+    "updatedAt": "2026-08-25T20:49:36.153Z",
     "mediaItem": {
       "id": "anilist-180136",
       "anilistId": 180136,
       "title": {
-        "userPreferred": "Tsuihou sareta Tensei Juukishi wa Game Chishiki de Musou suru",
-        "english": "Juukishi",
-        "romaji": "Tsuihou sareta Tensei Juukishi wa Game Chishiki de Musou suru"
+        "romaji": "Tsuihou Sareta Tensei Juukishi wa Game Chishiki de Musou Suru",
+        "english": "The Exiled Heavy Knight Knows How to Game the System",
+        "native": "追放された転生重騎士はゲーム知識で無双する",
+        "userPreferred": "Tsuihou Sareta Tensei Juukishi wa Game Chishiki de Musou Suru"
       },
       "type": "ANIME",
       "format": "TV",
-      "status": "UPCOMING",
-      "microTags": [
-        "Isekai",
-        "Magic",
-        "Comedy",
-        "Dungeon"
-      ],
-      "episodes": 1,
-      "genres": [
-        "action",
-        "adventure",
-        "alternative world",
-        "based on a manga",
-        "comedy",
-        "dungeon",
-        "fantasy",
-        "game elements",
-        "isekai",
-        "japanese production",
-        "knight",
-        "magic",
-        "male protagonist",
-        "manga",
-        "medieval european aesthetic",
-        "monster",
-        "nobility",
-        "reincarnation",
-        "speculative fiction",
-        "swords & co",
-        "video game"
-      ],
-      "description": "Synonyms: Juukishi, The Exiled Heavy Knight Knows How to Game the System, The Exiled Reincarnated Heavy Knight Is Unrivaled in Game Knowledge, The Exiled Reincarnated Heavy Knight is Unrivaled in Game Knowledge",
-      "coverImage": {
-        "large": "https://cdn.myanimelist.net/images/anime/1322/158711.jpg",
-        "medium": "https://cdn.myanimelist.net/images/anime/1322/158711t.jpg",
-        "color": "#3b82f6"
-      },
-      "year": 2026,
+      "status": "RELEASING",
       "season": "SUMMER",
-      "scores": {
-        "averageScore": 7.1,
-        "reviewCount": 3695,
-        "weightedScore": 7.1
+      "episodes": 26,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Action",
+        "Fantasy"
+      ],
+      "description": "Born into a prestigious family of master swordsmen, Elymas Edvaughn’s future shatters when he awakens the so-called “defective” Heavy Knight class. Disowned and cast out, he regains memories of another life—and realizes this world mirrors a VR game he once mastered. Armed with knowledge no one else possesses, he sets out to rewrite his fate and prove the strength of the “weakest” class.\n\n(Source: Crunchyroll)",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx180136-gtMTCRlOD4OE.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx180136-gtMTCRlOD4OE.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx180136-gtMTCRlOD4OE.jpg",
+        "color": "#50c9fe"
       },
-      "source": "LOCAL_OFFLINE_DB"
+      "bannerImage": null,
+      "year": 2026,
+      "scores": {
+        "averageScore": 6.7,
+        "reviewCount": 3292,
+        "weightedScore": 6.7
+      },
+      "source": "ANILIST"
+    }
+  },
+  {
+    "id": "witem-1787691072511-7jsep",
+    "userId": "1c5p40pOfhNxq5COee863a6Uw122",
+    "mediaId": "anilist-101922",
+    "status": "WATCHING",
+    "progressEpisodes": 19,
+    "notes": null,
+    "createdAt": "2026-08-25T20:51:12.511Z",
+    "updatedAt": "2026-08-25T21:21:14.572Z",
+    "mediaItem": {
+      "id": "anilist-101922",
+      "anilistId": 101922,
+      "title": {
+        "romaji": "Kimetsu no Yaiba",
+        "english": "Demon Slayer: Kimetsu no Yaiba",
+        "native": "鬼滅の刃",
+        "userPreferred": "Kimetsu no Yaiba"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "FINISHED",
+      "season": "SPRING",
+      "episodes": 26,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Action",
+        "Adventure",
+        "Drama",
+        "Fantasy",
+        "Supernatural"
+      ],
+      "description": "It is the Taisho Period in Japan. Tanjiro, a kindhearted boy who sells charcoal for a living, finds his family slaughtered by a demon. To make matters worse, his younger sister Nezuko, the sole survivor, has been transformed into a demon herself. Though devastated by this grim reality, Tanjiro resolves to become a “demon slayer” so that he can turn his sister back into a human, and kill the demon that massacred his family.\n\n(Source: Crunchyroll)",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922-WBsBl0ClmgYL.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx101922-WBsBl0ClmgYL.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx101922-WBsBl0ClmgYL.jpg",
+        "color": "#f1c9ae"
+      },
+      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/101922-33MtJGsUSxga.jpg",
+      "year": 2019,
+      "scores": {
+        "averageScore": 8.3,
+        "reviewCount": 545861,
+        "weightedScore": 8.3
+      },
+      "source": "ANILIST"
+    }
+  },
+  {
+    "id": "witem-1787691388479-d3jrj",
+    "userId": "Ycfp71blOERx2mqaglGRxfvxArJ2",
+    "mediaId": "anilist-16498",
+    "status": "WATCHING",
+    "progressEpisodes": 8,
+    "notes": null,
+    "createdAt": "2026-08-25T20:56:28.479Z",
+    "updatedAt": "2026-08-25T20:56:28.479Z",
+    "mediaItem": {
+      "id": "anilist-16498",
+      "anilistId": 16498,
+      "title": {
+        "romaji": "Shingeki no Kyojin",
+        "english": "Attack on Titan",
+        "native": "進撃の巨人",
+        "userPreferred": "Shingeki no Kyojin"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "FINISHED",
+      "season": "SPRING",
+      "episodes": 25,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Action",
+        "Drama",
+        "Fantasy",
+        "Mystery"
+      ],
+      "description": "Several hundred years ago, humans were nearly exterminated by titans. Titans are typically several stories tall, seem to have no intelligence, devour human beings and, worst of all, seem to do it for the pleasure rather than as a food source. A small percentage of humanity survived by walling themselves in a city protected by extremely high walls, even taller than the biggest of titans.\r\nFlash forward to the present and the city has not seen a titan in over 100 years. Teenage boy Eren and his foster sister Mikasa witness something horrific as the city walls are destroyed by a colossal titan that appears out of thin air. As the smaller titans flood the city, the two kids watch in horror as their mother is eaten alive. Eren vows that he will murder every single titan and take revenge for all of mankind.\r\n(Source: MangaHelpers)",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16498-buvcRTBx4NSm.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx16498-buvcRTBx4NSm.jpg",
+        "color": "#f1a143"
+      },
+      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/16498-8jpFCOcDmneX.jpg",
+      "year": 2013,
+      "scores": {
+        "averageScore": 8.5,
+        "reviewCount": 597876,
+        "weightedScore": 8.5
+      },
+      "source": "ANILIST"
+    }
+  },
+  {
+    "id": "witem-1787693493952-v8777",
+    "userId": "1c5p40pOfhNxq5COee863a6Uw122",
+    "mediaId": "anilist-207809",
+    "status": "PLAN_TO_WATCH",
+    "progressEpisodes": 0,
+    "notes": null,
+    "createdAt": "2026-08-25T21:31:33.952Z",
+    "updatedAt": "2026-08-25T21:36:29.539Z",
+    "mediaItem": {
+      "id": "anilist-207809",
+      "anilistId": 207809,
+      "title": {
+        "romaji": "Sora wa Akai Kawa no Hotori",
+        "english": "Red River",
+        "native": "天は赤い河のほとり",
+        "userPreferred": "Sora wa Akai Kawa no Hotori"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "RELEASING",
+      "season": "SUMMER",
+      "episodes": 24,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Action",
+        "Adventure",
+        "Drama",
+        "Fantasy",
+        "Romance"
+      ],
+      "description": "After a mysterious hand drags her beneath a puddle, modern Japanese teenager Yuri awakens in the Hittite Empire of the 14th century BCE. Thrust into a deadly struggle for the throne, she joins Prince Kail to battle assassins, outwit royal conspiracies, and survive a world at war. As her exploits earn her renown as the goddess Ishtar, Yuri must choose between her old life and an uncertain future.\n\n(Source: Crunchyroll)",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx207809-cpS7CAyjN7iP.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx207809-cpS7CAyjN7iP.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx207809-cpS7CAyjN7iP.jpg",
+        "color": "#e4bb5d"
+      },
+      "bannerImage": null,
+      "year": 2026,
+      "scores": {
+        "averageScore": 6,
+        "reviewCount": 803,
+        "weightedScore": 6
+      },
+      "source": "ANILIST"
+    }
+  },
+  {
+    "id": "witem-1787742543418-e1001",
+    "userId": "unit-test-user-temp",
+    "mediaId": "media-temp-999",
+    "status": "COMPLETED",
+    "score": 9.5,
+    "progressEpisodes": 3,
+    "createdAt": "2026-08-26T11:09:03.418Z",
+    "updatedAt": "2026-08-26T11:09:03.418Z",
+    "mediaItem": {
+      "id": "anilist-999",
+      "anilistId": 999,
+      "title": {
+        "romaji": "BLUE SEED 2",
+        "english": "Blue Seed Beyond",
+        "native": "BLUE SEED 2",
+        "userPreferred": "BLUE SEED 2"
+      },
+      "type": "ANIME",
+      "format": "OVA",
+      "status": "FINISHED",
+      "season": "SUMMER",
+      "episodes": 3,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Action",
+        "Comedy",
+        "Drama",
+        "Horror",
+        "Sci-Fi",
+        "Supernatural"
+      ],
+      "description": "A renegade scientist in San Francisco has found a way to create a new creature called a Neo-Aragami without the power of Susanoo. When these monsters start to terrorize California, the U.S. turns to the old members of the Terrestrial Administration Center (TAC) for help.\n\n(Source: Anime News Network)\n",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/999.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/999.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/999.jpg",
+        "color": "#d6781a"
+      },
+      "bannerImage": null,
+      "year": 1996,
+      "scores": {
+        "averageScore": 6,
+        "reviewCount": 605,
+        "weightedScore": 6
+      },
+      "source": "ANILIST"
     }
   }
 ]

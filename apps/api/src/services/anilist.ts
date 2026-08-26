@@ -1,11 +1,24 @@
-import { MediaItem, MediaType, ScoreMetrics, ReleaseStatus, MediaSeason, RecentlyAiredEpisode } from '@kurogane/shared';
+import { MediaItem, MediaType, ScoreMetrics, ReleaseStatus, MediaSeason, RecentlyAiredEpisode, SearchQueryOptions } from '@kurogane/shared';
 
-const ANILIST_GRAPHQL_URL = 'https://graphql.anilist.co';
+export const ANILIST_GRAPHQL_URL = 'https://graphql.anilist.co';
+
+export const ANILIST_REQUEST_HEADERS: Record<string, string> = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  'User-Agent': 'Kurogane/0.1.0 (https://kurogane.app; open-media-platform)',
+};
 
 const SEARCH_MEDIA_QUERY = `
-query ($search: String, $type: MediaType, $countryOfOrigin: CountryCode, $season: MediaSeason, $seasonYear: Int, $limit: Int) {
-  Page(page: 1, perPage: $limit) {
-    media(search: $search, type: $type, countryOfOrigin: $countryOfOrigin, season: $season, seasonYear: $seasonYear, sort: POPULARITY_DESC, isAdult: false) {
+query ($search: String, $type: MediaType, $format: MediaFormat, $status: MediaStatus, $genre_in: [String], $countryOfOrigin: CountryCode, $season: MediaSeason, $seasonYear: Int, $sort: [MediaSort], $page: Int, $perPage: Int) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      total
+      perPage
+      currentPage
+      lastPage
+      hasNextPage
+    }
+    media(search: $search, type: $type, format: $format, status: $status, genre_in: $genre_in, countryOfOrigin: $countryOfOrigin, season: $season, seasonYear: $seasonYear, sort: $sort, isAdult: false) {
       id
       title {
         romaji
@@ -327,19 +340,101 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
   };
 }
 
-export async function searchAniList(query?: string, limit: number = 12): Promise<MediaItem[]> {
+export async function searchAniList(
+  queryOrOptions?: string | SearchQueryOptions,
+  fallbackLimit: number = 24
+): Promise<{ items: MediaItem[]; total: number }> {
   try {
-    const variables: any = { limit };
-    if (query && query.trim() !== '') {
-      variables.search = query.trim();
+    const opts: SearchQueryOptions =
+      typeof queryOrOptions === 'string'
+        ? { query: queryOrOptions, limit: fallbackLimit }
+        : queryOrOptions || { query: '', limit: fallbackLimit };
+
+    const variables: any = {
+      page: opts.page || 1,
+      perPage: Math.min(opts.limit || fallbackLimit, 50),
+    };
+
+    if (opts.query && opts.query.trim() !== '') {
+      variables.search = opts.query.trim();
+    }
+
+    if (opts.type && opts.type !== 'ALL') {
+      if (opts.type === 'ANIME') {
+        variables.type = 'ANIME';
+      } else if (opts.type === 'MANGA') {
+        variables.type = 'MANGA';
+      } else if (opts.type === 'DONGHUA') {
+        variables.type = 'ANIME';
+        variables.countryOfOrigin = 'CN';
+      } else if (opts.type === 'MANHWA') {
+        variables.type = 'MANGA';
+        variables.countryOfOrigin = 'KR';
+      } else if (opts.type === 'MANHUA') {
+        variables.type = 'MANGA';
+        variables.countryOfOrigin = 'CN';
+      } else if (opts.type === 'WEBTOON') {
+        variables.type = 'MANGA';
+      }
+    }
+
+    if (opts.format && opts.format !== 'ALL') {
+      variables.format = opts.format;
+    }
+
+    if (opts.status && opts.status !== 'ALL') {
+      if (opts.status === 'UPCOMING') {
+        variables.status = 'NOT_YET_RELEASED';
+      } else {
+        variables.status = opts.status;
+      }
+    }
+
+    if (opts.season && opts.season !== 'ALL') {
+      variables.season = opts.season;
+    }
+
+    if (opts.year && opts.year !== 'ALL') {
+      const parsedYear = parseInt(String(opts.year), 10);
+      if (!isNaN(parsedYear)) {
+        variables.seasonYear = parsedYear;
+      }
+    }
+
+    const genres = opts.genres && opts.genres.length > 0 ? opts.genres : opts.genre ? [opts.genre] : [];
+    if (genres.length > 0) {
+      variables.genre_in = genres;
+    }
+
+    if (opts.sortBy) {
+      switch (opts.sortBy) {
+        case 'SCORE_DESC':
+          variables.sort = ['SCORE_DESC'];
+          break;
+        case 'POPULARITY_DESC':
+          variables.sort = ['POPULARITY_DESC'];
+          break;
+        case 'YEAR_DESC':
+          variables.sort = ['START_DATE_DESC'];
+          break;
+        case 'YEAR_ASC':
+          variables.sort = ['START_DATE'];
+          break;
+        case 'TITLE_ASC':
+          variables.sort = ['TITLE_ROMAJI'];
+          break;
+        case 'RELEVANCE':
+        default:
+          variables.sort = opts.query?.trim() ? ['SEARCH_MATCH', 'POPULARITY_DESC'] : ['POPULARITY_DESC'];
+          break;
+      }
+    } else {
+      variables.sort = opts.query?.trim() ? ['SEARCH_MATCH', 'POPULARITY_DESC'] : ['POPULARITY_DESC'];
     }
 
     const response = await fetch(ANILIST_GRAPHQL_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      headers: ANILIST_REQUEST_HEADERS,
       body: JSON.stringify({
         query: SEARCH_MEDIA_QUERY,
         variables,
@@ -348,15 +443,21 @@ export async function searchAniList(query?: string, limit: number = 12): Promise
 
     if (!response.ok) {
       console.warn(`[AniList API] Failed response: ${response.status} ${response.statusText}`);
-      return [];
+      return { items: [], total: 0 };
     }
 
     const json = await response.json();
-    const mediaList: AniListMedia[] = json.data?.Page?.media || [];
-    return mediaList.map(mapAniListToMediaItem);
+    const pageData = json.data?.Page;
+    const mediaList: AniListMedia[] = pageData?.media || [];
+    const total = pageData?.pageInfo?.total || mediaList.length;
+
+    return {
+      items: mediaList.map(mapAniListToMediaItem),
+      total,
+    };
   } catch (error) {
     console.error('[AniList API Error]:', error);
-    return [];
+    return { items: [], total: 0 };
   }
 }
 
@@ -389,10 +490,7 @@ export async function fetchAniListRankings(
 
     const response = await fetch(ANILIST_GRAPHQL_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      headers: ANILIST_REQUEST_HEADERS,
       body: JSON.stringify({
         query: queryToUse,
         variables,
@@ -458,10 +556,7 @@ export async function fetchAniListRecentlyAired(limit: number = 12): Promise<Rec
   try {
     const response = await fetch(ANILIST_GRAPHQL_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      headers: ANILIST_REQUEST_HEADERS,
       body: JSON.stringify({
         query: RECENTLY_AIRED_QUERY,
         variables: { perPage: 40 },
@@ -592,10 +687,7 @@ export async function fetchAniListFeatured(limit: number = 8): Promise<MediaItem
   try {
     const response = await fetch(ANILIST_GRAPHQL_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      headers: ANILIST_REQUEST_HEADERS,
       body: JSON.stringify({
         query: FETCH_CURRENT_SEASON_FEATURED,
         variables: {
@@ -708,10 +800,7 @@ export async function fetchAniListMediaById(rawId: string | number): Promise<Med
   try {
     const response = await fetch(ANILIST_GRAPHQL_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      headers: ANILIST_REQUEST_HEADERS,
       body: JSON.stringify({
         query: FETCH_MEDIA_BY_ID_QUERY,
         variables: { id: numericId },

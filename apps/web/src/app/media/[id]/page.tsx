@@ -35,6 +35,7 @@ import {
   SimilarMediaResponse,
 } from '@kurogane/shared';
 import { AuthModal } from '@/components/AuthModal';
+import { API_BASE_URL } from '@/lib/api';
 
 const STATUS_LABELS: Record<string, string> = {
   WATCHING: 'În Curs',
@@ -58,13 +59,11 @@ export default function MediaDetailsPage() {
   const [userWatchlistStatus, setUserWatchlistStatus] = useState<string | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
   const checkUserWatchlistStatus = async () => {
     const token = localStorage.getItem('kurogane_token');
     if (!token || !id) return;
     try {
-      const res = await fetch(`${API_BASE}/api/watchlist`, {
+      const res = await fetch(`${API_BASE_URL}/api/watchlist`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -84,7 +83,7 @@ export default function MediaDetailsPage() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/api/watchlist`, {
+      const res = await fetch(`${API_BASE_URL}/api/watchlist`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,9 +118,9 @@ export default function MediaDetailsPage() {
 
     // Fetch media details, watch order guide, and similar media in parallel
     Promise.all([
-      fetch(`${API_BASE}/api/media/${safeId}`).then((res) => (res.ok ? res.json() : null)),
-      fetch(`${API_BASE}/api/media/${safeId}/watch-order`).then((res) => (res.ok ? res.json() : null)),
-      fetch(`${API_BASE}/api/media/${safeId}/similar?limit=6`).then((res) => (res.ok ? res.json() : null)),
+      fetch(`${API_BASE_URL}/api/media/${safeId}`).then((res) => (res.ok ? res.json() : null)),
+      fetch(`${API_BASE_URL}/api/media/${safeId}/watch-order`).then((res) => (res.ok ? res.json() : null)),
+      fetch(`${API_BASE_URL}/api/media/${safeId}/similar?limit=6`).then((res) => (res.ok ? res.json() : null)),
     ])
       .then(([mediaRes, watchOrderRes, similarRes]) => {
         if (mediaRes) {

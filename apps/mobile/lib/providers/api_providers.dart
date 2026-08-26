@@ -1,0 +1,239 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/network/api_client.dart';
+import '../models/homepage_data.dart';
+import '../models/media_item.dart';
+import '../models/watch_order.dart';
+import '../models/news_article.dart';
+import '../models/watchlist_item.dart';
+import 'auth_provider.dart';
+
+// ApiClient Provider
+final apiClientProvider = Provider<ApiClient>((ref) {
+  return ApiClient();
+});
+
+// Homepage Data Provider
+final homepageDataProvider = FutureProvider<HomepageData>((ref) async {
+  final client = ref.watch(apiClientProvider);
+  return await client.getHomepage();
+});
+
+// News Provider
+final newsListProvider = FutureProvider<List<NewsArticle>>((ref) async {
+  final client = ref.watch(apiClientProvider);
+  return await client.getNews();
+});
+
+// Media Detail Family Provider
+final mediaDetailProvider = FutureProvider.family<MediaItem?, String>((ref, id) async {
+  final client = ref.watch(apiClientProvider);
+  return await client.getMediaById(id);
+});
+
+// Watch Order Family Provider
+final watchOrderProvider = FutureProvider.family<WatchOrderGuide?, String>((ref, id) async {
+  final client = ref.watch(apiClientProvider);
+  return await client.getWatchOrder(id);
+});
+
+// Similar Media Family Provider
+final similarMediaProvider = FutureProvider.family<List<MediaItem>, String>((ref, id) async {
+  final client = ref.watch(apiClientProvider);
+  return await client.getSimilarMedia(id);
+});
+
+// Search State & Notifier
+class SearchFilterState {
+  final String query;
+  final String type;
+  final String format;
+  final String status;
+  final String demographic;
+  final List<String> genres;
+  final List<String> microTags;
+  final String sortBy;
+  final double? minScore;
+
+  SearchFilterState({
+    this.query = '',
+    this.type = 'ALL',
+    this.format = 'ALL',
+    this.status = 'ALL',
+    this.demographic = 'ALL',
+    this.genres = const [],
+    this.microTags = const [],
+    this.sortBy = 'RELEVANCE',
+    this.minScore,
+  });
+
+  SearchFilterState copyWith({
+    String? query,
+    String? type,
+    String? format,
+    String? status,
+    String? demographic,
+    List<String>? genres,
+    List<String>? microTags,
+    String? sortBy,
+    double? minScore,
+  }) {
+    return SearchFilterState(
+      query: query ?? this.query,
+      type: type ?? this.type,
+      format: format ?? this.format,
+      status: status ?? this.status,
+      demographic: demographic ?? this.demographic,
+      genres: genres ?? this.genres,
+      microTags: microTags ?? this.microTags,
+      sortBy: sortBy ?? this.sortBy,
+      minScore: minScore ?? this.minScore,
+    );
+  }
+}
+
+final searchFiltersProvider = StateProvider<SearchFilterState>((ref) {
+  return SearchFilterState();
+});
+
+final searchResultsProvider = FutureProvider<List<MediaItem>>((ref) async {
+  final client = ref.watch(apiClientProvider);
+  final filters = ref.watch(searchFiltersProvider);
+
+  return await client.searchMedia(
+    query: filters.query,
+    type: filters.type,
+    format: filters.format,
+    status: filters.status,
+    demographic: filters.demographic,
+    genres: filters.genres,
+    microTags: filters.microTags,
+    sortBy: filters.sortBy,
+    minScore: filters.minScore,
+  );
+});
+
+// Quick Search Provider (Live Title / Acronym search)
+final quickSearchQueryProvider = StateProvider<String>((ref) => '');
+
+final quickSearchResultsProvider = FutureProvider<List<MediaItem>>((ref) async {
+  final query = ref.watch(quickSearchQueryProvider).trim();
+  if (query.isEmpty) {
+    return const [];
+  }
+  final client = ref.watch(apiClientProvider);
+  return await client.searchMedia(query: query);
+});
+
+// Watchlist State Notifier
+class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecord>>> {
+  final ApiClient _client;
+
+  WatchlistNotifier(this._client) : super(const AsyncValue.loading()) {
+    fetchWatchlist();
+  }
+
+  Future<void> fetchWatchlist({bool isSilent = false}) async {
+    if (!isSilent && state.value == null) {
+      state = const AsyncValue.loading();
+    }
+    try {
+      final items = await _client.getWatchlist();
+      state = AsyncValue.data(items);
+    } catch (e, st) {
+      if (state.value == null) {
+        state = AsyncValue.error(e, st);
+      }
+    }
+  }
+
+  Future<void> updateItem({
+    required String mediaId,
+    required String status,
+    double? score,
+    int progressEpisodes = 0,
+    String? notes,
+  }) async {
+    final currentList = state.value;
+
+    // 1. Optimistic Local Update (Instant 0ms UI feedback, zero screen flash/disappearing)
+    if (currentList != null) {
+      final updatedList = currentList.map((item) {
+        if (item.mediaId == mediaId) {
+          final total = item.media?.episodes;
+          int clamped = progressEpisodes < 0 ? 0 : progressEpisodes;
+          if (total != null && total > 0 && clamped > total) {
+            clamped = total;
+          }
+          final newStatus = (total != null && total > 0 && clamped >= total) ? 'COMPLETED' : status;
+
+          return WatchlistItemRecord(
+            id: item.id,
+            userId: item.userId,
+            mediaId: item.mediaId,
+            status: newStatus,
+            score: score ?? item.score,
+            progressEpisodes: clamped,
+            notes: notes ?? item.notes,
+            mediaItem: item.mediaItem,
+            createdAt: item.createdAt,
+            updatedAt: DateTime.now().toIso8601String(),
+          );
+        }
+        return item;
+      }).toList();
+
+      state = AsyncValue.data(updatedList);
+    }
+
+    // 2. Persist to API and silently reconcile
+    try {
+      await _client.upsertWatchlistItem(
+        mediaId: mediaId,
+        status: status,
+        score: score,
+        progressEpisodes: progressEpisodes,
+        notes: notes,
+      );
+      await fetchWatchlist(isSilent: true);
+    } catch (e) {
+      // If error occurs, reload live state
+      await fetchWatchlist(isSilent: true);
+    }
+  }
+
+  Future<void> incrementProgress(WatchlistItemRecord item) async {
+    final total = item.media?.episodes;
+    if (total != null && total > 0 && item.progressEpisodes >= total) {
+      return; // Already reached max episodes
+    }
+    final nextProgress = item.progressEpisodes + 1;
+    final isCompleted = (total != null && total > 0 && nextProgress >= total);
+
+    await updateItem(
+      mediaId: item.mediaId,
+      status: isCompleted ? 'COMPLETED' : item.status,
+      score: item.score,
+      progressEpisodes: nextProgress,
+      notes: item.notes,
+    );
+  }
+
+  Future<void> removeItem(String mediaId) async {
+    final currentList = state.value;
+    if (currentList != null) {
+      state = AsyncValue.data(currentList.where((i) => i.mediaId != mediaId).toList());
+    }
+    try {
+      await _client.deleteWatchlistItem(mediaId);
+      await fetchWatchlist(isSilent: true);
+    } catch (e) {
+      await fetchWatchlist(isSilent: true);
+    }
+  }
+}
+
+final watchlistProvider = StateNotifierProvider<WatchlistNotifier, AsyncValue<List<WatchlistItemRecord>>>((ref) {
+  final client = ref.watch(apiClientProvider);
+  ref.watch(authStateProvider);
+  return WatchlistNotifier(client);
+});

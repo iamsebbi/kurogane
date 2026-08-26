@@ -12,6 +12,7 @@ Kurogane is organized as a monorepo using **npm workspaces**:
 kurogane/
 ├── apps/
 │   ├── api/          # Express + TypeScript backend API & Inverted-Index search engine
+│   ├── mobile/       # Flutter (Android/iOS) cross-platform mobile client
 │   └── web/          # Next.js 14 + TailwindCSS modern frontend UI
 ├── packages/
 │   └── shared/       # Shared TypeScript types, data models, and version constants

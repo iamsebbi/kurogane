@@ -11,7 +11,9 @@
     "dev": "npx concurrently --shell powershell.exe -n \"API,WEB\" -c \"cyan,magenta\" \"npm run dev:api\" \"npm run dev:web\"",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:api": "npm run dev --workspace=apps/api",
+    "dev:mobile": "cd apps/mobile && flutter run",
     "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   },
   "keywords": [
@@ -24,9 +26,7 @@
   ],
   "author": "Kurogane Team",
   "license": "MIT",
-  "dependencies": {
-    "@gsap/react": "^2.1.2",
-    "firebase": "^12.17.1",
-    "gsap": "^3.15.0"
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

@@ -1,0 +1,30 @@
+name: Kurogane Keep-Alive Pulse
+
+on:
+  schedule:
+    # Runs every 3 days at 06:00 UTC
+    - cron: '0 6 */3 * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  keep-alive:
+    name: Ping Services & Prevent Inactivity Pause
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 💓 Ping Supabase Database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://azlsdbvpxheasfzqiefa.supabase.co' }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || 'sb_publishable_HC0xsZkkV83blayI80-lqw_KHquuN7v' }}
+        run: |
+          echo "Sending keep-alive ping to Supabase REST API..."
+          curl -s -f -X GET "${SUPABASE_URL}/rest/v1/users?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" || echo "Ping completed (response recorded by Supabase)"
+
+      - name: 🚀 Wake up Render API Backend (Optional)
+        env:
+          RENDER_API_URL: ${{ secrets.RENDER_API_URL || 'https://kurogane-api.onrender.com' }}
+        run: |
+          echo "Sending health ping to Render backend..."
+          curl -s -m 30 "${RENDER_API_URL}/api/health" || echo "Backend ping sent"

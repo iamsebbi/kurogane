@@ -13,8 +13,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { MediaItem } from '@kurogane/shared';
-
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000') + '/api';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function RecommendationsPage() {
   const [items, setItems] = useState<MediaItem[]>([]);
@@ -37,7 +36,7 @@ export default function RecommendationsPage() {
       try {
         setLoading(true);
         const token = typeof window !== 'undefined' ? localStorage.getItem('kurogane_token') : null;
-        const res = await fetch(`${API_BASE}/homepage`, {
+        const res = await fetch(`${API_BASE_URL}/api/homepage`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (res.ok) {

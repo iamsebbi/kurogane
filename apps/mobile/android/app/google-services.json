@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "141330897882",
+    "project_id": "kurogane-c3c14",
+    "storage_bucket": "kurogane-c3c14.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141330897882:android:d51904299d22aa09ce3ee3",
+        "android_client_info": {
+          "package_name": "com.kurogane.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "141330897882-cfls510bk9je8vjejngqo4isfpua8bck.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTpzG4Fd1XpYwxizygkoU8juUNsju36Ck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "141330897882-cfls510bk9je8vjejngqo4isfpua8bck.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

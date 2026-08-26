@@ -135,7 +135,7 @@ function MediaCatalogContent() {
 
       if (res.ok) {
         const data = await res.json();
-        setItems(data.items || []);
+        setItems(data.results || data.items || []);
         setTotal(data.total || 0);
       }
     } catch (err: any) {

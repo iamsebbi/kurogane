@@ -5,7 +5,7 @@ import {
   RecommendedMediaItem,
   ScoreMetrics,
 } from '@kurogane/shared';
-import { mapAniListToMediaItem } from './anilist';
+import { mapAniListToMediaItem, ANILIST_REQUEST_HEADERS } from './anilist';
 
 const DATA_DIR = path.join(__dirname, '../../data');
 const CACHE_FILE = path.join(DATA_DIR, 'anilist-cache.json');
@@ -272,6 +272,23 @@ class AniListCacheService {
     }, 1000);
   }
 
+  public getAllCachedMedia(): MediaItem[] {
+    const items: MediaItem[] = [];
+    const seen = new Set<string>();
+    for (const record of this.entries.values()) {
+      if (Array.isArray(record?.data)) {
+        for (const entry of record.data) {
+          const m = entry?.media?.id ? entry.media : entry?.id && entry.title ? entry : null;
+          if (m && m.id && !seen.has(m.id)) {
+            seen.add(m.id);
+            items.push(m);
+          }
+        }
+      }
+    }
+    return items;
+  }
+
   public getCachedScore(anilistId?: number): ScoreMetrics | null {
     if (!anilistId) return null;
     const s = this.scores.get(anilistId);
@@ -359,10 +376,7 @@ class AniListCacheService {
 
       const response = await fetch(ANILIST_GRAPHQL_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: ANILIST_REQUEST_HEADERS,
         body: JSON.stringify({
           query: BATCH_MEDIA_QUERY,
           variables: { ids: batch, perPage: batch.length },
@@ -407,10 +421,7 @@ class AniListCacheService {
 
         const response = await fetch(ANILIST_GRAPHQL_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
+          headers: ANILIST_REQUEST_HEADERS,
           body: JSON.stringify({
             query: GUEST_RECOMMENDATIONS_QUERY,
             variables: { perPage: 25 },
@@ -518,10 +529,7 @@ class AniListCacheService {
           try {
             const response = await fetch(ANILIST_GRAPHQL_URL, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-              },
+              headers: ANILIST_REQUEST_HEADERS,
               body: JSON.stringify({
                 query: RECOMMENDATIONS_BATCH_QUERY,
                 variables: { mediaIds: targetIds, perPage: 40 },
@@ -576,7 +584,7 @@ class AniListCacheService {
         const scoredResults: RecommendedMediaItem[] = candidateItems
           .filter((item) => item.scores.averageScore >= 6.8)
           .map((item) => {
-            const itemGenres = item.genres.map((g) => g.toLowerCase());
+            const itemGenres = (item.genres || []).map((g: string) => g.toLowerCase());
             let overlapCount = 0;
             const matchedLabels: string[] = [];
 

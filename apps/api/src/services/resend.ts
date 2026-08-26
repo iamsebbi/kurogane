@@ -5,8 +5,13 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || process.env.NEXT_PUBLIC_RES
 const MAX_OTP_ATTEMPTS = 5;
 const OTP_COOLDOWN_MS = 60 * 1000; // 1 minute between resends
 const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_HOURLY_REQUESTS = 5;
-const OTP_SALT = process.env.OTP_SALT || 'kurogane_otp_security_salt_2026';
+const OTP_SALT =
+  process.env.OTP_SALT ||
+  (process.env.NODE_ENV === 'production'
+    ? (() => {
+        throw new Error('CRITICAL SECURITY ERROR: OTP_SALT environment variable is required in production.');
+      })()
+    : 'kurogane_otp_dev_salt_2026_non_production_only');
 
 interface OtpEntry {
   codeHash: string;

@@ -68,5 +68,46 @@
     "pronouns": "he/him",
     "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
     "createdAt": "2026-08-20T20:32:06.524Z"
+  },
+  {
+    "id": "UKcTVmoxQ3cByPfKQvrOkc2qScN2",
+    "username": "prisecarusebastiann",
+    "email": "prisecarusebastiann@gmail.com",
+    "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=prisecarusebastiann",
+    "bio": "Entuziast Anime & Manga pe Kurogane. Colecționez serii epice și analizez ordine de vizionare!",
+    "pronouns": "otaku/senpai",
+    "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
+    "createdAt": "2026-08-22T21:14:43.774Z"
+  },
+  {
+    "id": "Ycfp71blOERx2mqaglGRxfvxArJ2",
+    "username": "itueogzqgcwtfflcce",
+    "email": "itueogzqgcwtfflcce@jbsze.net",
+    "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=itueogzqgcwtfflcce",
+    "bio": "Entuziast Anime & Manga pe Kurogane. Colecționez serii epice și analizez ordine de vizionare!",
+    "pronouns": "he/him",
+    "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
+    "createdAt": "2026-08-25T20:56:11.905Z"
+  },
+  {
+    "id": "test-user-uuid-1234",
+    "username": "ShadowNinja",
+    "email": "tester@kurogane.app",
+    "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=ShadowNinja",
+    "bio": "Entuziast Anime & Manga pe Kurogane.",
+    "pronouns": "he/him",
+    "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
+    "createdAt": "2026-08-26T10:57:18.516Z"
+  },
+  {
+    "id": "unit-test-user-temp",
+    "email": "testuser@kurogane.app",
+    "username": "UnitTestUser",
+    "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=unit-test-user-temp",
+    "bio": "Entuziast Anime & Manga pe Kurogane.",
+    "pronouns": "he/him",
+    "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
+    "favoriteGenres": [],
+    "createdAt": "2026-08-26T11:23:07.991Z"
   }
 ]

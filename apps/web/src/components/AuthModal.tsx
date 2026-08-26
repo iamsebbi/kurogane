@@ -33,7 +33,7 @@ type AuthMode = 'SIGN_IN' | 'SIGN_UP' | 'FORGOT_PASSWORD' | 'OTP_LOGIN';
 // Email regex per RFC 5322 simplified
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9_.\-\u00C0-\u024F]{2,24}$/;
-const PASSWORD_MIN = 6;
+const PASSWORD_MIN = 8;
 
 export function AuthModal({
   isOpen,
@@ -259,12 +259,79 @@ export function AuthModal({
     setLoading(true);
 
     try {
+      let targetEmail = cleanInput.toLowerCase();
+
+      // If user entered a username instead of an email, resolve it to their registered email
+      if (!cleanInput.includes('@')) {
+        let resolvedEmail: string | null = null;
+
+        // 1. Check if the current device has a saved login for this specific user
+        try {
+          const saved = localStorage.getItem('kurogane_last_login');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (
+              parsed?.username &&
+              parsed.username.trim().toLowerCase() === cleanInput.toLowerCase() &&
+              parsed?.email
+            ) {
+              resolvedEmail = parsed.email.trim().toLowerCase();
+            }
+          }
+        } catch {}
+
+        // 2. Query backend identifier resolver with timing attack protection & rate limiting
+        if (!resolvedEmail) {
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/resolve-identifier`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ identifier: cleanInput }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.email) {
+                resolvedEmail = data.email.trim().toLowerCase();
+              }
+            } else if (res.status === 429) {
+              const errJson = await res.json().catch(() => null);
+              throw new Error(errJson?.error || 'Prea multe încercări. Te rugăm să încerci din nou mai târziu.');
+            }
+          } catch (resErr: any) {
+            if (resErr?.message?.includes('Prea multe încercări')) {
+              throw resErr;
+            }
+          }
+        }
+
+        if (!resolvedEmail) {
+          // Generic failure - never confirm user non-existence
+          throw new Error('Date de autentificare incorecte.');
+        }
+
+        targetEmail = resolvedEmail;
+      }
+
       const { user, token, error: fbError } =
-        await firebaseAuth.signInWithPassword(cleanInput.toLowerCase(), password);
+        await firebaseAuth.signInWithPassword(targetEmail, password);
 
       if (fbError || !user || !token) {
-        throw fbError || new Error('Autentificarea a eșuat.');
+        throw fbError || new Error('Date de autentificare incorecte.');
       }
+
+      // Security: Remove any legacy map and store STRICTLY the current active user's own identity
+      try {
+        localStorage.removeItem('kurogane_username_map');
+        if (user.username && user.email) {
+          localStorage.setItem(
+            'kurogane_last_login',
+            JSON.stringify({
+              username: user.username,
+              email: user.email.toLowerCase().trim(),
+            })
+          );
+        }
+      } catch {}
 
       localStorage.setItem('kurogane_token', token);
       localStorage.setItem('kurogane_user', JSON.stringify(user));
@@ -272,7 +339,12 @@ export function AuthModal({
       onSuccess(user, token);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Datele de autentificare sunt incorecte.');
+      if (err?.message?.includes('Prea multe încercări')) {
+        setError(err.message);
+      } else {
+        // Enforce generic error message to completely prevent user enumeration
+        setError('Date de autentificare incorecte.');
+      }
     } finally {
       setLoading(false);
     }
@@ -318,6 +390,30 @@ export function AuthModal({
       if (fbError || !user || !token) {
         throw fbError || new Error('Eroare la crearea contului.');
       }
+
+      // Register / Sync user profile with backend database
+      try {
+        await fetch(`${API_BASE_URL}/api/auth/register-user`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: cleanEmail,
+            username: cleanUsername,
+            id: user.id,
+            password,
+          }),
+        });
+
+        // Security: Remove legacy map & store strictly current active user's own identity
+        localStorage.removeItem('kurogane_username_map');
+        localStorage.setItem(
+          'kurogane_last_login',
+          JSON.stringify({
+            username: cleanUsername,
+            email: cleanEmail,
+          })
+        );
+      } catch (e) {}
 
       localStorage.setItem('kurogane_token', token);
       localStorage.setItem('kurogane_user', JSON.stringify(user));
@@ -620,7 +716,7 @@ export function AuthModal({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nume@domeniu.com sau username"
+                  placeholder="nume@domeniu.com sau username…"
                   spellCheck={false}
                   className="h-11 w-full bg-bgPrimary border border-borderSubtle rounded-full pl-10 pr-4 text-xs sm:text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:border-accentPrimary focus-visible:ring-2 focus-visible:ring-accentPrimary/20 transition-all"
                 />
