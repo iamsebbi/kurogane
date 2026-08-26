@@ -4,17 +4,6 @@ import { franchiseService } from '../services/franchise';
 
 const router = Router();
 
-// GET /api/categories - Curated category shelves
-router.get('/categories', (req: Request, res: Response) => {
-  try {
-    const shelves = dbService.getCategoryShelves();
-    res.json({ shelves });
-  } catch (error: any) {
-    console.error('[API Error] GET /api/categories:', error);
-    res.status(500).json({ error: 'Internal Server Error', message: error.message });
-  }
-});
-
 // GET /api/media/:id - Full details for a media item
 router.get('/:id', async (req: Request, res: Response) => {
   try {
