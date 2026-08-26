@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
 import '../models/watch_order.dart';
 import '../views/media_detail_screen.dart';
@@ -7,8 +8,15 @@ import 'pill_badge.dart';
 
 class WatchOrderTreeView extends StatefulWidget {
   final WatchOrderGuide guide;
+  final String? parentCoverImage;
+  final Color? dominantAccent;
 
-  const WatchOrderTreeView({super.key, required this.guide});
+  const WatchOrderTreeView({
+    super.key,
+    required this.guide,
+    this.parentCoverImage,
+    this.dominantAccent,
+  });
 
   @override
   State<WatchOrderTreeView> createState() => _WatchOrderTreeViewState();
@@ -19,62 +27,108 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
 
   @override
   Widget build(BuildContext context) {
+    final accent = widget.dominantAccent ?? context.accentPrimary;
     final availablePaths = widget.guide.paths;
-    final currentNodes = availablePaths[_selectedMode] ?? availablePaths['RECOMMENDED'] ?? [];
+
+    // Calculăm lista de noduri în funcție de mod
+    List<WatchOrderNode> currentNodes;
+    if (_selectedMode == 'RELEASE' && !availablePaths.containsKey('RELEASE')) {
+      final base = List<WatchOrderNode>.from(
+          availablePaths['RECOMMENDED'] ?? availablePaths.values.firstOrNull ?? []);
+      base.sort((a, b) => (a.releaseYear ?? 0).compareTo(b.releaseYear ?? 0));
+      currentNodes = base;
+    } else {
+      currentNodes = availablePaths[_selectedMode] ??
+          availablePaths['RECOMMENDED'] ??
+          availablePaths.values.firstOrNull ??
+          [];
+    }
+
+    final bool hasMixedCanon = currentNodes.any((n) => !n.isCanon);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Franchise Title & Description Header
+        // 1. Franchise Overview Card (Clean, borderless, contextual accent glow)
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: AppColors.bgSurface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderSubtle),
+            color: context.bgSurface,
+            borderRadius: BorderRadius.circular(22),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.account_tree_outlined, color: AppColors.accentPrimary, size: 18),
-                  const SizedBox(width: 8),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        PhosphorIcons.gitFork(PhosphorIconsStyle.bold),
+                        color: accent,
+                        size: 17,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       widget.guide.franchiseName,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
+                      style: TextStyle(
+                        color: context.textPrimary,
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 ],
               ),
               if (widget.guide.description != null) ...[
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
                 Text(
                   widget.guide.description!,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  style: TextStyle(
+                    color: context.textSecondary,
+                    fontSize: 13,
+                    height: 1.45,
+                  ),
                 ),
               ],
               if (widget.guide.communityTip != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.accentPrimary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.accentPrimary.withValues(alpha: 0.25)),
+                    color: accent.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(
-                    widget.guide.communityTip!,
-                    style: const TextStyle(
-                      color: AppColors.accentSecondary,
-                      fontSize: 12,
-                      height: 1.35,
-                    ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
+                        size: 16,
+                        color: accent,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          widget.guide.communityTip!,
+                          style: TextStyle(
+                            color: context.textPrimary.withValues(alpha: 0.92),
+                            fontSize: 12.5,
+                            height: 1.4,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -82,29 +136,26 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
-        // Mode Switcher (Recommended / Chronological / Release)
+        // 2. Mode Switcher (Pills with dominant accent)
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
           child: Row(
             children: [
-              _buildModeButton('RECOMMENDED', 'Recomandat (Începători)', Icons.auto_awesome),
+              _buildModeButton(context, 'RECOMMENDED', 'Recomandat (Începători)', PhosphorIcons.sparkle(PhosphorIconsStyle.bold), accent),
               const SizedBox(width: 8),
-              if (availablePaths.containsKey('CHRONOLOGICAL')) ...[
-                _buildModeButton('CHRONOLOGICAL', 'Cronologic (Poveste)', Icons.schedule),
-                const SizedBox(width: 8),
-              ],
-              if (availablePaths.containsKey('RELEASE')) ...[
-                _buildModeButton('RELEASE', 'Ordinea Lansării', Icons.calendar_today_outlined),
-              ],
+              _buildModeButton(context, 'CHRONOLOGICAL', 'Cronologic (Poveste)', PhosphorIcons.clockCounterClockwise(PhosphorIconsStyle.bold), accent),
+              const SizedBox(width: 8),
+              _buildModeButton(context, 'RELEASE', 'Ordinea Lansării', PhosphorIcons.calendarBlank(PhosphorIconsStyle.bold), accent),
             ],
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
 
-        // Vertical Timeline Nodes
+        // 3. Signature Timeline with Canon vs Side-Story Visual Hierarchy
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -112,6 +163,10 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
           itemBuilder: (context, index) {
             final node = currentNodes[index];
             final isLast = index == currentNodes.length - 1;
+            final isCanon = node.isCanon;
+            final nodeCover = (node.coverImage != null && node.coverImage!.isNotEmpty)
+                ? node.coverImage!
+                : widget.parentCoverImage;
 
             return IntrinsicHeight(
               child: Row(
@@ -119,50 +174,63 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
                 children: [
                   // Left Step Index & Connector Line
                   SizedBox(
-                    width: 36,
+                    width: 42,
                     child: Column(
                       children: [
-                        // Circle step badge
+                        // Signature Timeline Node Badge
                         Container(
-                          width: 28,
-                          height: 28,
+                          width: 32,
+                          height: 32,
                           decoration: BoxDecoration(
-                            color: node.isCanon ? AppColors.accentPrimary : AppColors.bgSurfaceHover,
+                            color: isCanon ? accent : context.bgSurfaceHover,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: node.isCanon ? AppColors.accentSecondary : AppColors.borderSubtle,
-                              width: 2,
-                            ),
+                            boxShadow: isCanon
+                                ? [
+                                    BoxShadow(
+                                      color: accent.withValues(alpha: 0.35),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
                           ),
                           alignment: Alignment.center,
                           child: Text(
                             '${node.orderIndex}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                            style: TextStyle(
+                              color: isCanon ? Colors.black : context.textPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
-                        // Line downwards
+
+                        // Timeline stem (solid prominent for Canon, subtle for Side-story)
                         if (!isLast)
                           Expanded(
                             child: Container(
-                              width: 2,
-                              color: AppColors.borderSubtle,
+                              width: isCanon ? 3.0 : 1.5,
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isCanon
+                                    ? accent.withValues(alpha: 0.45)
+                                    : context.borderSubtle.withValues(alpha: 0.4),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
                           ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
 
-                  // Right Content Node Card
+                  // Right Content Node Card (Interactive & Depth)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 16),
-                      child: GestureDetector(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(18),
                         onTap: () {
                           if (node.mediaId.isNotEmpty) {
                             Navigator.of(context).push(
@@ -175,30 +243,31 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.bgSurface,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: node.isCanon ? AppColors.borderSubtle : AppColors.borderSubtle.withValues(alpha: 0.5),
-                            ),
+                            color: context.bgSurface,
+                            borderRadius: BorderRadius.circular(18),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Cover thumbnail if exists
-                              if (node.coverImage != null && node.coverImage!.isNotEmpty)
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: CachedNetworkImage(
-                                    imageUrl: node.coverImage!,
-                                    width: 50,
-                                    height: 70,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => Container(color: AppColors.bgSurfaceHover),
-                                  ),
+                              // Cover thumbnail cu fallback inteligent
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: SizedBox(
+                                  width: 58,
+                                  height: 82,
+                                  child: (nodeCover != null && nodeCover.isNotEmpty)
+                                      ? CachedNetworkImage(
+                                          imageUrl: nodeCover,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) => Container(color: context.bgSurfaceHover),
+                                          errorWidget: (_, __, ___) => _buildFallbackThumbnail(context, node, accent),
+                                        )
+                                      : _buildFallbackThumbnail(context, node, accent),
                                 ),
-                              const SizedBox(width: 12),
+                              ),
+                              const SizedBox(width: 14),
 
-                              // Text metadata
+                              // Text metadata & badges
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,55 +276,57 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
                                       children: [
                                         PillBadge(
                                           label: node.type,
-                                          fontSize: 9,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          fontSize: 9.5,
+                                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
                                         ),
-                                        const SizedBox(width: 6),
-                                        if (node.isCanon)
-                                          PillBadge(
-                                            label: 'CANON',
-                                            fontSize: 9,
-                                            backgroundColor: AppColors.signalLive.withValues(alpha: 0.12),
-                                            textColor: AppColors.signalLive,
-                                            borderColor: AppColors.signalLive.withValues(alpha: 0.3),
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          )
-                                        else
-                                          PillBadge(
-                                            label: 'OPȚIONAL / SIDE',
-                                            fontSize: 9,
-                                            backgroundColor: AppColors.textMuted.withValues(alpha: 0.12),
-                                            textColor: AppColors.textSecondary,
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          ),
+                                        if (hasMixedCanon) ...[
+                                          const SizedBox(width: 6),
+                                          if (isCanon)
+                                            PillBadge(
+                                              label: 'CANON',
+                                              fontSize: 9.5,
+                                              backgroundColor: accent.withValues(alpha: 0.18),
+                                              textColor: accent,
+                                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                            )
+                                          else
+                                            PillBadge(
+                                              label: 'OPȚIONAL',
+                                              fontSize: 9.5,
+                                              backgroundColor: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                                              textColor: const Color(0xFFA78BFA),
+                                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                            ),
+                                        ],
                                       ],
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
                                       node.title,
-                                      style: const TextStyle(
-                                        color: AppColors.textPrimary,
+                                      style: TextStyle(
+                                        color: context.textPrimary,
                                         fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.25,
                                       ),
                                     ),
                                     if (node.episodesInfo != null || node.releaseYear != null) ...[
-                                      const SizedBox(height: 2),
+                                      const SizedBox(height: 4),
                                       Text(
                                         [
                                           if (node.releaseYear != null) '${node.releaseYear}',
                                           if (node.episodesInfo != null) node.episodesInfo!,
                                         ].join(' • '),
-                                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                                        style: TextStyle(color: context.textSecondary, fontSize: 11.5),
                                       ),
                                     ],
                                     if (node.note != null) ...[
                                       const SizedBox(height: 6),
                                       Text(
                                         node.note!,
-                                        style: const TextStyle(
-                                          color: AppColors.accentSecondary,
-                                          fontSize: 11,
+                                        style: TextStyle(
+                                          color: accent,
+                                          fontSize: 11.5,
                                           fontStyle: FontStyle.italic,
                                         ),
                                       ),
@@ -278,7 +349,33 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
     );
   }
 
-  Widget _buildModeButton(String modeKey, String label, IconData icon) {
+  Widget _buildFallbackThumbnail(BuildContext context, WatchOrderNode node, Color accent) {
+    return Container(
+      color: context.bgSurfaceHover,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            PhosphorIcons.filmStrip(PhosphorIconsStyle.bold),
+            size: 22,
+            color: accent,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Part ${node.orderIndex}',
+            style: TextStyle(
+              color: context.textSecondary,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeButton(BuildContext context, String modeKey, String label, IconData icon, Color accent) {
     final isSelected = _selectedMode == modeKey;
 
     return GestureDetector(
@@ -287,14 +384,12 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
           _selectedMode = modeKey;
         });
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.accentPrimary : AppColors.bgSurface,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: isSelected ? AppColors.accentPrimary : AppColors.borderSubtle,
-          ),
+          color: isSelected ? accent : context.bgSurface,
+          borderRadius: BorderRadius.circular(9999), // FULL ROUNDED
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -302,15 +397,15 @@ class _WatchOrderTreeViewState extends State<WatchOrderTreeView> {
             Icon(
               icon,
               size: 13,
-              color: isSelected ? Colors.white : AppColors.textSecondary,
+              color: isSelected ? Colors.black : context.textSecondary,
             ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textSecondary,
+                color: isSelected ? Colors.black : context.textSecondary,
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
               ),
             ),
           ],

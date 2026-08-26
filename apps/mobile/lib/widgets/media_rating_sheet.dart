@@ -147,7 +147,6 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
         decoration: BoxDecoration(
           color: context.bgSurface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          border: Border.all(color: context.borderSubtle),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -345,9 +344,8 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: context.bgPrimary,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: context.borderSubtle),
+                color: context.bgSurfaceHover,
+                borderRadius: BorderRadius.circular(9999), // FULL ROUNDED
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -517,13 +515,10 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 140),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? context.accentPrimary : context.bgPrimary,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? context.accentPrimary : context.borderSubtle,
-          ),
+          color: isSelected ? context.accentPrimary : context.bgSurfaceHover,
+          borderRadius: BorderRadius.circular(9999), // FULL ROUNDED
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
