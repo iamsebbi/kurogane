@@ -1,34 +1,7 @@
+import './services/env';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import fs from 'fs';
-import path from 'path';
-
-// Automatic zero-dependency .env loader
-[
-  path.join(__dirname, '../.env'),
-  path.join(__dirname, '../../.env'),
-  path.join(process.cwd(), '.env'),
-  path.join(process.cwd(), 'apps/api/.env'),
-].forEach((envPath) => {
-  if (fs.existsSync(envPath)) {
-    try {
-      const content = fs.readFileSync(envPath, 'utf-8');
-      content.split('\n').forEach((line) => {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
-          const idx = trimmed.indexOf('=');
-          const key = trimmed.substring(0, idx).trim();
-          const val = trimmed.substring(idx + 1).trim();
-          if (key && !process.env[key]) {
-            process.env[key] = val.replace(/^["']|["']$/g, '');
-          }
-        }
-      });
-    } catch (e) {}
-  }
-});
-
 import apiRouter from './routes';
 
 const app = express();
@@ -99,6 +72,22 @@ process.on('unhandledRejection', (reason) => {
   console.error('[FATAL] Unhandled Rejection:', reason);
 });
 
-app.listen(PORT, () => {
-  console.log(`[Kurogane API] Server running on http://localhost:${PORT}`);
-});
+import { persistentDb } from './services/db-persistent';
+import { isSupabaseConfigured } from './services/supabase';
+
+async function startServer() {
+  if (isSupabaseConfigured) {
+    try {
+      console.log('⚡ [Startup] Synchronizing persistent state from Supabase Cloud...');
+      await persistentDb.syncFromSupabase();
+    } catch (syncErr) {
+      console.warn('⚠️ [Startup] Initial Cloud sync notice:', syncErr);
+    }
+  }
+
+  app.listen(PORT, () => {
+    console.log(`[Kurogane API] Server running on http://localhost:${PORT}`);
+  });
+}
+
+startServer();

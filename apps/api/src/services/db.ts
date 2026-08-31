@@ -278,8 +278,9 @@ class JSONDatabaseService {
   }
 
   public async getMediaByIdAsync(id: string): Promise<MediaItem | undefined> {
-    if (this.itemsById.has(id)) {
-      return this.itemsById.get(id);
+    const existing = this.itemsById.get(id);
+    if (existing && existing.studios && existing.studios.length > 0) {
+      return existing;
     }
     const item = await fetchAniListMediaById(id);
     if (item) {
@@ -290,7 +291,7 @@ class JSONDatabaseService {
       }
       return item;
     }
-    return undefined;
+    return existing || undefined;
   }
 
   public getCategoryShelves(): CategoryShelf[] {

@@ -1,41 +1,117 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/network/api_client.dart';
+import 'api_providers.dart';
 
 class UserProfileData {
   final String pronoun;
   final String bio;
+  final String? username;
+  final String? avatarUrl;
+  final String? bannerUrl;
+  final List<String> favoriteGenres;
 
   const UserProfileData({
     this.pronoun = 'el/lui',
     this.bio = 'Anime & Manga Enthusiast • Membru Kurogane Universe',
+    this.username,
+    this.avatarUrl,
+    this.bannerUrl,
+    this.favoriteGenres = const [],
   });
 
   UserProfileData copyWith({
     String? pronoun,
     String? bio,
+    String? username,
+    String? avatarUrl,
+    String? bannerUrl,
+    List<String>? favoriteGenres,
   }) {
     return UserProfileData(
       pronoun: pronoun ?? this.pronoun,
       bio: bio ?? this.bio,
+      username: username ?? this.username,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      bannerUrl: bannerUrl ?? this.bannerUrl,
+      favoriteGenres: favoriteGenres ?? this.favoriteGenres,
     );
   }
 }
 
 class UserProfileNotifier extends StateNotifier<UserProfileData> {
-  UserProfileNotifier() : super(const UserProfileData()) {
-    _loadFromPrefs();
+  final ApiClient? _apiClient;
+
+  UserProfileNotifier([this._apiClient]) : super(const UserProfileData()) {
+    _loadInitial();
   }
 
-  Future<void> _loadFromPrefs() async {
+  Future<void> _loadInitial() async {
+    // 1. Instant local load from SharedPreferences (0ms UI latency)
     try {
       final prefs = await SharedPreferences.getInstance();
       final pronoun = prefs.getString('kurogane_user_pronoun') ?? 'el/lui';
       final bio = prefs.getString('kurogane_user_bio') ?? 'Anime & Manga Enthusiast • Membru Kurogane Universe';
-      state = UserProfileData(pronoun: pronoun, bio: bio);
+      final username = prefs.getString('kurogane_user_name');
+      final avatarUrl = prefs.getString('kurogane_user_avatar');
+      final bannerUrl = prefs.getString('kurogane_user_banner');
+
+      state = UserProfileData(
+        pronoun: pronoun,
+        bio: bio,
+        username: username,
+        avatarUrl: avatarUrl,
+        bannerUrl: bannerUrl,
+      );
     } catch (_) {}
+
+    // 2. Asynchronously reconcile with Backend & Cloud Database
+    await syncFromBackend();
   }
 
-  Future<void> updateProfile({String? pronoun, String? bio}) async {
+  Future<void> syncFromBackend() async {
+    if (_apiClient == null) return;
+    try {
+      final profileMap = await _apiClient.getProfile();
+      if (profileMap != null && profileMap['profile'] != null) {
+        final profile = profileMap['profile'] as Map<String, dynamic>;
+        final bio = profile['bio'] as String?;
+        final pronouns = profile['pronouns'] as String?;
+        final username = profile['username'] as String?;
+        final avatarUrl = profile['avatarUrl'] as String?;
+        final bannerUrl = profile['bannerUrl'] as String?;
+        final favGenres = (profile['favoriteGenres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+
+        final prefs = await SharedPreferences.getInstance();
+        if (bio != null) await prefs.setString('kurogane_user_bio', bio);
+        if (pronouns != null) await prefs.setString('kurogane_user_pronoun', pronouns);
+        if (username != null) await prefs.setString('kurogane_user_name', username);
+        if (avatarUrl != null) await prefs.setString('kurogane_user_avatar', avatarUrl);
+        if (bannerUrl != null) await prefs.setString('kurogane_user_banner', bannerUrl);
+
+        state = state.copyWith(
+          bio: bio ?? state.bio,
+          pronoun: pronouns ?? state.pronoun,
+          username: username ?? state.username,
+          avatarUrl: avatarUrl ?? state.avatarUrl,
+          bannerUrl: bannerUrl ?? state.bannerUrl,
+          favoriteGenres: favGenres.isNotEmpty ? favGenres : state.favoriteGenres,
+        );
+      }
+    } catch (e) {
+      debugPrint('[UserProfileNotifier] Backend profile sync notice: $e');
+    }
+  }
+
+  Future<void> updateProfile({
+    String? pronoun,
+    String? bio,
+    String? username,
+    String? avatarUrl,
+    String? bannerUrl,
+  }) async {
+    // 1. Optimistic local update (instant 0ms UI feedback)
     try {
       final prefs = await SharedPreferences.getInstance();
       if (pronoun != null) {
@@ -44,13 +120,45 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
       if (bio != null) {
         await prefs.setString('kurogane_user_bio', bio);
       }
+      if (username != null) {
+        await prefs.setString('kurogane_user_name', username);
+      }
+      if (avatarUrl != null) {
+        await prefs.setString('kurogane_user_avatar', avatarUrl);
+      }
+      if (bannerUrl != null) {
+        await prefs.setString('kurogane_user_banner', bannerUrl);
+      }
     } catch (_) {}
-    state = state.copyWith(pronoun: pronoun, bio: bio);
+
+    state = state.copyWith(
+      pronoun: pronoun,
+      bio: bio,
+      username: username,
+      avatarUrl: avatarUrl,
+      bannerUrl: bannerUrl,
+    );
+
+    // 2. Persist to API & Supabase Cloud
+    if (_apiClient != null) {
+      try {
+        await _apiClient.updateProfile(
+          username: username,
+          bio: bio,
+          pronouns: pronoun,
+          avatarUrl: avatarUrl,
+          bannerUrl: bannerUrl,
+        );
+      } catch (e) {
+        debugPrint('[UserProfileNotifier] Error updating backend profile: $e');
+      }
+    }
   }
 }
 
 final userProfileProvider = StateNotifierProvider<UserProfileNotifier, UserProfileData>((ref) {
-  return UserProfileNotifier();
+  final client = ref.watch(apiClientProvider);
+  return UserProfileNotifier(client);
 });
 
 /// Setări & Preferințe Globale

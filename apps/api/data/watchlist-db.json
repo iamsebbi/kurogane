@@ -148,46 +148,8 @@
     "status": "WATCHING",
     "progressEpisodes": 10,
     "notes": null,
-    "createdAt": "2026-08-25T20:56:28.479Z",
-    "updatedAt": "2026-08-26T21:30:27.958Z",
-    "mediaItem": {
-      "id": "anilist-16498",
-      "anilistId": 16498,
-      "title": {
-        "romaji": "Shingeki no Kyojin",
-        "english": "Attack on Titan",
-        "native": "進撃の巨人",
-        "userPreferred": "Shingeki no Kyojin"
-      },
-      "type": "ANIME",
-      "format": "TV",
-      "status": "FINISHED",
-      "season": "SPRING",
-      "episodes": 25,
-      "chapters": null,
-      "volumes": null,
-      "genres": [
-        "Action",
-        "Drama",
-        "Fantasy",
-        "Mystery"
-      ],
-      "description": "Several hundred years ago, humans were nearly exterminated by titans. Titans are typically several stories tall, seem to have no intelligence, devour human beings and, worst of all, seem to do it for the pleasure rather than as a food source. A small percentage of humanity survived by walling themselves in a city protected by extremely high walls, even taller than the biggest of titans.\r\nFlash forward to the present and the city has not seen a titan in over 100 years. Teenage boy Eren and his foster sister Mikasa witness something horrific as the city walls are destroyed by a colossal titan that appears out of thin air. As the smaller titans flood the city, the two kids watch in horror as their mother is eaten alive. Eren vows that he will murder every single titan and take revenge for all of mankind.\r\n(Source: MangaHelpers)",
-      "coverImage": {
-        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg",
-        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16498-buvcRTBx4NSm.jpg",
-        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx16498-buvcRTBx4NSm.jpg",
-        "color": "#f1a143"
-      },
-      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/16498-8jpFCOcDmneX.jpg",
-      "year": 2013,
-      "scores": {
-        "averageScore": 8.5,
-        "reviewCount": 597876,
-        "weightedScore": 8.5
-      },
-      "source": "ANILIST"
-    }
+    "createdAt": "2026-08-26T21:30:28.144919+00:00",
+    "updatedAt": "2026-08-26T21:30:27.958+00:00"
   },
   {
     "id": "witem-1787693493952-v8777",
@@ -287,17 +249,6 @@
       },
       "source": "ANILIST"
     }
-  },
-  {
-    "id": "witem-1787744943301-0205e",
-    "userId": "unit-test-user-temp",
-    "mediaId": "custom-media-offline-test",
-    "status": "WATCHING",
-    "progressEpisodes": 3,
-    "score": 9.5,
-    "notes": null,
-    "createdAt": "2026-08-26T11:49:05.567616+00:00",
-    "updatedAt": "2026-08-26T11:49:03.301+00:00"
   },
   {
     "id": "witem-1787755939676-h98pq",

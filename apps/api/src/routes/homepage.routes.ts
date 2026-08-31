@@ -19,11 +19,11 @@ router.get('/health', (req: Request, res: Response) => {
 // GET /api/homepage - Aggregated homepage sections
 router.get('/homepage', async (req: Request, res: Response) => {
   try {
-    const user = authenticateUser(req);
+    const user = await authenticateUser(req);
     let watchlist;
     let favoriteGenres;
 
-    if (user) {
+    if (user && user.id) {
       watchlist = await persistentDb.getUserWatchlist(user.id);
       const profile = persistentDb.getUserProfile(user.id);
       favoriteGenres = profile?.favoriteGenres;

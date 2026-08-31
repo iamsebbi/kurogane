@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
@@ -120,38 +121,71 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> with SingleTi
                         : watchlist.where((item) => item.status == statusFilter).toList();
 
                     if (filteredItems.isEmpty) {
-                      return Center(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(24, headerTotalHeight + 20, 24, 24),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
-                                size: 54,
-                                color: context.textMuted,
-                              ),
-                              const SizedBox(height: 14),
-                              Text(
-                                'Niciun anime în ${tab['label']}',
-                                style: TextStyle(
-                                  color: context.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Google Sans',
+                      return RefreshIndicator(
+                        onRefresh: () => ref.read(watchlistProvider.notifier).fetchWatchlist(),
+                        color: context.accentPrimary,
+                        backgroundColor: context.bgSurface,
+                        edgeOffset: headerTotalHeight,
+                        child: CustomScrollView(
+                          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                          slivers: [
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(24, headerTotalHeight + 20, 24, 24),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
+                                      size: 54,
+                                      color: context.textMuted,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Text(
+                                      'Niciun anime în ${tab['label']}',
+                                      style: TextStyle(
+                                        color: context.textPrimary,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Google Sans',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'Explorează catalogul și adaugă titluri în listă!',
+                                      style: TextStyle(
+                                        color: context.textSecondary,
+                                        fontSize: 13,
+                                        fontFamily: 'Google Sans',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 18),
+                                    ElevatedButton.icon(
+                                      onPressed: () => ref.read(watchlistProvider.notifier).fetchWatchlist(),
+                                      icon: Icon(
+                                        PhosphorIcons.arrowClockwise(PhosphorIconsStyle.bold),
+                                        size: 16,
+                                        color: context.onPrimary,
+                                      ),
+                                      label: Text(
+                                        'Reîmprospătează',
+                                        style: TextStyle(
+                                          color: context.onPrimary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: context.accentPrimary,
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Explorează catalogul și adaugă titluri în listă!',
-                                style: TextStyle(
-                                  color: context.textSecondary,
-                                  fontSize: 13,
-                                  fontFamily: 'Google Sans',
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
                     }
@@ -208,6 +242,18 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> with SingleTi
                                     letterSpacing: -0.5,
                                   ),
                                 ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  HapticFeedback.lightImpact();
+                                  ref.read(watchlistProvider.notifier).fetchWatchlist();
+                                },
+                                icon: Icon(
+                                  PhosphorIcons.arrowClockwise(PhosphorIconsStyle.bold),
+                                  color: context.textSecondary,
+                                  size: 20,
+                                ),
+                                tooltip: 'Reîmprospătează',
                               ),
                             ],
                           ),

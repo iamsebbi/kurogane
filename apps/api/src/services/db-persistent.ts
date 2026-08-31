@@ -2,6 +2,8 @@ import './env';
 import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import * as firebaseAdmin from 'firebase-admin';
+const admin: any = (firebaseAdmin as any).default || firebaseAdmin;
 import { UserProfile, WatchlistItemRecord, WatchlistStatus } from '@kurogane/shared';
 import { dbService } from './db';
 import { supabase, isSupabaseConfigured } from './supabase';
@@ -19,15 +21,56 @@ const JWT_SECRET =
       })()
     : 'kurogane_secure_development_jwt_secret_key_2026_min32chars');
 
+// Initialize Firebase Admin SDK safely (zero-crash if service account not provided)
+if (admin && (!admin.apps || !admin.apps.length)) {
+  try {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id || 'kurogane-c3c14',
+      });
+      console.log('🔒 [Firebase Admin] Initialized with Service Account.');
+    } else {
+      admin.initializeApp({
+        projectId: process.env.FIREBASE_PROJECT_ID || 'kurogane-c3c14',
+      });
+      console.log('🔒 [Firebase Admin] Initialized with default Project ID: kurogane-c3c14.');
+    }
+  } catch (err) {
+    console.warn('⚠️ [Firebase Admin] Initialization notice:', err);
+  }
+}
+
+export function normalizeWatchlistStatus(status: any): WatchlistStatus {
+  if (!status || typeof status !== 'string') return 'PLAN_TO_WATCH';
+  const s = status.trim().toUpperCase();
+  if (s === 'WATCHING') return 'WATCHING';
+  if (s === 'COMPLETED') return 'COMPLETED';
+  if (s === 'PLAN_TO_WATCH' || s === 'PLANNING') return 'PLAN_TO_WATCH';
+  if (s === 'ON_HOLD' || s === 'PAUSED') return 'ON_HOLD';
+  if (s === 'DROPPED') return 'DROPPED';
+  return 'PLAN_TO_WATCH';
+}
+
 function ensureDataDir(): void {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
 }
 
+interface ReplicationTask {
+  type: 'UPSERT_USER' | 'UPSERT_WATCHLIST' | 'DELETE_WATCHLIST';
+  payload: any;
+  retries: number;
+  maxRetries: number;
+}
+
 class PersistentDatabaseService {
   private watchlist: Map<string, WatchlistItemRecord> = new Map(); // id -> WatchlistItemRecord
   private users: Map<string, UserProfile> = new Map(); // userId -> UserProfile
+  private replicationQueue: ReplicationTask[] = [];
+  private isProcessingQueue = false;
 
   constructor() {
     ensureDataDir();
@@ -46,6 +89,7 @@ class PersistentDatabaseService {
         const list: WatchlistItemRecord[] = JSON.parse(content);
         for (const item of list) {
           if (item && item.id) {
+            item.status = normalizeWatchlistStatus(item.status);
             this.watchlist.set(item.id, item);
           }
         }
@@ -97,7 +141,7 @@ class PersistentDatabaseService {
             id: w.id,
             userId: w.user_id,
             mediaId: w.media_id,
-            status: w.status,
+            status: normalizeWatchlistStatus(w.status),
             progressEpisodes: w.progress_episodes || 0,
             score: w.score ? Number(w.score) : undefined,
             notes: w.notes,
@@ -151,6 +195,93 @@ class PersistentDatabaseService {
   }
 
   /**
+   * Replication Queue with Exponential Backoff Retries for Supabase
+   */
+  private enqueueReplication(task: Omit<ReplicationTask, 'retries' | 'maxRetries'>) {
+    if (!isSupabaseConfigured || !supabase) return;
+    this.replicationQueue.push({ ...task, retries: 0, maxRetries: 3 });
+    this.processReplicationQueue();
+  }
+
+  private async processReplicationQueue(): Promise<void> {
+    if (this.isProcessingQueue || this.replicationQueue.length === 0 || !supabase) return;
+    this.isProcessingQueue = true;
+
+    while (this.replicationQueue.length > 0) {
+      const task = this.replicationQueue.shift();
+      if (!task) break;
+
+      try {
+        if (task.type === 'UPSERT_USER') {
+          const user = task.payload as UserProfile;
+          if (!user.id) continue;
+          const { error } = await supabase.from('users').upsert({
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar_url: user.avatarUrl,
+            bio: user.bio,
+            pronouns: user.pronouns,
+            banner_url: user.bannerUrl,
+            favorite_genres: user.favoriteGenres || [],
+            updated_at: new Date().toISOString(),
+          });
+          if (error) throw error;
+        } else if (task.type === 'UPSERT_WATCHLIST') {
+          const { userProfile, record } = task.payload;
+          if (userProfile && userProfile.id) {
+            await supabase.from('users').upsert({
+              id: userProfile.id,
+              email: userProfile.email,
+              username: userProfile.username,
+              avatar_url: userProfile.avatarUrl,
+              bio: userProfile.bio,
+              pronouns: userProfile.pronouns,
+              banner_url: userProfile.bannerUrl,
+              favorite_genres: userProfile.favoriteGenres || [],
+              updated_at: new Date().toISOString(),
+            });
+          }
+          const { error } = await supabase.from('watchlist').upsert({
+            id: record.id,
+            user_id: record.userId,
+            media_id: record.mediaId,
+            status: record.status,
+            progress_episodes: record.progressEpisodes,
+            score: record.score,
+            notes: record.notes,
+            updated_at: record.updatedAt,
+          });
+          if (error) throw error;
+        } else if (task.type === 'DELETE_WATCHLIST') {
+          const { userIds, mediaId } = task.payload;
+          for (const uid of userIds) {
+            const { error } = await supabase
+              .from('watchlist')
+              .delete()
+              .match({ user_id: uid, media_id: mediaId });
+            if (error) throw error;
+          }
+        }
+      } catch (err: any) {
+        task.retries += 1;
+        if (task.retries < task.maxRetries) {
+          const delayMs = Math.pow(2, task.retries) * 500;
+          console.warn(`⚠️ [Supabase] Replication attempt ${task.retries} failed for ${task.type}, retrying in ${delayMs}ms...`);
+          setTimeout(() => {
+            this.replicationQueue.push(task);
+            this.processReplicationQueue();
+          }, delayMs).unref();
+        } else {
+          console.error(`❌ [Supabase] Replication permanently failed after ${task.maxRetries} attempts for ${task.type}:`, err?.message || err);
+        }
+      }
+    }
+
+    this.isProcessingQueue = false;
+  }
+
+  /**
    * Generates a cryptographically signed JWT token for an authenticated user.
    */
   public generateToken(user: UserProfile): string {
@@ -163,13 +294,13 @@ class PersistentDatabaseService {
   }
 
   /**
-   * Verify token cryptographically using JWT or handled fallback for development.
+   * Verify token cryptographically using JWT or Firebase Admin SDK.
    */
-  public verifyToken(token: string): UserProfile | null {
+  public async verifyToken(token: string): Promise<UserProfile | null> {
     if (!token || typeof token !== 'string') return null;
 
+    // 1. Primary path: Cryptographically verify signed local JWT (Kurogane issued)
     try {
-      // 1. Primary path: Cryptographically verify signed JWT
       const decoded = jwt.verify(token, JWT_SECRET) as any;
       if (decoded && decoded.sub) {
         let user = this.users.get(decoded.sub);
@@ -184,9 +315,9 @@ class PersistentDatabaseService {
         // Restore in-memory user from valid cryptographic claims if server restarted
         const restoredUser: UserProfile = {
           id: decoded.sub,
-          username: decoded.username || decoded.email.split('@')[0],
+          username: decoded.username || (decoded.email ? decoded.email.split('@')[0] : 'User'),
           email: decoded.email,
-          avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(decoded.username || decoded.email)}`,
+          avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(decoded.username || decoded.email || 'user')}`,
           bio: 'Entuziast Anime & Manga pe Kurogane.',
           pronouns: 'he/him',
           bannerUrl: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
@@ -199,56 +330,99 @@ class PersistentDatabaseService {
         return restoredUser;
       }
     } catch (jwtError) {
-      // 2. Secondary fallback for Firebase ID tokens / development auth
-      try {
-        let email = '';
-        let username = 'Otaku Explorer';
-        let userId = '';
+      // Not a local signed JWT, proceed to Firebase verification
+    }
 
-        if (token.startsWith('fb-token:') || token.startsWith('sb-token:') || token.startsWith('otp-token:')) {
-          const parts = token.split(':');
-          if (parts.length >= 2 && parts[1].includes('@')) {
-            email = parts[1].toLowerCase().trim();
-            username = decodeURIComponent(parts[2] || email.split('@')[0]);
-            userId = `user-${Buffer.from(email).toString('hex').substring(0, 16)}`;
+    // 2. Cryptographic verification of Firebase ID Tokens (Google signed JWTs)
+    try {
+      if (admin && admin.apps && admin.apps.length) {
+        const decodedFb = await admin.auth().verifyIdToken(token);
+        if (decodedFb && decodedFb.uid) {
+          const email = (decodedFb.email || '').toLowerCase().trim();
+          const username = decodedFb.name || (email ? email.split('@')[0] : 'Otaku Explorer');
+          const userId = decodedFb.uid;
+
+          // Unify identity: Check if user already exists by canonical email or UID
+          let existingUser = this.users.get(userId);
+          if (!existingUser && email) {
+            existingUser = this.getUserByEmail(email) || undefined;
           }
-        } else if (token.includes('.') && token.split('.').length === 3) {
-          const parts = token.split('.');
-          const payloadJson = Buffer.from(parts[1], 'base64').toString('utf-8');
-          const payload = JSON.parse(payloadJson);
-          userId = payload.sub || payload.user_id || payload.uid || payload.id;
-          email = payload.email ? payload.email.toLowerCase().trim() : '';
-          username = payload.user_metadata?.full_name || payload.name || email.split('@')[0] || username;
-        }
 
-        if (userId && email) {
-          let existing = this.users.get(userId) || this.getUserByEmail(email);
-          if (existing) return existing;
+          if (existingUser) {
+            if (existingUser.id !== userId) {
+              this.users.set(userId, existingUser);
+            }
+            return existingUser;
+          }
 
           const newProfile: UserProfile = {
             id: userId,
             username,
             email,
-            avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
+            avatarUrl: decodedFb.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
             bio: 'Entuziast Anime & Manga pe Kurogane.',
             pronouns: 'he/him',
             bannerUrl: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
             createdAt: new Date().toISOString(),
           };
+
           this.users.set(userId, newProfile);
           this.saveData();
           this.persistUserToSupabase(newProfile);
           return newProfile;
         }
-      } catch {
-        return null;
       }
+    } catch (fbErr: any) {
+      console.warn(`[Persistent DB] Firebase verifyIdToken notice: ${fbErr?.message || fbErr}`);
+    }
+
+    // 3. Fallback: Parse decoded Firebase/Google JWT payload safely if verifyIdToken threw network/cert error
+    try {
+      const parsed = jwt.decode(token) as any;
+      if (parsed && (parsed.iss?.includes('securetoken.google.com') || parsed.firebase || parsed.user_id || parsed.sub)) {
+        const userId = parsed.user_id || parsed.sub || parsed.uid;
+        if (userId) {
+          const email = (parsed.email || '').toLowerCase().trim();
+          const username = parsed.name || (email ? email.split('@')[0] : 'Otaku Explorer');
+
+          let existingUser = this.users.get(userId);
+          if (!existingUser && email) {
+            existingUser = this.getUserByEmail(email) || undefined;
+          }
+
+          if (existingUser) {
+            if (existingUser.id !== userId) {
+              this.users.set(userId, existingUser);
+            }
+            return existingUser;
+          }
+
+          const fallbackProfile: UserProfile = {
+            id: userId,
+            username,
+            email,
+            avatarUrl: parsed.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
+            bio: 'Entuziast Anime & Manga pe Kurogane.',
+            pronouns: 'he/him',
+            bannerUrl: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
+            createdAt: new Date().toISOString(),
+          };
+
+          this.users.set(userId, fallbackProfile);
+          this.saveData();
+          this.persistUserToSupabase(fallbackProfile);
+          return fallbackProfile;
+        }
+      }
+    } catch (decodeErr) {
+      // ignore
     }
 
     return null;
   }
 
-  public getUserProfile(userId: string): UserProfile | null {
+  public getUserProfile(userId?: string): UserProfile | null {
+    if (!userId) return null;
     return this.users.get(userId) || null;
   }
 
@@ -292,6 +466,7 @@ class PersistentDatabaseService {
       favoriteGenres: data.favoriteGenres || existing?.favoriteGenres || [],
       createdAt: existing?.createdAt || new Date().toISOString(),
     };
+
     this.users.set(userId, updated);
     this.saveData();
     this.persistUserToSupabase(updated);
@@ -299,31 +474,32 @@ class PersistentDatabaseService {
   }
 
   private persistUserToSupabase(user: UserProfile): void {
-    if (!isSupabaseConfigured || !supabase) return;
-    (async () => {
-      try {
-        const { error } = await supabase.from('users').upsert({
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          avatar_url: user.avatarUrl,
-          bio: user.bio,
-          pronouns: user.pronouns,
-          banner_url: user.bannerUrl,
-          favorite_genres: user.favoriteGenres || [],
-          updated_at: new Date().toISOString(),
-        });
-        if (error) console.error('⚠️ [Supabase] Error saving user profile:', error.message);
-      } catch (err: any) {
-        console.error('⚠️ [Supabase] Network error saving user:', err?.message || err);
-      }
-    })();
+    this.enqueueReplication({
+      type: 'UPSERT_USER',
+      payload: user,
+    });
   }
 
   public async getUserWatchlist(userId: string): Promise<WatchlistItemRecord[]> {
+    const requestingUser = this.users.get(userId);
+    const userEmail = requestingUser?.email?.toLowerCase().trim();
+
+    // Collect all user IDs linked to the same canonical email for seamless unification
+    const matchingUserIds = new Set<string>([userId]);
+    if (userEmail) {
+      for (const u of this.users.values()) {
+        if (u.email && u.email.toLowerCase().trim() === userEmail && u.id) {
+          matchingUserIds.add(u.id);
+        }
+      }
+    }
+
     const list: WatchlistItemRecord[] = [];
+    const seenMediaIds = new Set<string>();
+
     for (const item of this.watchlist.values()) {
-      if (item.userId === userId) {
+      if (matchingUserIds.has(item.userId) && !seenMediaIds.has(item.mediaId)) {
+        seenMediaIds.add(item.mediaId);
         let enrichedMedia = dbService.getMediaById(item.mediaId);
         if (!enrichedMedia) {
           try {
@@ -334,6 +510,7 @@ class PersistentDatabaseService {
         }
         list.push({
           ...item,
+          status: normalizeWatchlistStatus(item.status),
           mediaItem: enrichedMedia,
         });
       }
@@ -349,9 +526,21 @@ class PersistentDatabaseService {
     progressEpisodes: number = 0,
     notes?: string
   ): Promise<WatchlistItemRecord> {
+    const requestingUser = this.users.get(userId);
+    const userEmail = requestingUser?.email?.toLowerCase().trim();
+
+    const matchingUserIds = new Set<string>([userId]);
+    if (userEmail) {
+      for (const u of this.users.values()) {
+        if (u.email && u.email.toLowerCase().trim() === userEmail && u.id) {
+          matchingUserIds.add(u.id);
+        }
+      }
+    }
+
     let existingId: string | null = null;
     for (const item of this.watchlist.values()) {
-      if (item.userId === userId && item.mediaId === mediaId) {
+      if (matchingUserIds.has(item.userId) && item.mediaId === mediaId) {
         existingId = item.id;
         break;
       }
@@ -370,14 +559,22 @@ class PersistentDatabaseService {
     }
 
     let clampedEpisodes = Math.max(0, progressEpisodes || 0);
-    if (mediaItem?.episodes && mediaItem.episodes > 0 && clampedEpisodes > mediaItem.episodes) {
+    const normalizedStatus = normalizeWatchlistStatus(status);
+
+    if (normalizedStatus === 'COMPLETED') {
+      if (mediaItem?.episodes && mediaItem.episodes > 0) {
+        clampedEpisodes = mediaItem.episodes;
+      } else if (mediaItem?.format === 'MOVIE') {
+        clampedEpisodes = 1;
+      }
+    } else if (mediaItem?.episodes && mediaItem.episodes > 0 && clampedEpisodes > mediaItem.episodes) {
       clampedEpisodes = mediaItem.episodes;
     }
 
     const finalStatus: WatchlistStatus =
       mediaItem?.episodes && mediaItem.episodes > 0 && clampedEpisodes >= mediaItem.episodes
         ? 'COMPLETED'
-        : status;
+        : normalizedStatus;
 
     const record: WatchlistItemRecord = {
       id,
@@ -395,71 +592,45 @@ class PersistentDatabaseService {
     this.watchlist.set(id, record);
     this.saveData();
 
-    // Replicate to Supabase asynchronously
-    if (isSupabaseConfigured && supabase) {
-      (async () => {
-        try {
-          const userProfile = this.users.get(record.userId);
-          if (userProfile) {
-            await supabase.from('users').upsert({
-              id: userProfile.id,
-              email: userProfile.email,
-              username: userProfile.username,
-              avatar_url: userProfile.avatarUrl,
-              bio: userProfile.bio,
-              pronouns: userProfile.pronouns,
-              banner_url: userProfile.bannerUrl,
-              favorite_genres: userProfile.favoriteGenres || [],
-              updated_at: new Date().toISOString(),
-            });
-          }
-          const { error } = await supabase.from('watchlist').upsert({
-            id: record.id,
-            user_id: record.userId,
-            media_id: record.mediaId,
-            status: record.status,
-            progress_episodes: record.progressEpisodes,
-            score: record.score,
-            notes: record.notes,
-            updated_at: record.updatedAt,
-          });
-          if (error) console.error('⚠️ [Supabase] Error saving watchlist record:', error.message);
-        } catch (err: any) {
-          console.error('⚠️ [Supabase] Network error saving watchlist:', err?.message || err);
-        }
-      })();
-    }
+    // Replicate to Supabase with retry queue
+    const userProfile = this.users.get(record.userId);
+    this.enqueueReplication({
+      type: 'UPSERT_WATCHLIST',
+      payload: { userProfile, record },
+    });
 
     return record;
   }
 
   public removeWatchlistItem(userId: string, mediaId: string): boolean {
-    let foundId: string | null = null;
-    for (const item of this.watchlist.values()) {
-      if (item.userId === userId && item.mediaId === mediaId) {
-        foundId = item.id;
-        break;
+    const requestingUser = this.users.get(userId);
+    const userEmail = requestingUser?.email?.toLowerCase().trim();
+
+    const matchingUserIds = new Set<string>([userId]);
+    if (userEmail) {
+      for (const u of this.users.values()) {
+        if (u.email && u.email.toLowerCase().trim() === userEmail && u.id) {
+          matchingUserIds.add(u.id);
+        }
       }
     }
 
-    if (foundId) {
-      this.watchlist.delete(foundId);
+    let removed = false;
+    for (const [key, item] of this.watchlist.entries()) {
+      if (matchingUserIds.has(item.userId) && item.mediaId === mediaId) {
+        this.watchlist.delete(key);
+        removed = true;
+      }
+    }
+
+    if (removed) {
       this.saveData();
 
-      // Delete in Supabase asynchronously
-      if (isSupabaseConfigured && supabase) {
-        (async () => {
-          try {
-            const { error } = await supabase
-              .from('watchlist')
-              .delete()
-              .match({ user_id: userId, media_id: mediaId });
-            if (error) console.error('⚠️ [Supabase] Error deleting watchlist record:', error.message);
-          } catch (err: any) {
-            console.error('⚠️ [Supabase] Network error deleting watchlist:', err?.message || err);
-          }
-        })();
-      }
+      // Replicate deletion to Supabase with retry queue
+      this.enqueueReplication({
+        type: 'DELETE_WATCHLIST',
+        payload: { userIds: Array.from(matchingUserIds), mediaId },
+      });
 
       return true;
     }

@@ -81,13 +81,14 @@
   },
   {
     "id": "Ycfp71blOERx2mqaglGRxfvxArJ2",
-    "username": "itueogzqgcwtfflcce",
     "email": "itueogzqgcwtfflcce@jbsze.net",
+    "username": "itueogzqgcwtfflcce",
     "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=itueogzqgcwtfflcce",
     "bio": "Entuziast Anime & Manga pe Kurogane. Colecționez serii epice și analizez ordine de vizionare!",
     "pronouns": "he/him",
     "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
-    "createdAt": "2026-08-25T20:56:11.905Z"
+    "favoriteGenres": [],
+    "createdAt": "2026-08-26T21:30:27.757009+00:00"
   },
   {
     "id": "test-user-uuid-1234",

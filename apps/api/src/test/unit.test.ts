@@ -5,7 +5,7 @@ import { rateLimiter } from '../services/rate-limiter';
 import bcrypt from 'bcryptjs';
 
 test('🔐 Auth: JWT Token Generation & Cryptographic Verification', async (t) => {
-  await t.test('generates valid signed JWT token for user profile', () => {
+  await t.test('generates valid signed JWT token for user profile', async () => {
     const mockUser = {
       id: 'test-user-uuid-1234',
       email: 'tester@kurogane.app',
@@ -18,22 +18,22 @@ test('🔐 Auth: JWT Token Generation & Cryptographic Verification', async (t) =
     assert.strictEqual(typeof token, 'string', 'Token must be a string');
     assert.strictEqual(token.split('.').length, 3, 'JWT must contain 3 segments');
 
-    const verified = persistentDbService.verifyToken(token);
+    const verified = await persistentDbService.verifyToken(token);
     assert.ok(verified, 'Verification must succeed for signed token');
     assert.strictEqual(verified?.id, mockUser.id);
     assert.strictEqual(verified?.email, mockUser.email);
     assert.strictEqual(verified?.username, mockUser.username);
   });
 
-  await t.test('rejects forged or tampered JWT token', () => {
+  await t.test('rejects forged or tampered JWT token', async () => {
     const fakeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.invalid_signature';
-    const verified = persistentDbService.verifyToken(fakeToken);
+    const verified = await persistentDbService.verifyToken(fakeToken);
     assert.strictEqual(verified, null, 'Tampered token must return null');
   });
 
-  await t.test('rejects null or empty token string', () => {
-    assert.strictEqual(persistentDbService.verifyToken(''), null);
-    assert.strictEqual(persistentDbService.verifyToken(null as any), null);
+  await t.test('rejects null or empty token string', async () => {
+    assert.strictEqual(await persistentDbService.verifyToken(''), null);
+    assert.strictEqual(await persistentDbService.verifyToken(null as any), null);
   });
 });
 

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     media_id TEXT NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('WATCHING', 'PLANNING', 'COMPLETED', 'PAUSED', 'DROPPED')),
+    status TEXT NOT NULL CHECK (status IN ('WATCHING', 'PLAN_TO_WATCH', 'PLANNING', 'COMPLETED', 'ON_HOLD', 'PAUSED', 'DROPPED')),
     progress_episodes INTEGER DEFAULT 0,
     score NUMERIC(4, 2) DEFAULT 0,
     notes TEXT,

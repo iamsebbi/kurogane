@@ -53,6 +53,13 @@ query ($ids: [Int], $perPage: Int) {
       startDate {
         year
       }
+      studios {
+        nodes {
+          id
+          name
+          isAnimationStudio
+        }
+      }
       averageScore
       meanScore
       stats {
@@ -103,6 +110,13 @@ query ($mediaIds: [Int], $perPage: Int) {
         startDate {
           year
         }
+        studios {
+          nodes {
+            id
+            name
+            isAnimationStudio
+          }
+        }
         averageScore
         meanScore
         stats {
@@ -145,6 +159,13 @@ query ($perPage: Int) {
       startDate {
         year
       }
+      studios {
+        nodes {
+          id
+          name
+          isAnimationStudio
+        }
+      }
       averageScore
       meanScore
       stats {
@@ -180,6 +201,13 @@ query ($perPage: Int) {
       bannerImage
       startDate {
         year
+      }
+      studios {
+        nodes {
+          id
+          name
+          isAnimationStudio
+        }
       }
       averageScore
       meanScore

@@ -25,8 +25,8 @@ const otpRateLimiter = createAuthRateLimiter({
 });
 
 // GET /api/auth/me - Verify current session
-router.get('/me', (req: Request, res: Response) => {
-  const user = authenticateUser(req);
+router.get('/me', async (req: Request, res: Response) => {
+  const user = await authenticateUser(req);
   if (!user) {
     return res.status(401).json({ error: 'Neautorizat. Autentifică-te pentru a continua.' });
   }

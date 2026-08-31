@@ -46,6 +46,13 @@ query ($search: String, $type: MediaType, $format: MediaFormat, $status: MediaSt
       startDate {
         year
       }
+      studios {
+        nodes {
+          id
+          name
+          isAnimationStudio
+        }
+      }
       averageScore
       meanScore
       stats {
@@ -90,6 +97,13 @@ query ($type: MediaType, $sort: [MediaSort], $perPage: Int) {
       startDate {
         year
       }
+      studios {
+        nodes {
+          id
+          name
+          isAnimationStudio
+        }
+      }
       averageScore
       meanScore
       stats {
@@ -133,6 +147,13 @@ query ($type: MediaType, $status: MediaStatus, $sort: [MediaSort], $perPage: Int
       bannerImage
       startDate {
         year
+      }
+      studios {
+        nodes {
+          id
+          name
+          isAnimationStudio
+        }
       }
       averageScore
       meanScore
@@ -188,6 +209,13 @@ query ($season: MediaSeason, $seasonYear: Int, $sort: [MediaSort], $perPage: Int
         month
         day
       }
+      studios {
+        nodes {
+          id
+          name
+          isAnimationStudio
+        }
+      }
       averageScore
       meanScore
       stats {
@@ -236,6 +264,13 @@ query ($perPage: Int) {
         startDate {
           year
         }
+        studios {
+          nodes {
+            id
+            name
+            isAnimationStudio
+          }
+        }
         averageScore
         meanScore
         stats {
@@ -278,6 +313,13 @@ interface AniListMedia {
   startDate?: {
     year?: number;
   };
+  studios?: {
+    nodes?: {
+      id: number;
+      name: string;
+      isAnimationStudio?: boolean;
+    }[];
+  };
   averageScore?: number;
   meanScore?: number;
   stats?: {
@@ -309,6 +351,10 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
     weightedScore,
   };
 
+  const studioNames: string[] = item.studios?.nodes
+    ?.map(s => s.name)
+    .filter((n): n is string => Boolean(n)) || [];
+
   return {
     id: `anilist-${item.id}`,
     anilistId: item.id,
@@ -326,6 +372,7 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
     chapters: item.chapters,
     volumes: item.volumes,
     genres: item.genres || [],
+    studios: studioNames,
     description: item.description?.replace(/<[^>]*>?/gm, '') || '',
     coverImage: {
       extraLarge: item.coverImage.extraLarge,
@@ -862,6 +909,13 @@ query ($id: Int) {
     bannerImage
     startDate {
       year
+    }
+    studios {
+      nodes {
+        id
+        name
+        isAnimationStudio
+      }
     }
     averageScore
     meanScore

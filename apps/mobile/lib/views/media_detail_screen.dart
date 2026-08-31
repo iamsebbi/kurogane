@@ -46,18 +46,6 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     super.dispose();
   }
 
-  Color _parseDominantColor(String? hexColor, BuildContext context) {
-    if (hexColor != null && hexColor.isNotEmpty) {
-      try {
-        final clean = hexColor.replaceAll('#', '');
-        if (clean.length == 6) {
-          return Color(int.parse('0xFF$clean'));
-        }
-      } catch (_) {}
-    }
-    return context.accentPrimary;
-  }
-
   @override
   Widget build(BuildContext context) {
     final mediaAsync = ref.watch(mediaDetailProvider(widget.mediaId));
@@ -126,10 +114,12 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     AsyncValue<dynamic> watchOrderAsync,
     AsyncValue<List<MediaItem>> similarAsync,
   ) {
-    // 1. Culoare dominantă extrasă din artwork-ul seriei
-    final dominantAccent = _parseDominantColor(item.coverImage.color, context);
-
-    final bannerUrl = item.bannerImage ?? item.coverImage.large;
+    final studios = item.studios.isNotEmpty
+        ? item.studios
+        : (widget.initialItem?.studios ?? const <String>[]);
+    final heroImageUrl = (item.coverImage.extraLarge != null && item.coverImage.extraLarge!.isNotEmpty)
+        ? item.coverImage.extraLarge!
+        : (item.coverImage.large.isNotEmpty ? item.coverImage.large : (item.bannerImage ?? ''));
     final score = item.scores.weightedScore > 0 ? item.scores.weightedScore : item.scores.averageScore;
     final scoreDisplay = score > 10 ? (score / 10).toStringAsFixed(1) : score.toStringAsFixed(1);
 
@@ -164,12 +154,20 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
       technicalMetaList.add('${item.season ?? ""} ${item.year}'.trim());
     }
 
+    // Verificare stare Watchlist pentru butonul de adaugare rapida la 'De vazut'
+    final watchlistAsync = ref.watch(watchlistProvider);
+    final currentRecord = watchlistAsync.value?.cast<WatchlistItemRecord?>().firstWhere(
+      (w) => w != null && (w.mediaId == item.id || w.mediaId == widget.mediaId),
+      orElse: () => null,
+    );
+    final bool isPlanToWatch = currentRecord?.status == 'PLAN_TO_WATCH';
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       slivers: [
-        // 1. Hero AppBar cu Banner, Deep Scrim & Quick Floating Trailer CTA
+        // 1. Hero AppBar cu Poster Cinematic Extins, Deep Scrim & Quick Floating Trailer CTA
         SliverAppBar(
-          expandedHeight: 280,
+          expandedHeight: 400,
           pinned: true,
           stretch: true,
           backgroundColor: context.bgPrimary,
@@ -196,9 +194,43 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
               child: Center(
                 child: _DetailFloatingCircleButton(
                   size: 52,
-                  onTap: () => _showAddToWatchlistModal(context, item, dominantAccent),
+                  onTap: () async {
+                    final user = ref.read(currentUserProvider);
+                    if (user == null) {
+                      LoginScreen.show(context);
+                      return;
+                    }
+                    HapticFeedback.mediumImpact();
+                    if (isPlanToWatch) {
+                      await ref.read(watchlistProvider.notifier).removeItem(item.id);
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Eliminat din 'De văzut'"),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      await ref.read(watchlistProvider.notifier).updateItem(
+                            mediaId: item.id,
+                            status: 'PLAN_TO_WATCH',
+                            progressEpisodes: 0,
+                          );
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Adăugat la 'De văzut'!"),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
                   child: Icon(
-                    PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
+                    isPlanToWatch
+                        ? PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.fill)
+                        : PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
                     color: context.textPrimary,
                     size: 22,
                   ),
@@ -215,7 +247,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
               fit: StackFit.expand,
               children: [
                 CachedNetworkImage(
-                  imageUrl: bannerUrl,
+                  imageUrl: heroImageUrl,
                   fit: BoxFit.cover,
                   alignment: Alignment.topCenter,
                   placeholder: (context, url) => Container(color: context.bgSurface),
@@ -247,13 +279,13 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  height: 140,
+                  height: 180,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        stops: const [0.0, 0.45, 0.85, 1.0],
+                        stops: const [0.0, 0.45, 0.8, 1.0],
                         colors: [
                           Colors.transparent,
                           context.bgPrimary.withValues(alpha: 0.35),
@@ -292,7 +324,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                               children: [
                                 Icon(
                                   PhosphorIconsFill.playCircle,
-                                  color: dominantAccent,
+                                  color: context.accentPrimary,
                                   size: 18,
                                 ),
                                 const SizedBox(width: 6),
@@ -316,171 +348,142 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
           ),
         ),
 
-        // 2. Conținut Structurat cu Ritm de Spacing (mic-mic-mare)
+        // 2. Conținut Structurat cu Ritm de Spacing Modern
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // === GRUP 1: IDENTITATE (Spacing Strâns: 4-8px) ===
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Poster Card (Rotunjire 18px, Fără border)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
-                      child: CachedNetworkImage(
-                        imageUrl: item.coverImage.large,
-                        width: 104,
-                        height: 152,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => Container(
-                          width: 104,
-                          height: 152,
-                          color: context.bgSurfaceHover,
-                          child: Icon(PhosphorIcons.image(PhosphorIconsStyle.bold), color: context.textMuted),
-                        ),
-                      ),
+                // 1. Numele Studioului (în stânga, deasupra titlului, stilizat elegant)
+                if (studios.isNotEmpty) ...[
+                  Text(
+                    studios.first.toUpperCase(),
+                    style: TextStyle(
+                      color: context.textSecondary,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
                     ),
-                    const SizedBox(width: 16),
+                  ),
+                  const SizedBox(height: 6),
+                ],
 
-                    // Titlu Expressiv + Subtitlu Japonez + Scor Ponderat + Acțiuni
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Titlu Display Face (Zalando Sans Expanded)
-                          Text(
-                            item.title.userPreferred,
-                            style: TextStyle(
-                              fontFamily: 'Zalando Sans Expanded',
-                              color: context.textPrimary,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w900,
-                              height: 1.15,
-                              letterSpacing: -0.4,
-                            ),
-                          ),
-
-                          // Subtitlu Romaji & Japoneză Kanji/Kana
-                          if (secondaryTitles.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              secondaryTitles.join(' • '),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: context.textSecondary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-
-                          const SizedBox(height: 8),
-
-                          // Anti-Review Bombing Weighted Score Badge (Full Rounded)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: context.bgSurface,
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  PhosphorIconsFill.star,
-                                  size: 13,
-                                  color: Color(0xFFFBBF24),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  scoreDisplay,
-                                  style: TextStyle(
-                                    color: context.textPrimary,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  'Ponderat',
-                                  style: TextStyle(
-                                    color: context.textSecondary,
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          // Butoane Rapide: Status + Quick +1 Ep + Scor Personal
-                          _buildQuickWatchlistActionButtons(context, item, dominantAccent),
-                        ],
-                      ),
+                // 2. Titlu Principal poziționat central pe gradient/tranziție
+                Center(
+                  child: Text(
+                    item.title.userPreferred,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Zalando Sans Expanded',
+                      color: context.textPrimary,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      height: 1.2,
+                      letterSpacing: -0.4,
                     ),
-                  ],
+                  ),
                 ),
 
-                // === GAP 1 (22px) ===
-                const SizedBox(height: 22),
-
-                // === GRUP 2: METADATE & TAG-URI (Spacing Strâns: 8px) ===
-                if (technicalMetaList.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      Icon(
-                        PhosphorIcons.info(PhosphorIconsStyle.bold),
-                        size: 13,
+                // Subtitlu Romaji & Japoneză Kanji/Kana (centrat)
+                if (secondaryTitles.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Center(
+                    child: Text(
+                      secondaryTitles.join(' • '),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
                         color: context.textSecondary,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
                       ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 14),
+
+                // 3. Rândul de Metadate + Scor pe același rând (fără textul 'Ponderat')
+                Center(
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            PhosphorIconsFill.star,
+                            size: 14,
+                            color: Color(0xFFFBBF24),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            scoreDisplay,
+                            style: TextStyle(
+                              color: context.textPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (technicalMetaList.isNotEmpty) ...[
+                        Text(
+                          '•',
+                          style: TextStyle(color: context.textMuted, fontSize: 12),
+                        ),
+                        Text(
                           technicalMetaList.join(' • '),
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: context.textSecondary,
-                            fontSize: 12,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w500,
                           ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // 4. Butoane de Acțiune (Full-width când nu e în listă, sau Status + Notare când e adăugat)
+                _buildActionButtonsRow(context, item),
+
+                const SizedBox(height: 20),
+
+                // 5. Genuri & Tag-uri
+                if (item.genres.isNotEmpty || item.microTags.isNotEmpty) ...[
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      ...item.genres.map(
+                        (g) => PillBadge(
+                          label: g,
+                          backgroundColor: context.bgSurfaceHover,
+                          textColor: context.textPrimary,
+                        ),
+                      ),
+                      ...item.microTags.map(
+                        (t) => PillBadge(
+                          label: t,
+                          backgroundColor: context.accentPrimary.withValues(alpha: 0.14),
+                          textColor: context.accentPrimary,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 22),
                 ],
 
-                // Genuri & Micro-Tags (Pilule Full-Rounded fără bordere)
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    ...item.genres.map(
-                      (g) => PillBadge(
-                        label: g,
-                        backgroundColor: context.bgSurfaceHover,
-                        textColor: context.textPrimary,
-                      ),
-                    ),
-                    ...item.microTags.map(
-                      (t) => PillBadge(
-                        label: t,
-                        backgroundColor: dominantAccent.withValues(alpha: 0.14),
-                        textColor: dominantAccent,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // === GAP 2 (28px - mai mare) ===
-                const SizedBox(height: 28),
-
-                // === GRUP 3: SINOPSIS (Grounded Hierarchy: 8px) ===
+                // 6. Sinopsis
                 if (item.description != null && item.description!.isNotEmpty) ...[
                   Text(
                     'SINOPSIS',
@@ -510,7 +513,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                       child: Text(
                         _isSynopsisExpanded ? 'Arată mai puțin ▲' : 'Citește mai mult ▼',
                         style: TextStyle(
-                          color: dominantAccent,
+                          color: context.accentPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -519,10 +522,9 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   ),
                 ],
 
-                // === GAP 3 (32px - Generos înainte de Signature TabBar) ===
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
 
-                // === GRUP 4: TAB BAR & SEMNĂTURĂ WATCH ORDER ===
+                // 7. Tab Bar & Semnătură Watch Order
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -532,11 +534,11 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   child: TabBar(
                     controller: _tabController,
                     indicator: BoxDecoration(
-                      color: dominantAccent,
+                      color: context.accentPrimary,
                       borderRadius: BorderRadius.circular(9999),
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
-                    labelColor: Colors.black,
+                    labelColor: context.onPrimary,
                     unselectedLabelColor: context.textSecondary,
                     labelStyle: const TextStyle(
                       fontSize: 12,
@@ -569,7 +571,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                 loading: () => Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: CircularProgressIndicator(color: dominantAccent),
+                    child: CircularProgressIndicator(color: context.accentPrimary),
                   ),
                 ),
                 error: (e, st) => Center(
@@ -597,7 +599,6 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   return WatchOrderTreeView(
                     guide: guide,
                     parentCoverImage: item.coverImage.large,
-                    dominantAccent: dominantAccent,
                   );
                 },
               ),
@@ -607,7 +608,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                 loading: () => Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: CircularProgressIndicator(color: dominantAccent),
+                    child: CircularProgressIndicator(color: context.accentPrimary),
                   ),
                 ),
                 error: (e, st) => Center(
@@ -656,7 +657,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                     _buildInfoRow(context, 'Episoade', '${item.episodes ?? "Necunoscut"}'),
                     _buildInfoRow(context, 'Sezon / An', '${item.season ?? ""} ${item.year ?? ""}'),
                     _buildInfoRow(context, 'Status', _formatStatusText(item.status ?? 'Nespecificat')),
-                    _buildInfoRow(context, 'Studio', item.studios.isNotEmpty ? item.studios.join(', ') : 'Nespecificat'),
+                    _buildInfoRow(context, 'Studio', studios.isNotEmpty ? studios.join(', ') : 'Nespecificat'),
                     _buildInfoRow(context, 'Demografie', item.demographic ?? 'General'),
                   ],
                 ),
@@ -671,183 +672,122 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     );
   }
 
-  // --- BUTOANE DE ACȚIUNE CU +1 EPISOD RAPID & SCOR PERSONAL ---
-  Widget _buildQuickWatchlistActionButtons(BuildContext context, MediaItem item, Color dominantAccent) {
+  // --- BUTOANE DE ACȚIUNE (Full-width sau Status + Notare) ---
+  Widget _buildActionButtonsRow(BuildContext context, MediaItem item) {
     final watchlistAsync = ref.watch(watchlistProvider);
     final existingRecord = watchlistAsync.maybeWhen(
       data: (list) => list.where((w) => w.mediaId == item.id).firstOrNull,
       orElse: () => null,
     );
 
-    if (existingRecord != null) {
-      final hasPersonalScore = existingRecord.score != null && existingRecord.score! > 0;
-      final int currentProgress = existingRecord.progressEpisodes;
-      final int? totalEpisodes = item.episodes;
-      final bool canIncrement = totalEpisodes == null || totalEpisodes == 0 || currentProgress < totalEpisodes;
-
-      return Row(
-        children: [
-          // 1. Buton Principal Status & Episoade
-          Expanded(
-            child: SizedBox(
-              height: 38,
-              child: ElevatedButton(
-                onPressed: () => _showAddToWatchlistModal(context, item, dominantAccent),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _getStatusColor(existingRecord.status),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      PhosphorIconsFill.bookmarkSimple,
-                      size: 13,
-                      color: Colors.black,
-                    ),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: Text(
-                        '${_getStatusLabel(existingRecord.status)} • Ep. $currentProgress',
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    // 1. Cazul când seria NU este încă în listă -> Buton Full-Width "+ Adaugă în Watchlist"
+    if (existingRecord == null) {
+      return SizedBox(
+        width: double.infinity,
+        height: 46,
+        child: ElevatedButton.icon(
+          onPressed: () => _showAddToWatchlistModal(context, item),
+          icon: Icon(
+            PhosphorIconsBold.bookmarkSimple,
+            size: 16,
+            color: context.onPrimary,
+          ),
+          label: Text(
+            '+ Adaugă în Watchlist',
+            style: TextStyle(
+              color: context.onPrimary,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(width: 6),
-
-          // 2. Buton Rapid "+1 Ep" cu Dominant Accent
-          if (canIncrement)
-            SizedBox(
-              height: 38,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(9999),
-                onTap: () async {
-                  HapticFeedback.lightImpact();
-                  final nextProgress = currentProgress + 1;
-                  String nextStatus = existingRecord.status;
-                  if (totalEpisodes != null && totalEpisodes > 0 && nextProgress >= totalEpisodes) {
-                    nextStatus = 'COMPLETED';
-                  } else if (existingRecord.status == 'PLAN_TO_WATCH') {
-                    nextStatus = 'WATCHING';
-                  }
-
-                  await ref.read(watchlistProvider.notifier).updateItem(
-                        mediaId: item.id,
-                        status: nextStatus,
-                        score: existingRecord.score,
-                        progressEpisodes: nextProgress,
-                      );
-
-                  // Sincronizare AniList
-                  final anilistState = ref.read(anilistProvider);
-                  if (anilistState.isConnected) {
-                    final anilistId = item.anilistId ?? int.tryParse(item.id.replaceAll('anilist-', ''));
-                    if (anilistId != null) {
-                      await ref.read(anilistProvider.notifier).syncMedia(
-                            anilistMediaId: anilistId,
-                            status: nextStatus,
-                            score: existingRecord.score,
-                            progress: nextProgress,
-                          );
-                    }
-                  }
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Episodul $nextProgress a fost marcat ca vizionat! 🎉'),
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 11),
-                  decoration: BoxDecoration(
-                    color: dominantAccent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(9999),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '+1',
-                    style: TextStyle(
-                      color: dominantAccent,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if (canIncrement) const SizedBox(width: 6),
-
-          // 3. Buton Notă -> Evidențiază Scorul Personal (★ 9.0 sau ⭐ Notează)
-          SizedBox(
-            height: 38,
-            child: ElevatedButton.icon(
-              onPressed: () => _showQuickRatingSheet(context, item, existingRecord, dominantAccent),
-              icon: Icon(
-                hasPersonalScore ? PhosphorIconsFill.star : PhosphorIcons.star(PhosphorIconsStyle.bold),
-                size: 13,
-                color: hasPersonalScore ? const Color(0xFFFBBF24) : context.textSecondary,
-              ),
-              label: Text(
-                hasPersonalScore ? existingRecord.score!.toStringAsFixed(1) : 'Notează',
-                style: TextStyle(
-                  color: hasPersonalScore ? context.textPrimary : context.textSecondary,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.bgSurface,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-              ),
-            ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: context.accentPrimary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
+            elevation: 0,
           ),
-        ],
+        ),
       );
     }
 
-    return SizedBox(
-      width: double.infinity,
-      height: 38,
-      child: ElevatedButton.icon(
-        onPressed: () => _showAddToWatchlistModal(context, item, dominantAccent),
-        icon: const Icon(
-          PhosphorIconsBold.bookmarkSimple,
-          size: 15,
-          color: Colors.black,
-        ),
-        label: const Text(
-          '+ Adaugă în Watchlist',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
+    // 2. Cazul când seria ESTE în listă -> Buton Status (Expanded) + Buton Notare
+    final hasPersonalScore = existingRecord.score != null && existingRecord.score! > 0;
+    final int currentProgress = existingRecord.progressEpisodes;
+
+    return Row(
+      children: [
+        // Buton Principal Status & Episoade (Expanded)
+        Expanded(
+          child: SizedBox(
+            height: 46,
+            child: ElevatedButton(
+              onPressed: () => _showAddToWatchlistModal(context, item),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.bgSurface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(9999),
+                  side: BorderSide(
+                    color: _getStatusColor(existingRecord.status).withValues(alpha: 0.5),
+                    width: 1.2,
+                  ),
+                ),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    PhosphorIconsFill.bookmarkSimple,
+                    size: 15,
+                    color: _getStatusColor(existingRecord.status),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      '${_getStatusLabel(existingRecord.status)} • Ep. $currentProgress${item.episodes != null && item.episodes! > 0 ? " / ${item.episodes}" : ""}',
+                      style: TextStyle(
+                        color: context.textPrimary,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: dominantAccent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
-          elevation: 0,
+        const SizedBox(width: 8),
+
+        // Buton Notare (Apare automat după ce seria e în listă)
+        SizedBox(
+          height: 46,
+          child: ElevatedButton.icon(
+            onPressed: () => _showQuickRatingSheet(context, item, existingRecord),
+            icon: Icon(
+              hasPersonalScore ? PhosphorIconsFill.star : PhosphorIcons.star(PhosphorIconsStyle.bold),
+              size: 15,
+              color: hasPersonalScore ? const Color(0xFFFBBF24) : context.textSecondary,
+            ),
+            label: Text(
+              hasPersonalScore ? existingRecord.score!.toStringAsFixed(1) : 'Notează',
+              style: TextStyle(
+                color: hasPersonalScore ? context.textPrimary : context.textSecondary,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.bgSurface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -872,7 +812,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
   }
 
   // --- MODAL DEDICAT DE NOTARE (RATING EXCLUSIV 1.0 – 10.0) ---
-  void _showQuickRatingSheet(BuildContext context, MediaItem item, WatchlistItemRecord existingRecord, Color dominantAccent) {
+  void _showQuickRatingSheet(BuildContext context, MediaItem item, WatchlistItemRecord existingRecord) {
     double currentScore = existingRecord.score ?? 8.0;
 
     String getScoreLabel(double s) {
@@ -1077,14 +1017,14 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                       width: double.infinity,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: dominantAccent,
+                        color: context.accentPrimary,
                         borderRadius: BorderRadius.circular(9999),
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
+                      child: Text(
                         'Salvează Nota',
                         style: TextStyle(
-                          color: Colors.black,
+                          color: context.onPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
@@ -1101,7 +1041,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
   }
 
   // --- MODAL ADĂUGARE / EDITARE STATUS & EPISOADE WATCHLIST ---
-  void _showAddToWatchlistModal(BuildContext context, MediaItem item, Color dominantAccent) {
+  void _showAddToWatchlistModal(BuildContext context, MediaItem item) {
     final isLoggedIn = ref.read(isLoggedInProvider);
     if (!isLoggedIn) {
       LoginScreen.show(context);
@@ -1172,7 +1112,18 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                       final isSel = selectedStatus == st['key'];
                       final color = st['color'] as Color;
                       return GestureDetector(
-                        onTap: () => setModalState(() => selectedStatus = st['key'] as String),
+                        onTap: () => setModalState(() {
+                          selectedStatus = st['key'] as String;
+                          if (selectedStatus == 'COMPLETED') {
+                            if (totalEpisodes != null && totalEpisodes > 0) {
+                              episodes = totalEpisodes;
+                            } else if (item.format?.toUpperCase() == 'MOVIE' || item.type.toUpperCase() == 'MOVIE') {
+                              episodes = 1;
+                            }
+                          } else if (selectedStatus == 'PLAN_TO_WATCH' && totalEpisodes != null && episodes == totalEpisodes) {
+                            episodes = 0;
+                          }
+                        }),
                         behavior: HitTestBehavior.opaque,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 160),
@@ -1347,14 +1298,14 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                           child: Container(
                             height: 48,
                             decoration: BoxDecoration(
-                              color: dominantAccent,
+                              color: context.accentPrimary,
                               borderRadius: BorderRadius.circular(9999),
                             ),
                             alignment: Alignment.center,
-                            child: const Text(
+                            child: Text(
                               'Salvează în Listă',
                               style: TextStyle(
-                                color: Colors.black,
+                                color: context.onPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
                               ),

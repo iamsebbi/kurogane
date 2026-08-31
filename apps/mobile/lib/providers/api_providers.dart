@@ -169,7 +169,7 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
   }
 
   Future<void> fetchWatchlist({bool isSilent = false}) async {
-    if (!isSilent && state.value == null) {
+    if (!isSilent) {
       state = const AsyncValue.loading();
     }
     try {

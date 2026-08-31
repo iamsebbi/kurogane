@@ -76,6 +76,45 @@ class AuthService {
     return usernameRegex.hasMatch(username.trim());
   }
 
+  Future<Response<dynamic>?> _postWithFallback(String path, {dynamic data}) async {
+    // 1. Incearca mai intai baseUrl curent
+    try {
+      final response = await _dio.post(path, data: data);
+      if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+        return response;
+      }
+    } catch (e) {
+      debugPrint('[AuthService] POST failed on ${_dio.options.baseUrl}$path: $e');
+    }
+
+    // 2. Incearca fallback-urile din candidateBaseUrls
+    final currentBase = _dio.options.baseUrl;
+    final candidates = ApiConstants.candidateBaseUrls.where((u) => u != currentBase);
+
+    for (final candidateUrl in candidates) {
+      try {
+        final fallbackDio = Dio(
+          BaseOptions(
+            baseUrl: candidateUrl,
+            connectTimeout: const Duration(seconds: 4),
+            receiveTimeout: const Duration(seconds: 8),
+            headers: {'Content-Type': 'application/json'},
+          ),
+        );
+        final response = await fallbackDio.post(path, data: data);
+        if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+          _dio.options.baseUrl = candidateUrl;
+          debugPrint('[AuthService] Switched working baseUrl to $candidateUrl for $path');
+          return response;
+        }
+      } catch (e) {
+        debugPrint('[AuthService] Candidate $candidateUrl failed for $path: $e');
+      }
+    }
+
+    return null;
+  }
+
   /// Rezolvă username -> email prin backend dacă identifier-ul nu conține @
   Future<String> resolveIdentifier(String identifier) async {
     final clean = identifier.trim().toLowerCase();
@@ -90,14 +129,14 @@ class AuthService {
       return clean;
     }
 
-    // Rezolvare prin backend API
+    // Rezolvare prin backend API cu fallback
     try {
-      final response = await _dio.post(
+      final response = await _postWithFallback(
         ApiConstants.resolveIdentifier,
         data: {'identifier': clean},
       );
 
-      if (response.statusCode == 200 && response.data != null && response.data['email'] != null) {
+      if (response != null && response.statusCode == 200 && response.data != null && response.data['email'] != null) {
         return response.data['email'] as String;
       }
       throw const AuthException('Nu am găsit niciun cont asociat cu acest username.');
@@ -189,7 +228,7 @@ class AuthService {
 
       // Sincronizare profil utilizator în backend-ul Kurogane
       try {
-        await _dio.post(
+        await _postWithFallback(
           ApiConstants.registerUser,
           data: {
             'id': credential.user?.uid ?? '',

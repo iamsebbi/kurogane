@@ -11,14 +11,49 @@ import '../../models/news_article.dart';
 import '../../models/watchlist_item.dart';
 
 class ApiClient {
-  late final Dio _dio;
+  late Dio _dio;
   static String? _workingBaseUrl;
 
   ApiClient({String? customBaseUrl}) {
     final initialBaseUrl = customBaseUrl ?? _workingBaseUrl ?? ApiConstants.baseUrl;
-    _dio = Dio(
+    _dio = _createConfiguredDio(initialBaseUrl);
+  }
+
+  static Future<String?> _resolveAuthToken() async {
+    String? token;
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          token = await user.getIdToken(false).timeout(
+            const Duration(milliseconds: 2500),
+            onTimeout: () => null,
+          );
+          if (token == null || token.isEmpty) {
+            try {
+              token = await user.getIdToken(true).timeout(
+                const Duration(milliseconds: 3000),
+                onTimeout: () => null,
+              );
+            } catch (_) {}
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[ApiClient] Token retrieval notice: $e');
+    }
+
+    if (token == null || token.isEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      token = prefs.getString('kurogane_token');
+    }
+    return token;
+  }
+
+  static Dio _createConfiguredDio(String baseUrl) {
+    final dio = Dio(
       BaseOptions(
-        baseUrl: initialBaseUrl,
+        baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 4),
         receiveTimeout: const Duration(seconds: 8),
         headers: {
@@ -28,35 +63,10 @@ class ApiClient {
       ),
     );
 
-    // Add Auth token interceptor
-    _dio.interceptors.add(
+    dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          String? token;
-          try {
-            if (Firebase.apps.isNotEmpty) {
-              final user = FirebaseAuth.instance.currentUser;
-              if (user != null) {
-                token = await user.getIdToken(false).timeout(
-                  const Duration(milliseconds: 1500),
-                  onTimeout: () => null,
-                );
-                if (token == null || token.isEmpty) {
-                  final emailOrUid = user.email ?? user.uid;
-                  final displayName = Uri.encodeComponent(user.displayName ?? user.email?.split('@')[0] ?? 'User');
-                  token = 'fb-token:$emailOrUid:$displayName';
-                }
-              }
-            }
-          } catch (e) {
-            debugPrint('[ApiClient] Token retrieval notice: $e');
-          }
-
-          if (token == null || token.isEmpty) {
-            final prefs = await SharedPreferences.getInstance();
-            token = prefs.getString('kurogane_token');
-          }
-
+          final token = await _resolveAuthToken();
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -64,42 +74,73 @@ class ApiClient {
         },
       ),
     );
+
+    return dio;
   }
 
-  Future<Response<dynamic>?> _get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<Response<dynamic>?> _executeWithFallback(
+    Future<Response<dynamic>> Function(Dio dio) requestFn, {
+    String? requestTag,
+  }) async {
     // 1. Try current working URL first
     try {
-      final response = await _dio.get(path, queryParameters: queryParameters);
-      if (response.statusCode == 200) {
+      final response = await requestFn(_dio);
+      if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
         _workingBaseUrl = _dio.options.baseUrl;
         return response;
       }
     } catch (e) {
-      debugPrint('[ApiClient] Request failed on ${_dio.options.baseUrl}$path: $e');
+      debugPrint('[ApiClient] Request failed on ${_dio.options.baseUrl} ${requestTag ?? ""}: $e');
     }
 
     // 2. Try candidate fallback URLs
-    final candidates = ApiConstants.candidateBaseUrls.where((u) => u != _dio.options.baseUrl);
+    final currentBase = _dio.options.baseUrl;
+    final candidates = ApiConstants.candidateBaseUrls.where((u) => u != currentBase);
+
     for (final candidateUrl in candidates) {
       try {
-        final fallbackDio = Dio(BaseOptions(
-          baseUrl: candidateUrl,
-          connectTimeout: const Duration(seconds: 3),
-          receiveTimeout: const Duration(seconds: 6),
-          headers: _dio.options.headers,
-        ));
-        final response = await fallbackDio.get(path, queryParameters: queryParameters);
-        if (response.statusCode == 200) {
+        final fallbackDio = _createConfiguredDio(candidateUrl);
+        final response = await requestFn(fallbackDio);
+        if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
           _workingBaseUrl = candidateUrl;
-          _dio.options.baseUrl = candidateUrl;
-          debugPrint('[ApiClient] Switched working baseUrl to $candidateUrl');
+          _dio = fallbackDio;
+          debugPrint('[ApiClient] Switched working baseUrl to $candidateUrl for ${requestTag ?? ""}');
           return response;
         }
-      } catch (_) {
-        // Continue to next candidate URL
+      } catch (e) {
+        debugPrint('[ApiClient] Candidate $candidateUrl failed for ${requestTag ?? ""}: $e');
       }
     }
+
     return null;
+  }
+
+  Future<Response<dynamic>?> _get(String path, {Map<String, dynamic>? queryParameters}) {
+    return _executeWithFallback(
+      (dio) => dio.get(path, queryParameters: queryParameters),
+      requestTag: 'GET $path',
+    );
+  }
+
+  Future<Response<dynamic>?> _post(String path, {dynamic data, Map<String, dynamic>? queryParameters}) {
+    return _executeWithFallback(
+      (dio) => dio.post(path, data: data, queryParameters: queryParameters),
+      requestTag: 'POST $path',
+    );
+  }
+
+  Future<Response<dynamic>?> _put(String path, {dynamic data, Map<String, dynamic>? queryParameters}) {
+    return _executeWithFallback(
+      (dio) => dio.put(path, data: data, queryParameters: queryParameters),
+      requestTag: 'PUT $path',
+    );
+  }
+
+  Future<Response<dynamic>?> _delete(String path, {dynamic data, Map<String, dynamic>? queryParameters}) {
+    return _executeWithFallback(
+      (dio) => dio.delete(path, data: data, queryParameters: queryParameters),
+      requestTag: 'DELETE $path',
+    );
   }
 
   Future<HomepageData> getHomepage() async {
@@ -238,7 +279,7 @@ class ApiClient {
     String? notes,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _post(
         ApiConstants.watchlist,
         data: {
           'mediaId': mediaId,
@@ -248,7 +289,7 @@ class ApiClient {
           'notes': notes,
         },
       );
-      return response.statusCode == 200;
+      return response != null && response.statusCode == 200;
     } catch (e) {
       debugPrint('[ApiClient] Error updating watchlist item: $e');
       return false;
@@ -257,10 +298,48 @@ class ApiClient {
 
   Future<bool> deleteWatchlistItem(String mediaId) async {
     try {
-      final response = await _dio.delete('${ApiConstants.watchlist}/$mediaId');
-      return response.statusCode == 200;
+      final response = await _delete('${ApiConstants.watchlist}/$mediaId');
+      return response != null && response.statusCode == 200;
     } catch (e) {
       debugPrint('[ApiClient] Error removing watchlist item: $e');
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getProfile() async {
+    try {
+      final response = await _get(ApiConstants.profile);
+      if (response != null && response.data != null) {
+        return response.data as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[ApiClient] Error fetching user profile: $e');
+      return null;
+    }
+  }
+
+  Future<bool> updateProfile({
+    String? username,
+    String? bio,
+    String? pronouns,
+    String? avatarUrl,
+    String? bannerUrl,
+  }) async {
+    try {
+      final response = await _put(
+        ApiConstants.profile,
+        data: {
+          if (username != null) 'username': username,
+          if (bio != null) 'bio': bio,
+          if (pronouns != null) 'pronouns': pronouns,
+          if (avatarUrl != null) 'avatarUrl': avatarUrl,
+          if (bannerUrl != null) 'bannerUrl': bannerUrl,
+        },
+      );
+      return response != null && response.statusCode == 200;
+    } catch (e) {
+      debugPrint('[ApiClient] Error updating user profile: $e');
       return false;
     }
   }
