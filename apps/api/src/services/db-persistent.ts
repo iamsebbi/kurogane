@@ -242,16 +242,20 @@ class PersistentDatabaseService {
               updated_at: new Date().toISOString(),
             });
           }
+          let supabaseStatus = record.status;
+          if (supabaseStatus === 'PLAN_TO_WATCH') supabaseStatus = 'PLANNING';
+          if (supabaseStatus === 'PAUSED') supabaseStatus = 'ON_HOLD';
+
           const { error } = await supabase.from('watchlist').upsert({
             id: record.id,
             user_id: record.userId,
             media_id: record.mediaId,
-            status: record.status,
+            status: supabaseStatus,
             progress_episodes: record.progressEpisodes,
             score: record.score,
             notes: record.notes,
             updated_at: record.updatedAt,
-          });
+          }, { onConflict: 'user_id,media_id' });
           if (error) throw error;
         } else if (task.type === 'DELETE_WATCHLIST') {
           const { userIds, mediaId } = task.payload;
