@@ -76,6 +76,27 @@ class AuthService {
     return usernameRegex.hasMatch(username.trim());
   }
 
+  /// Extrage o sugestie curata de username pe baza contului Google
+  static String deriveSuggestedUsername(User? user) {
+    if (user == null) return 'otaku';
+    if (user.displayName != null && user.displayName!.trim().isNotEmpty) {
+      final clean = user.displayName!
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), '_')
+          .replaceAll(RegExp(r'[^a-z0-9_.-]'), '');
+      if (clean.length >= 2) return clean.length > 24 ? clean.substring(0, 24) : clean;
+    }
+    if (user.email != null && user.email!.contains('@')) {
+      final prefix = user.email!.split('@')[0]
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9_.-]'), '');
+      if (prefix.length >= 2) return prefix.length > 24 ? prefix.substring(0, 24) : prefix;
+    }
+    return 'otaku_${DateTime.now().millisecondsSinceEpoch % 10000}';
+  }
+
   Future<Response<dynamic>?> _postWithFallback(String path, {dynamic data}) async {
     // 1. Incearca mai intai baseUrl curent
     try {
@@ -113,6 +134,41 @@ class AuthService {
     }
 
     return null;
+  }
+
+  /// Verifică în timp real dacă un username este disponibil
+  Future<({bool available, String? error})> checkUsernameAvailable(
+    String username, {
+    String? excludeUserId,
+    String? email,
+  }) async {
+    final clean = username.trim();
+    if (clean.isEmpty) {
+      return (available: false, error: 'Introdu un nume de utilizator.');
+    }
+    if (!isValidUsername(clean)) {
+      return (available: false, error: 'Folosește 2-24 caractere (litere, cifre, _, -, .)');
+    }
+
+    try {
+      final response = await _dio.get(
+        ApiConstants.checkUsername,
+        queryParameters: {
+          'username': clean,
+          if (excludeUserId != null) 'excludeUserId': excludeUserId,
+          if (email != null) 'email': email,
+        },
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final available = response.data['available'] == true;
+        final error = response.data['error'] as String?;
+        return (available: available, error: error);
+      }
+    } catch (e) {
+      debugPrint('[AuthService] checkUsernameAvailable error: $e');
+    }
+
+    return (available: true, error: null);
   }
 
   /// Rezolvă username -> email prin backend dacă identifier-ul nu conține @
@@ -224,6 +280,7 @@ class AuthService {
 
       if (credential.user != null) {
         await credential.user!.updateDisplayName(cleanUsername);
+        await credential.user!.reload();
       }
 
       // Sincronizare profil utilizator în backend-ul Kurogane
@@ -267,7 +324,7 @@ class AuthService {
   Future<void> _ensureGoogleSignIn() async {
     if (!_googleSignInInitialized) {
       await GoogleSignIn.instance.initialize(
-        serverClientId: '141330897882-cfls510bk9je8vjejngqo4isfpua8bck.apps.googleusercontent.com',
+        serverClientId: ApiConstants.googleServerClientId,
       );
       _googleSignInInitialized = true;
     }
@@ -283,7 +340,7 @@ class AuthService {
       if (defaultTargetPlatform == TargetPlatform.android) {
         try {
           final result = await _nativeGoogleChannel.invokeMapMethod<String, dynamic>('signInWithGoogle', {
-            'serverClientId': '141330897882-cfls510bk9je8vjejngqo4isfpua8bck.apps.googleusercontent.com',
+            'serverClientId': ApiConstants.googleServerClientId,
             'filterByAuthorizedAccounts': false,
           });
 
@@ -319,7 +376,7 @@ class AuthService {
       // Sincronizare profil în backend (pentru rezolvare username -> email)
       if (userCredential.user != null) {
         final email = userCredential.user!.email ?? '';
-        final username = userCredential.user!.displayName ?? email.split('@')[0];
+        final username = deriveSuggestedUsername(userCredential.user);
         try {
           await _dio.post(
             ApiConstants.registerUser,

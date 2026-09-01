@@ -1,1 +1,58 @@
-[]
+[
+  {
+    "id": "witem-1788278769698-nkqq4",
+    "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
+    "mediaId": "anilist-178789",
+    "status": "COMPLETED",
+    "score": 9,
+    "progressEpisodes": 14,
+    "createdAt": "2026-09-01T16:06:09.698Z",
+    "updatedAt": "2026-09-01T16:06:13.393Z",
+    "mediaItem": {
+      "id": "anilist-178789",
+      "anilistId": 178789,
+      "title": {
+        "romaji": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
+        "english": "Mushoku Tensei: Jobless Reincarnation Season 3",
+        "native": "無職転生Ⅲ ～異世界行ったら本気だす～",
+        "userPreferred": "Mushoku Tensei III: Isekai Ittara Honki Dasu"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "RELEASING",
+      "season": "SUMMER",
+      "episodes": 14,
+      "genres": [
+        "Adventure",
+        "Drama",
+        "Ecchi",
+        "Fantasy"
+      ],
+      "studios": [
+        "Studio Bind",
+        "Hakuhodo DY Music & Pictures",
+        "Toho",
+        "KADOKAWA",
+        "Frontier Works",
+        "BS11",
+        "GREE Entertainment",
+        "EGG FIRM"
+      ],
+      "description": "The third season of Mushoku Tensei: Isekai Ittara Honki Dasu.",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx178789-hNXjKFzUq7mk.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx178789-hNXjKFzUq7mk.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx178789-hNXjKFzUq7mk.jpg",
+        "color": "#28bbe4"
+      },
+      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/178789-9nHWmoRLlcLu.jpg",
+      "year": 2026,
+      "scores": {
+        "averageScore": 8.4,
+        "reviewCount": 11950,
+        "weightedScore": 8.4
+      },
+      "source": "ANILIST"
+    }
+  }
+]

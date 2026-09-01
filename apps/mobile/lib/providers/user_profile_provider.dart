@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,7 @@ class UserProfileData {
   final String? avatarUrl;
   final String? bannerUrl;
   final List<String> favoriteGenres;
+  final DateTime? usernameLastChangedAt;
 
   const UserProfileData({
     this.pronoun = 'el/lui',
@@ -19,7 +21,25 @@ class UserProfileData {
     this.avatarUrl,
     this.bannerUrl,
     this.favoriteGenres = const [],
+    this.usernameLastChangedAt,
   });
+
+  /// Calculează câte zile au mai rămas până când utilizatorul își poate schimba din nou @handle-ul
+  int get daysUntilUsernameChangeAllowed {
+    if (usernameLastChangedAt == null) return 0;
+    final diffDays = DateTime.now().difference(usernameLastChangedAt!).inDays;
+    if (diffDays >= 14) return 0;
+    return 14 - diffDays;
+  }
+
+  /// True dacă utilizatorul poate edita handle-ul chiar acum
+  bool get canChangeUsername => daysUntilUsernameChangeAllowed <= 0;
+
+  /// Data exactă când handle-ul redevine editabil
+  DateTime? get nextUsernameChangeDate {
+    if (usernameLastChangedAt == null) return null;
+    return usernameLastChangedAt!.add(const Duration(days: 14));
+  }
 
   UserProfileData copyWith({
     String? pronoun,
@@ -28,6 +48,8 @@ class UserProfileData {
     String? avatarUrl,
     String? bannerUrl,
     List<String>? favoriteGenres,
+    DateTime? usernameLastChangedAt,
+    bool clearUsernameLastChangedAt = false,
   }) {
     return UserProfileData(
       pronoun: pronoun ?? this.pronoun,
@@ -36,6 +58,9 @@ class UserProfileData {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       bannerUrl: bannerUrl ?? this.bannerUrl,
       favoriteGenres: favoriteGenres ?? this.favoriteGenres,
+      usernameLastChangedAt: clearUsernameLastChangedAt
+          ? null
+          : (usernameLastChangedAt ?? this.usernameLastChangedAt),
     );
   }
 }
@@ -56,6 +81,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
       final username = prefs.getString('kurogane_user_name');
       final avatarUrl = prefs.getString('kurogane_user_avatar');
       final bannerUrl = prefs.getString('kurogane_user_banner');
+      final rawChangedAt = prefs.getString('kurogane_user_username_changed_at');
+      final usernameLastChangedAt = rawChangedAt != null ? DateTime.tryParse(rawChangedAt) : null;
 
       state = UserProfileData(
         pronoun: pronoun,
@@ -63,6 +90,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
         username: username,
         avatarUrl: avatarUrl,
         bannerUrl: bannerUrl,
+        usernameLastChangedAt: usernameLastChangedAt,
       );
     } catch (_) {}
 
@@ -82,6 +110,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
         final avatarUrl = profile['avatarUrl'] as String?;
         final bannerUrl = profile['bannerUrl'] as String?;
         final favGenres = (profile['favoriteGenres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+        final rawChangedAt = profile['usernameLastChangedAt'] as String? ?? profile['username_changed_at'] as String?;
+        final usernameLastChangedAt = rawChangedAt != null ? DateTime.tryParse(rawChangedAt) : null;
 
         final prefs = await SharedPreferences.getInstance();
         if (bio != null) await prefs.setString('kurogane_user_bio', bio);
@@ -89,6 +119,9 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
         if (username != null) await prefs.setString('kurogane_user_name', username);
         if (avatarUrl != null) await prefs.setString('kurogane_user_avatar', avatarUrl);
         if (bannerUrl != null) await prefs.setString('kurogane_user_banner', bannerUrl);
+        if (rawChangedAt != null) {
+          await prefs.setString('kurogane_user_username_changed_at', rawChangedAt);
+        }
 
         state = state.copyWith(
           bio: bio ?? state.bio,
@@ -97,6 +130,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
           avatarUrl: avatarUrl ?? state.avatarUrl,
           bannerUrl: bannerUrl ?? state.bannerUrl,
           favoriteGenres: favGenres.isNotEmpty ? favGenres : state.favoriteGenres,
+          usernameLastChangedAt: usernameLastChangedAt ?? state.usernameLastChangedAt,
         );
       }
     } catch (e) {
@@ -111,6 +145,12 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
     String? avatarUrl,
     String? bannerUrl,
   }) async {
+    final isChangingUsername = username != null &&
+        username.trim().isNotEmpty &&
+        username.trim().toLowerCase() != (state.username ?? '').trim().toLowerCase();
+
+    DateTime? updatedChangedAt = state.usernameLastChangedAt;
+
     // 1. Optimistic local update (instant 0ms UI feedback)
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -129,6 +169,10 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
       if (bannerUrl != null) {
         await prefs.setString('kurogane_user_banner', bannerUrl);
       }
+      if (isChangingUsername) {
+        updatedChangedAt = DateTime.now();
+        await prefs.setString('kurogane_user_username_changed_at', updatedChangedAt.toIso8601String());
+      }
     } catch (_) {}
 
     state = state.copyWith(
@@ -137,9 +181,17 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
       username: username,
       avatarUrl: avatarUrl,
       bannerUrl: bannerUrl,
+      usernameLastChangedAt: updatedChangedAt,
     );
 
-    // 2. Persist to API & Supabase Cloud
+    // 2. Update Firebase DisplayName for consistency across SDKs
+    if (username != null && username.isNotEmpty) {
+      try {
+        await FirebaseAuth.instance.currentUser?.updateDisplayName(username);
+      } catch (_) {}
+    }
+
+    // 3. Persist to API & Supabase Cloud
     if (_apiClient != null) {
       try {
         await _apiClient.updateProfile(
@@ -151,6 +203,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
         );
       } catch (e) {
         debugPrint('[UserProfileNotifier] Error updating backend profile: $e');
+        rethrow;
       }
     }
   }

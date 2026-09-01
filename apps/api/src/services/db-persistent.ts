@@ -129,6 +129,7 @@ class PersistentDatabaseService {
             bannerUrl: u.banner_url,
             favoriteGenres: u.favorite_genres,
             createdAt: u.created_at,
+            usernameLastChangedAt: u.username_changed_at || u.username_last_changed_at || u.usernameLastChangedAt || undefined,
           };
           this.users.set(u.id, profile);
         }
@@ -214,8 +215,10 @@ class PersistentDatabaseService {
       try {
         if (task.type === 'UPSERT_USER') {
           const user = task.payload as UserProfile;
-          if (!user.id) continue;
-          const { error } = await supabase.from('users').upsert({
+          if (user.email) {
+            await supabase.from('users').delete().eq('email', user.email).neq('id', user.id);
+          }
+          const userUpsertPayload: Record<string, any> = {
             id: user.id,
             email: user.email,
             username: user.username,
@@ -225,8 +228,19 @@ class PersistentDatabaseService {
             banner_url: user.bannerUrl,
             favorite_genres: user.favoriteGenres || [],
             updated_at: new Date().toISOString(),
-          });
-          if (error) throw error;
+          };
+          if (user.usernameLastChangedAt) {
+            userUpsertPayload.username_changed_at = user.usernameLastChangedAt;
+          }
+          const { error } = await supabase.from('users').upsert(userUpsertPayload);
+          if (error) {
+            if (error.message && error.message.includes('username_changed_at')) {
+              delete userUpsertPayload.username_changed_at;
+              await supabase.from('users').upsert(userUpsertPayload);
+            } else {
+              throw error;
+            }
+          }
         } else if (task.type === 'UPSERT_WATCHLIST') {
           const { userProfile, record } = task.payload;
           if (userProfile && userProfile.id) {
@@ -458,17 +472,42 @@ class PersistentDatabaseService {
   }
 
   public updateUserProfile(userId: string, data: Partial<UserProfile>): UserProfile {
+    // Daca utilizatorul se reconecteaza cu un UID nou pe acelasi email, curata UID-ul vechi
+    if (data.email) {
+      const cleanEmail = normalizeIdentifier(data.email);
+      for (const [oldId, u] of this.users.entries()) {
+        if (oldId !== userId && u.email && normalizeIdentifier(u.email) === cleanEmail) {
+          this.users.delete(oldId);
+          for (const item of this.watchlist.values()) {
+            if (item.userId === oldId) {
+              item.userId = userId;
+            }
+          }
+          break;
+        }
+      }
+    }
+
     const existing = this.users.get(userId);
+    const newUsername = data.username ? data.username.trim() : existing?.username || 'User';
+    const isUsernameChanging =
+      existing &&
+      existing.username &&
+      newUsername.toLowerCase() !== existing.username.toLowerCase();
+
     const updated: UserProfile = {
       id: userId,
       email: data.email ? normalizeIdentifier(data.email) : existing?.email || '',
-      username: data.username ? data.username.trim() : existing?.username || 'User',
+      username: newUsername,
       avatarUrl: data.avatarUrl || existing?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userId)}`,
       bio: data.bio !== undefined ? data.bio : existing?.bio || 'Entuziast Anime & Manga pe Kurogane.',
       pronouns: data.pronouns !== undefined ? data.pronouns : existing?.pronouns || 'he/him',
       bannerUrl: data.bannerUrl || existing?.bannerUrl || 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
       favoriteGenres: data.favoriteGenres || existing?.favoriteGenres || [],
       createdAt: existing?.createdAt || new Date().toISOString(),
+      usernameLastChangedAt: isUsernameChanging
+        ? new Date().toISOString()
+        : (data.usernameLastChangedAt || existing?.usernameLastChangedAt),
     };
 
     this.users.set(userId, updated);

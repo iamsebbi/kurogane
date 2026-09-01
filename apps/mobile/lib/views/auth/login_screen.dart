@@ -2,13 +2,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../services/auth_service.dart';
 import '../../widgets/blur_fade_route.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import 'widgets/auth_logo_header.dart';
 import 'widgets/auth_text_field.dart';
+import 'google_username_screen.dart';
 import 'widgets/social_auth_buttons.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -77,18 +80,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => _localError = null);
 
-    final success = await ref.read(authControllerProvider.notifier).signInWithGoogle();
+    final credential = await ref.read(authControllerProvider.notifier).signInWithGoogle();
 
-    if (success && mounted) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Autentificare cu Google reușită! Bine ai revenit.'),
-          backgroundColor: AppColors.signalLive,
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
-        ),
-      );
+    if (credential != null && mounted) {
+      final isNewUser = credential.additionalUserInfo?.isNewUser ?? false;
+      final prefs = await SharedPreferences.getInstance();
+      final hasCustomUsername = prefs.getBool('kurogane_custom_username_set_${credential.user?.uid}') ?? false;
+      final currentUsername = credential.user?.displayName ?? '';
+      final needsUsername = !hasCustomUsername || isNewUser || currentUsername.contains(' ');
+
+      // Onboarding la prima conectare / cand username-ul contine spatii: alegere username personalizat
+      if (needsUsername) {
+        if (!mounted) return;
+        final suggested = AuthService.deriveSuggestedUsername(credential.user);
+        await Navigator.of(context).pushReplacement<void, void>(
+          BlurFadePageRoute(
+            fullscreenDialog: true,
+            child: GoogleUsernameScreen(
+              suggestedUsername: suggested,
+              currentUserId: credential.user?.uid,
+              userEmail: credential.user?.email,
+            ),
+          ),
+        );
+        return;
+      }
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Autentificare cu Google reușită! Bine ai revenit.'),
+            backgroundColor: AppColors.signalLive,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 

@@ -69,15 +69,15 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
-  Future<bool> signInWithGoogle() async {
+  Future<UserCredential?> signInWithGoogle() async {
     state = const AsyncValue.loading();
     try {
       final credential = await _authService.signInWithGoogle();
       state = const AsyncValue.data(null);
-      return credential != null;
+      return credential;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
-      return false;
+      return null;
     }
   }
 

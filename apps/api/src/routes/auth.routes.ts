@@ -64,6 +64,38 @@ router.post('/resolve-identifier', authRateLimiter, async (req: Request, res: Re
   });
 });
 
+// GET /api/auth/check-username - Quick availability check for username
+router.get('/check-username', (req: Request, res: Response) => {
+  const raw = req.query.username;
+  const excludeUserId = req.query.excludeUserId as string | undefined;
+  const email = req.query.email as string | undefined;
+
+  if (!raw || typeof raw !== 'string') {
+    return res.json({ available: false, error: 'Introdu un nume de utilizator.' });
+  }
+
+  const clean = normalizeIdentifier(raw.trim());
+  if (clean.length < 2 || clean.length > 24 || !/^[a-zA-Z0-9_.-]+$/.test(clean)) {
+    return res.json({
+      available: false,
+      error: 'Format invalid (2-24 caractere, doar litere, cifre, _, -, .)',
+    });
+  }
+
+  const existing = persistentDb.getUserByUsername(clean);
+  if (existing) {
+    if (excludeUserId && existing.id === excludeUserId) {
+      return res.json({ available: true });
+    }
+    if (email && existing.email && normalizeIdentifier(existing.email) === normalizeIdentifier(email)) {
+      return res.json({ available: true });
+    }
+    return res.json({ available: false, error: 'Acest nume de utilizator este deja folosit.' });
+  }
+
+  return res.json({ available: true });
+});
+
 // POST /api/auth/register-user - Register or sync user profile
 router.post('/register-user', authRateLimiter, (req: Request, res: Response) => {
   const { email, username, id, password } = req.body;

@@ -51,4 +51,6 @@ class ApiConstants {
   static const String profile = '/api/user/profile';
   static const String resolveIdentifier = '/api/auth/resolve-identifier';
   static const String registerUser = '/api/auth/register-user';
+  static const String checkUsername = '/api/auth/check-username';
+  static const String googleServerClientId = '141330897882-cfls510bk9je8vjejngqo4isfpua8bck.apps.googleusercontent.com';
 }

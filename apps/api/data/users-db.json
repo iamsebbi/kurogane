@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "id": "YMYxA74Wi3aRnZLW7o2RspK285E3",
+    "email": "sebi.travis@yahoo.com",
+    "username": "milbei",
+    "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=milbei",
+    "bio": "Entuziast Anime & Manga pe Kurogane.",
+    "pronouns": "he/him",
+    "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
+    "favoriteGenres": [],
+    "createdAt": "2026-09-01T14:43:01.527858+00:00"
+  },
+  {
+    "id": "Dkn9IvtFGKbAPTc9GEVBHAfKb5I2",
+    "email": "conjtrast@gmail.com",
+    "username": "conjtrast",
+    "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=conjtrast",
+    "bio": "Entuziast Anime & Manga pe Kurogane.",
+    "pronouns": "he/him",
+    "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
+    "favoriteGenres": [],
+    "createdAt": "2026-09-01T15:10:23.046048+00:00"
+  },
+  {
+    "id": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
+    "email": "prisecarusebastiann@gmail.com",
+    "username": "sebastian_prisecaru",
+    "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=sebastian_prisecaru",
+    "bio": "Entuziast Anime & Manga pe Kurogane.",
+    "pronouns": "he/him",
+    "bannerUrl": "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
+    "favoriteGenres": [],
+    "createdAt": "2026-09-01T15:30:05.416443+00:00"
+  }
+]

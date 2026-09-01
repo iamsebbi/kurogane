@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     pronouns TEXT DEFAULT 'he/him',
     banner_url TEXT DEFAULT 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
     favorite_genres TEXT[] DEFAULT '{}',
+    username_changed_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -33,6 +33,38 @@ router.put('/profile', requireAuth, (req: Request, res: Response) => {
       if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUsername)) {
         return res.status(400).json({ error: 'Numele de utilizator conține caractere nepermise.' });
       }
+
+      const currentProfile = persistentDb.getUserProfile(user.id);
+      const isChanging =
+        currentProfile &&
+        currentProfile.username &&
+        currentProfile.username.toLowerCase() !== cleanUsername.toLowerCase();
+
+      if (isChanging) {
+        // 1. Verificare restrictie de 14 zile
+        if (currentProfile.usernameLastChangedAt) {
+          const lastChanged = new Date(currentProfile.usernameLastChangedAt).getTime();
+          const now = Date.now();
+          const diffDays = (now - lastChanged) / (1000 * 60 * 60 * 24);
+          if (diffDays < 14) {
+            const daysRemaining = Math.ceil(14 - diffDays);
+            return res.status(400).json({
+              error: `Poți schimba numele de utilizator o singură dată la 14 zile. Mai ai de așteptat ${daysRemaining} ${daysRemaining === 1 ? 'zi' : 'zile'}.`,
+              daysRemaining,
+              nextChangeDate: new Date(lastChanged + 14 * 24 * 60 * 60 * 1000).toISOString(),
+            });
+          }
+        }
+
+        // 2. Verificare unicitate
+        const existingOwner = persistentDb.getUserByUsername(cleanUsername);
+        if (existingOwner && existingOwner.id !== user.id) {
+          return res.status(409).json({
+            error: `Numele de utilizator @${cleanUsername} este deja ocupat de altcineva.`,
+          });
+        }
+      }
+
       sanitizedUsername = cleanUsername;
     }
   }

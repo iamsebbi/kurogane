@@ -151,6 +151,7 @@ export interface UserProfile {
   bannerUrl?: string;
   favoriteGenres?: string[];
   createdAt?: string;
+  usernameLastChangedAt?: string;
 }
 
 export interface WatchlistItemRecord {
