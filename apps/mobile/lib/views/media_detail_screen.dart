@@ -14,6 +14,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/pill_badge.dart';
 import '../widgets/watch_order_tree_view.dart';
 import '../widgets/media_card.dart';
+import '../widgets/floating_circle_button.dart';
 import 'auth/login_screen.dart';
 
 class MediaDetailScreen extends ConsumerStatefulWidget {
@@ -122,6 +123,11 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
         : (item.coverImage.large.isNotEmpty ? item.coverImage.large : (item.bannerImage ?? ''));
     final score = item.scores.weightedScore > 0 ? item.scores.weightedScore : item.scores.averageScore;
     final scoreDisplay = score > 10 ? (score / 10).toStringAsFixed(1) : score.toStringAsFixed(1);
+    final cleanDescription = item.description != null
+        ? item.description!.replaceAll(RegExp(r'<[^>]*>'), '').trim()
+        : '';
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final heroHeight = (screenHeight * 0.44).clamp(340.0, 450.0);
 
     // Titluri secundare (Romaji + Japoneză nativă Kanji/Kana)
     final secondaryTitles = <String>[];
@@ -137,13 +143,8 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
       secondaryTitles.add(item.title.native!);
     }
 
-    // Metadate tehnice curate
+    // Metadate tehnice curate (fără formatul/canalul de difuzare TV)
     final technicalMetaList = <String>[];
-    if (item.format != null && item.format!.isNotEmpty) {
-      technicalMetaList.add(item.format!);
-    } else if (item.type.isNotEmpty) {
-      technicalMetaList.add(item.type);
-    }
     if (item.episodes != null && item.episodes! > 0) {
       technicalMetaList.add('${item.episodes} Episoade');
     }
@@ -167,7 +168,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
       slivers: [
         // 1. Hero AppBar cu Poster Cinematic Extins, Deep Scrim & Quick Floating Trailer CTA
         SliverAppBar(
-          expandedHeight: 400,
+          expandedHeight: heroHeight,
           pinned: true,
           stretch: true,
           backgroundColor: context.bgPrimary,
@@ -177,7 +178,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
           leading: Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: Center(
-              child: _DetailFloatingCircleButton(
+              child: FloatingCircleButton(
                 size: 52,
                 onTap: () => Navigator.of(context).pop(),
                 child: Icon(
@@ -192,7 +193,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Center(
-                child: _DetailFloatingCircleButton(
+                child: FloatingCircleButton(
                   size: 52,
                   onTap: () async {
                     final user = ref.read(currentUserProvider);
@@ -416,10 +417,10 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             PhosphorIconsFill.star,
                             size: 14,
-                            color: Color(0xFFFBBF24),
+                            color: context.scoreGold,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -484,7 +485,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                 ],
 
                 // 6. Sinopsis
-                if (item.description != null && item.description!.isNotEmpty) ...[
+                if (cleanDescription.isNotEmpty) ...[
                   Text(
                     'SINOPSIS',
                     style: TextStyle(
@@ -495,28 +496,55 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    item.description!.replaceAll(RegExp(r'<[^>]*>'), ''),
-                    maxLines: _isSynopsisExpanded ? null : 3,
-                    overflow: _isSynopsisExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: context.textPrimary.withValues(alpha: 0.85),
-                      fontSize: 13.5,
-                      height: 1.52,
-                      fontWeight: FontWeight.w400,
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 320),
+                    curve: Curves.easeInOutCubic,
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      cleanDescription,
+                      maxLines: _isSynopsisExpanded ? null : 3,
+                      overflow: _isSynopsisExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: context.textPrimary.withValues(alpha: 0.85),
+                        fontSize: 13.5,
+                        height: 1.52,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 4),
                   GestureDetector(
-                    onTap: () => setState(() => _isSynopsisExpanded = !_isSynopsisExpanded),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      setState(() => _isSynopsisExpanded = !_isSynopsisExpanded);
+                    },
+                    behavior: HitTestBehavior.opaque,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        _isSynopsisExpanded ? 'Arată mai puțin ▲' : 'Citește mai mult ▼',
-                        style: TextStyle(
-                          color: context.accentPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _isSynopsisExpanded ? 'Arată mai puțin' : 'Citește mai mult',
+                            style: TextStyle(
+                              color: context.accentPrimary,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.1,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          AnimatedRotation(
+                            turns: _isSynopsisExpanded ? 0.5 : 0.0,
+                            duration: const Duration(milliseconds: 280),
+                            curve: Curves.easeOutCubic,
+                            child: Icon(
+                              PhosphorIcons.caretDown(PhosphorIconsStyle.bold),
+                              size: 13,
+                              color: context.accentPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -653,12 +681,29 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                 ),
                 child: Column(
                   children: [
-                    _buildInfoRow(context, 'Format', item.format ?? item.type),
-                    _buildInfoRow(context, 'Episoade', '${item.episodes ?? "Necunoscut"}'),
-                    _buildInfoRow(context, 'Sezon / An', '${item.season ?? ""} ${item.year ?? ""}'),
+                    _buildInfoRow(
+                      context,
+                      'Format',
+                      (item.format != null && item.format!.isNotEmpty)
+                          ? item.format!
+                          : (item.type.isNotEmpty ? item.type : 'Nespecificat'),
+                    ),
+                    _buildInfoRow(
+                      context,
+                      'Episoade',
+                      item.episodes != null && item.episodes! > 0 ? '${item.episodes}' : 'Necunoscut',
+                    ),
+                    _buildInfoRow(
+                      context,
+                      'Sezon / An',
+                      '${item.season ?? ""} ${item.year ?? ""}'.trim().isNotEmpty
+                          ? '${item.season ?? ""} ${item.year ?? ""}'.trim()
+                          : 'Nespecificat',
+                    ),
                     _buildInfoRow(context, 'Status', _formatStatusText(item.status ?? 'Nespecificat')),
                     _buildInfoRow(context, 'Studio', studios.isNotEmpty ? studios.join(', ') : 'Nespecificat'),
-                    _buildInfoRow(context, 'Demografie', item.demographic ?? 'General'),
+                    if (item.demographic != null && item.demographic!.trim().isNotEmpty)
+                      _buildInfoRow(context, 'Demografie', item.demographic!.trim()),
                   ],
                 ),
               ),
@@ -726,7 +771,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(9999),
                   side: BorderSide(
-                    color: _getStatusColor(existingRecord.status).withValues(alpha: 0.5),
+                    color: _getStatusColor(context, existingRecord.status).withValues(alpha: 0.5),
                     width: 1.2,
                   ),
                 ),
@@ -739,7 +784,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   Icon(
                     PhosphorIconsFill.bookmarkSimple,
                     size: 15,
-                    color: _getStatusColor(existingRecord.status),
+                    color: _getStatusColor(context, existingRecord.status),
                   ),
                   const SizedBox(width: 8),
                   Flexible(
@@ -765,14 +810,14 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
         SizedBox(
           height: 46,
           child: ElevatedButton.icon(
-            onPressed: () => _showQuickRatingSheet(context, item, existingRecord),
+            onPressed: () => _showAddToWatchlistModal(context, item),
             icon: Icon(
               hasPersonalScore ? PhosphorIconsFill.star : PhosphorIcons.star(PhosphorIconsStyle.bold),
               size: 15,
-              color: hasPersonalScore ? const Color(0xFFFBBF24) : context.textSecondary,
+              color: hasPersonalScore ? context.scoreGold : context.textSecondary,
             ),
             label: Text(
-              hasPersonalScore ? existingRecord.score!.toStringAsFixed(1) : 'Notează',
+              hasPersonalScore ? '${existingRecord.score!.round()} / 10' : 'Notează',
               style: TextStyle(
                 color: hasPersonalScore ? context.textPrimary : context.textSecondary,
                 fontSize: 12.5,
@@ -811,236 +856,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     );
   }
 
-  // --- MODAL DEDICAT DE NOTARE (RATING EXCLUSIV 1.0 – 10.0) ---
-  void _showQuickRatingSheet(BuildContext context, MediaItem item, WatchlistItemRecord existingRecord) {
-    double currentScore = existingRecord.score ?? 8.0;
-
-    String getScoreLabel(double s) {
-      if (s <= 0) return 'Fără notă';
-      if (s >= 9.5) return 'Capodoperă Absolută';
-      if (s >= 8.5) return 'Excelent';
-      if (s >= 7.5) return 'Foarte Bun';
-      if (s >= 6.5) return 'Bun';
-      if (s >= 5.5) return 'Decent';
-      if (s >= 4.0) return 'Mediocru';
-      return 'Slab';
-    }
-
-    Color getScoreColor(double s) {
-      if (s <= 0) return Colors.grey;
-      if (s >= 8.5) return const Color(0xFFFBBF24); // Gold
-      if (s >= 7.0) return const Color(0xFF10B981); // Emerald
-      if (s >= 5.0) return const Color(0xFF3B82F6); // Blue
-      return const Color(0xFFEF4444); // Red
-    }
-
-    showModalBottomSheet(
-      context: context,
-      useSafeArea: true,
-      backgroundColor: context.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (sheetCtx) {
-        return StatefulBuilder(
-          builder: (modalCtx, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Handle
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: context.borderSubtle,
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Notează Seria',
-                        style: TextStyle(
-                          color: context.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: getScoreColor(currentScore).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(9999),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              PhosphorIcons.star(PhosphorIconsStyle.fill),
-                              size: 14,
-                              color: getScoreColor(currentScore),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${currentScore.toStringAsFixed(1)} / 10',
-                              style: TextStyle(
-                                color: getScoreColor(currentScore),
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    getScoreLabel(currentScore),
-                    style: TextStyle(
-                      color: context.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Slider Rating Interactiv
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: getScoreColor(currentScore),
-                      inactiveTrackColor: context.bgSurfaceHover,
-                      thumbColor: getScoreColor(currentScore),
-                      trackHeight: 6,
-                    ),
-                    child: Slider(
-                      value: currentScore,
-                      min: 1.0,
-                      max: 10.0,
-                      divisions: 18,
-                      onChanged: (val) {
-                        HapticFeedback.selectionClick();
-                        setModalState(() => currentScore = val);
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Preset Chips
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      children: [10.0, 9.0, 8.5, 8.0, 7.5, 7.0, 6.0, 5.0].map((preset) {
-                        final isSel = (currentScore - preset).abs() < 0.1;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 6.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              setModalState(() => currentScore = preset);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: isSel ? getScoreColor(preset) : context.bgSurfaceHover,
-                                borderRadius: BorderRadius.circular(9999),
-                              ),
-                              child: Text(
-                                '⭐ ${preset.toStringAsFixed(preset % 1 == 0 ? 0 : 1)}',
-                                style: TextStyle(
-                                  color: isSel ? Colors.black : context.textPrimary,
-                                  fontSize: 12,
-                                  fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Buton Salvare Notă
-                  InkWell(
-                    borderRadius: BorderRadius.circular(9999),
-                    onTap: () async {
-                      Navigator.of(sheetCtx).pop();
-                      HapticFeedback.mediumImpact();
-                      await ref.read(watchlistProvider.notifier).updateItem(
-                            mediaId: item.id,
-                            status: existingRecord.status,
-                            score: currentScore,
-                            progressEpisodes: existingRecord.progressEpisodes,
-                          );
-
-                      // Sincronizare automată AniList dacă este conectat
-                      final anilistState = ref.read(anilistProvider);
-                      if (anilistState.isConnected) {
-                        final anilistId = item.anilistId ?? int.tryParse(item.id.replaceAll('anilist-', ''));
-                        if (anilistId != null) {
-                          await ref.read(anilistProvider.notifier).syncMedia(
-                                anilistMediaId: anilistId,
-                                status: existingRecord.status,
-                                score: currentScore,
-                                progress: existingRecord.progressEpisodes,
-                              );
-                        }
-                      }
-
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              anilistState.isConnected
-                                  ? 'Nota ${currentScore.toStringAsFixed(1)} a fost salvată & sincronizată pe AniList!'
-                                  : 'Nota ${currentScore.toStringAsFixed(1)} a fost salvată!',
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: context.accentPrimary,
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Salvează Nota',
-                        style: TextStyle(
-                          color: context.onPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // --- MODAL ADĂUGARE / EDITARE STATUS & EPISOADE WATCHLIST ---
+  // --- MODAL UNIFICAT: STATUS, PROGRES EPISOADE & NOTĂ 1-10 ---
   void _showAddToWatchlistModal(BuildContext context, MediaItem item) {
     final isLoggedIn = ref.read(isLoggedInProvider);
     if (!isLoggedIn) {
@@ -1056,100 +872,398 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     String selectedStatus = existingRecord?.status ?? 'WATCHING';
     int episodes = existingRecord?.progressEpisodes ?? 0;
     final totalEpisodes = item.episodes;
+    String? startedAt = existingRecord?.startedAt;
+    String? completedAt = existingRecord?.completedAt;
 
-    const statuses = [
-      {'key': 'WATCHING', 'label': 'Vizionare', 'color': Color(0xFF10B981)},
-      {'key': 'COMPLETED', 'label': 'Finalizat', 'color': Color(0xFF60A5FA)},
-      {'key': 'PLAN_TO_WATCH', 'label': 'De Văzut', 'color': Color(0xFFF59E0B)},
-      {'key': 'ON_HOLD', 'label': 'În Pauză', 'color': Color(0xFFFB923C)},
-      {'key': 'DROPPED', 'label': 'Abandonat', 'color': Color(0xFFEF4444)},
+    // Scorul inițial al utilizatorului (rotunjit 1..10, sau 0 pentru Fără Notă)
+    int userScore = (existingRecord?.score != null && existingRecord!.score! > 0)
+        ? existingRecord.score!.round().clamp(1, 10)
+        : 0;
+
+    // Scorul implicit inteligent calculat din media seriei dacă utilizatorul apasă + de la 0
+    final animeAvg = (item.scores.weightedScore > 0 ? item.scores.weightedScore : item.scores.averageScore);
+    final defaultSmartScore = animeAvg > 0
+        ? (animeAvg > 10 ? (animeAvg / 10).round() : animeAvg.round()).clamp(1, 10)
+        : 8;
+
+    String formatDateShort(String? dateStr) {
+      if (dateStr == null || dateStr.isEmpty) return '--';
+      final dt = DateTime.tryParse(dateStr);
+      if (dt == null) return dateStr;
+      const months = ['Ian', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+    }
+
+    Future<void> pickDate({
+      required BuildContext ctx,
+      required String? currentDateStr,
+      required Function(String?) onSelected,
+    }) async {
+      final now = DateTime.now();
+      final initial = (currentDateStr != null ? DateTime.tryParse(currentDateStr) : null) ?? now;
+      final picked = await showDatePicker(
+        context: ctx,
+        initialDate: initial,
+        firstDate: DateTime(1970),
+        lastDate: DateTime(now.year + 5),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.dark(
+                primary: context.accentPrimary,
+                onPrimary: context.isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                surface: context.bgSurface,
+                onSurface: context.textPrimary,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+      if (picked != null) {
+        onSelected(picked.toIso8601String().split('T').first);
+      }
+    }
+
+    final statuses = [
+      {'key': 'WATCHING', 'label': 'Vizionare', 'color': context.signalLive},
+      {'key': 'COMPLETED', 'label': 'Finalizat', 'color': const Color(0xFF60A5FA)},
+      {'key': 'PLAN_TO_WATCH', 'label': 'De Văzut', 'color': const Color(0xFFA78BFA)},
+      {'key': 'ON_HOLD', 'label': 'În Pauză', 'color': const Color(0xFFFB923C)},
+      {'key': 'DROPPED', 'label': 'Abandonat', 'color': context.error},
     ];
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: context.bgSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) {
+        bool autoCompletedEpisodes = false;
+        bool episodesIncreasing = true;
+        bool scoreIncreasing = true;
         return StatefulBuilder(
           builder: (modalCtx, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Drag handle
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: context.borderSubtle,
-                        borderRadius: BorderRadius.circular(9999),
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 14, 20, 20 + MediaQuery.paddingOf(modalCtx).bottom),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Drag handle
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: context.borderSubtle,
+                          borderRadius: BorderRadius.circular(9999),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 14),
 
-                  Text(
-                    existingRecord != null ? 'Editează Progresul' : 'Adaugă în Watchlist',
-                    style: TextStyle(
-                      color: context.textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                    Text(
+                      existingRecord != null ? 'Editează Seria' : 'Adaugă în Watchlist',
+                      style: TextStyle(
+                        color: context.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Status chips (Full rounded, zero border)
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: statuses.map((st) {
-                      final isSel = selectedStatus == st['key'];
-                      final color = st['color'] as Color;
-                      return GestureDetector(
-                        onTap: () => setModalState(() {
-                          selectedStatus = st['key'] as String;
-                          if (selectedStatus == 'COMPLETED') {
-                            if (totalEpisodes != null && totalEpisodes > 0) {
-                              episodes = totalEpisodes;
-                            } else if (item.format?.toUpperCase() == 'MOVIE' || item.type.toUpperCase() == 'MOVIE') {
-                              episodes = 1;
+                    // Status chips (Discrete semantic dot for unselected, solid fill for selected)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: statuses.map((st) {
+                        final isSel = selectedStatus == st['key'];
+                        final color = st['color'] as Color;
+                        final bool isLightColor = color.computeLuminance() > 0.4;
+                        final Color isSelTextColor = isLightColor ? const Color(0xFF141414) : Colors.white;
+
+                        return GestureDetector(
+                          onTap: () => setModalState(() {
+                            selectedStatus = st['key'] as String;
+                            final todayStr = DateTime.now().toIso8601String().split('T').first;
+                            if (selectedStatus == 'WATCHING') {
+                              startedAt ??= todayStr;
+                            } else if (selectedStatus == 'COMPLETED') {
+                              startedAt ??= todayStr;
+                              completedAt ??= todayStr;
+                              int targetEp = episodes;
+                              if (totalEpisodes != null && totalEpisodes > 0) {
+                                targetEp = totalEpisodes;
+                              } else if (item.format?.toUpperCase() == 'MOVIE' || item.type.toUpperCase() == 'MOVIE') {
+                                targetEp = 1;
+                              }
+                              if (targetEp != episodes) {
+                                episodesIncreasing = targetEp >= episodes;
+                                episodes = targetEp;
+                                autoCompletedEpisodes = true;
+                                HapticFeedback.mediumImpact();
+                                Future.delayed(const Duration(milliseconds: 750), () {
+                                  if (modalCtx.mounted) {
+                                    setModalState(() => autoCompletedEpisodes = false);
+                                  }
+                                });
+                              }
+                            } else if (selectedStatus == 'PLAN_TO_WATCH' && totalEpisodes != null && episodes == totalEpisodes) {
+                              episodesIncreasing = false;
+                              episodes = 0;
                             }
-                          } else if (selectedStatus == 'PLAN_TO_WATCH' && totalEpisodes != null && episodes == totalEpisodes) {
-                            episodes = 0;
-                          }
-                        }),
-                        behavior: HitTestBehavior.opaque,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 160),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSel ? color : context.bgSurfaceHover,
-                            borderRadius: BorderRadius.circular(9999),
+                          }),
+                          behavior: HitTestBehavior.opaque,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSel ? color : context.bgSurfaceHover,
+                              borderRadius: BorderRadius.circular(9999),
+                              border: Border.all(
+                                color: isSel ? color : context.borderSubtle,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isSel)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 5),
+                                    child: Icon(
+                                      PhosphorIcons.check(PhosphorIconsStyle.bold),
+                                      size: 13,
+                                      color: isSelTextColor,
+                                    ),
+                                  )
+                                else
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: Container(
+                                      width: 6.5,
+                                      height: 6.5,
+                                      decoration: BoxDecoration(
+                                        color: color,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                Text(
+                                  st['label'] as String,
+                                  style: TextStyle(
+                                    color: isSel ? isSelTextColor : context.textSecondary,
+                                    fontSize: 12.5,
+                                    fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          child: Text(
-                            st['label'] as String,
-                            style: TextStyle(
-                              color: isSel ? Colors.black : context.textSecondary,
-                              fontSize: 12.5,
-                              fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    // 1. Header & Stepper: Progres Episoade
+                    Text(
+                      'Progres Episoade',
+                      style: TextStyle(
+                        color: context.textSecondary,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      height: 52,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      decoration: BoxDecoration(
+                        color: autoCompletedEpisodes
+                            ? const Color(0xFF60A5FA).withValues(alpha: 0.16)
+                            : context.bgSurfaceHover,
+                        borderRadius: BorderRadius.circular(9999),
+                        border: Border.all(
+                          color: autoCompletedEpisodes
+                              ? const Color(0xFF60A5FA).withValues(alpha: 0.65)
+                              : Colors.transparent,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Minus button (Left)
+                          GestureDetector(
+                            onTap: () {
+                              if (episodes > 0) {
+                                HapticFeedback.selectionClick();
+                                setModalState(() {
+                                  episodesIncreasing = false;
+                                  episodes--;
+                                  if (selectedStatus == 'COMPLETED' &&
+                                      totalEpisodes != null &&
+                                      totalEpisodes > 0 &&
+                                      episodes < totalEpisodes) {
+                                    selectedStatus = 'WATCHING';
+                                  }
+                                });
+                              }
+                            },
+                            child: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: context.bgPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  PhosphorIcons.minus(PhosphorIconsStyle.bold),
+                                  size: 16,
+                                  color: episodes > 0 ? context.textPrimary : context.textMuted,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Center Value: Only the updating episodes digit animates vertically
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (autoCompletedEpisodes) ...[
+                                Icon(
+                                  PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
+                                  size: 14,
+                                  color: const Color(0xFF60A5FA),
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                              SizedBox(
+                                height: 36,
+                                child: Center(
+                                  child: ClipRect(
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 250),
+                                      transitionBuilder: (child, animation) {
+                                        final key = child.key;
+                                        final bool isIncoming = key is ValueKey<int> && key.value == episodes;
+                                        final double beginY = episodesIncreasing
+                                            ? (isIncoming ? 1.0 : -1.0)
+                                            : (isIncoming ? -1.0 : 1.0);
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: SlideTransition(
+                                            position: Tween<Offset>(
+                                              begin: Offset(0, beginY),
+                                              end: Offset.zero,
+                                            ).animate(CurvedAnimation(
+                                              parent: animation,
+                                              curve: Curves.easeOutCubic,
+                                            )),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        '$episodes',
+                                        key: ValueKey<int>(episodes),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: autoCompletedEpisodes ? const Color(0xFF60A5FA) : context.textPrimary,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                          fontFeatures: const [FontFeature.tabularFigures()],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                ' / ${totalEpisodes != null && totalEpisodes > 0 ? totalEpisodes : "?"}',
+                                style: TextStyle(
+                                  color: autoCompletedEpisodes ? const Color(0xFF60A5FA) : context.textPrimary,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  fontFeatures: const [FontFeature.tabularFigures()],
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // Plus button (Right)
+                          GestureDetector(
+                            onTap: () {
+                              if (totalEpisodes == null || totalEpisodes == 0 || episodes < totalEpisodes) {
+                                HapticFeedback.selectionClick();
+                                setModalState(() {
+                                  episodesIncreasing = true;
+                                  episodes++;
+                                  if (totalEpisodes != null && totalEpisodes > 0 && episodes >= totalEpisodes) {
+                                    selectedStatus = 'COMPLETED';
+                                  }
+                                });
+                              }
+                            },
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: context.bgPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                PhosphorIcons.plus(PhosphorIconsStyle.bold),
+                                size: 16,
+                                color: (totalEpisodes == null || totalEpisodes == 0 || episodes < totalEpisodes)
+                                    ? context.textPrimary
+                                    : context.textMuted,
+                              ),
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
+                      ],
+                    ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
 
-                  // Episode Stepper (Zero border)
+                  // 2. Header & Stepper: Nota Ta (1 - 10)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        userScore > 0 ? PhosphorIconsFill.star : PhosphorIcons.star(PhosphorIconsStyle.bold),
+                        size: 14,
+                        color: userScore > 0 ? context.scoreGold : context.textSecondary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Nota Ta',
+                        style: TextStyle(
+                          color: context.textSecondary,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    height: 52,
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
                     decoration: BoxDecoration(
                       color: context.bgSurfaceHover,
                       borderRadius: BorderRadius.circular(9999),
@@ -1157,90 +1271,322 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Progres Episoade',
-                          style: TextStyle(
-                            color: context.textPrimary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                        // Minus button (Left)
+                        GestureDetector(
+                          onTap: () {
+                            if (userScore > 0) {
+                              HapticFeedback.selectionClick();
+                              setModalState(() {
+                                scoreIncreasing = false;
+                                if (userScore > 1) {
+                                  userScore--;
+                                } else {
+                                  userScore = 0; // Revine la Fără notă
+                                }
+                              });
+                            }
+                          },
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: context.bgPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                PhosphorIcons.minus(PhosphorIconsStyle.bold),
+                                size: 16,
+                                color: userScore > 0 ? context.textPrimary : context.textMuted,
+                              ),
+                            ),
                           ),
                         ),
+
+                        // Center Value: Only the updating rating score animates vertically
                         Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                if (episodes > 0) {
-                                  setModalState(() {
-                                    episodes--;
-                                    if (selectedStatus == 'COMPLETED' &&
-                                        totalEpisodes != null &&
-                                        totalEpisodes > 0 &&
-                                        episodes < totalEpisodes) {
-                                      selectedStatus = 'WATCHING';
-                                    }
-                                  });
-                                }
-                              },
-                              child: Container(
-                                width: 34,
-                                height: 34,
-                                decoration: BoxDecoration(
-                                  color: context.bgPrimary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    PhosphorIcons.minus(PhosphorIconsStyle.bold),
-                                    size: 14,
-                                    color: context.textPrimary,
+                            SizedBox(
+                              height: 36,
+                              child: Center(
+                                child: ClipRect(
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 250),
+                                    transitionBuilder: (child, animation) {
+                                      final key = child.key;
+                                      final bool isIncoming = key is ValueKey<int> && key.value == userScore;
+                                      final double beginY = scoreIncreasing
+                                          ? (isIncoming ? 1.0 : -1.0)
+                                          : (isIncoming ? -1.0 : 1.0);
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: SlideTransition(
+                                          position: Tween<Offset>(
+                                            begin: Offset(0, beginY),
+                                            end: Offset.zero,
+                                          ).animate(CurvedAnimation(
+                                            parent: animation,
+                                            curve: Curves.easeOutCubic,
+                                          )),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      userScore > 0 ? '$userScore' : 'Fără notă',
+                                      key: ValueKey<int>(userScore),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: userScore > 0 ? context.textPrimary : context.textMuted,
+                                        fontSize: userScore > 0 ? 15 : 14.5,
+                                        fontWeight: userScore > 0 ? FontWeight.w700 : FontWeight.w600,
+                                        fontFeatures: const [FontFeature.tabularFigures()],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Text(
-                              '$episodes / ${totalEpisodes != null && totalEpisodes > 0 ? totalEpisodes : "?"}',
-                              style: TextStyle(
-                                color: context.textPrimary,
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            GestureDetector(
-                              onTap: () {
-                                if (totalEpisodes == null || totalEpisodes == 0 || episodes < totalEpisodes) {
-                                  setModalState(() {
-                                    episodes++;
-                                    if (totalEpisodes != null && totalEpisodes > 0 && episodes >= totalEpisodes) {
-                                      selectedStatus = 'COMPLETED';
-                                    }
-                                  });
-                                }
-                              },
-                              child: Container(
-                                width: 34,
-                                height: 34,
-                                decoration: BoxDecoration(
-                                  color: context.bgPrimary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    PhosphorIcons.plus(PhosphorIconsStyle.bold),
-                                    size: 14,
-                                    color: context.textPrimary,
-                                  ),
+                            if (userScore > 0)
+                              Text(
+                                ' / 10',
+                                style: TextStyle(
+                                  color: context.textPrimary,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  fontFeatures: const [FontFeature.tabularFigures()],
                                 ),
                               ),
-                            ),
                           ],
+                        ),
+
+                        // Plus button (Right)
+                        GestureDetector(
+                          onTap: () {
+                            if (userScore < 10) {
+                              HapticFeedback.selectionClick();
+                              setModalState(() {
+                                scoreIncreasing = true;
+                                if (userScore == 0) {
+                                  userScore = defaultSmartScore;
+                                } else {
+                                  userScore++;
+                                }
+                              });
+                            }
+                          },
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: context.bgPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                PhosphorIcons.plus(PhosphorIconsStyle.bold),
+                                size: 16,
+                                color: userScore < 10 ? context.textPrimary : context.textMuted,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 14),
+
+                  // 3. Headers & Buttons: Data Început & Data Sfârșit
+                  Row(
+                    children: [
+                      // Data Început Column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  PhosphorIcons.calendarBlank(PhosphorIconsStyle.bold),
+                                  size: 14,
+                                  color: startedAt != null ? context.signalLive : context.textSecondary,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Data Început',
+                                  style: TextStyle(
+                                    color: context.textSecondary,
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            GestureDetector(
+                              onTap: () async {
+                                HapticFeedback.selectionClick();
+                                await pickDate(
+                                  ctx: modalCtx,
+                                  currentDateStr: startedAt,
+                                  onSelected: (date) => setModalState(() => startedAt = date),
+                                );
+                              },
+                              child: Container(
+                                height: 52,
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                decoration: BoxDecoration(
+                                  color: context.bgSurfaceHover,
+                                  borderRadius: BorderRadius.circular(9999),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        formatDateShort(startedAt),
+                                        style: TextStyle(
+                                          color: startedAt != null ? context.textPrimary : context.textMuted,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (startedAt != null)
+                                      GestureDetector(
+                                        onTap: () {
+                                          HapticFeedback.selectionClick();
+                                          setModalState(() => startedAt = null);
+                                        },
+                                        child: Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                            color: context.bgPrimary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              PhosphorIcons.x(PhosphorIconsStyle.bold),
+                                              size: 13,
+                                              color: context.textMuted,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Icon(
+                                        PhosphorIcons.caretDown(PhosphorIconsStyle.bold),
+                                        size: 14,
+                                        color: context.textMuted,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      // Data Sfârșit Column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  PhosphorIcons.flagCheckered(PhosphorIconsStyle.bold),
+                                  size: 14,
+                                  color: completedAt != null ? context.scoreGold : context.textSecondary,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Data Sfârșit',
+                                  style: TextStyle(
+                                    color: context.textSecondary,
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            GestureDetector(
+                              onTap: () async {
+                                HapticFeedback.selectionClick();
+                                await pickDate(
+                                  ctx: modalCtx,
+                                  currentDateStr: completedAt,
+                                  onSelected: (date) => setModalState(() => completedAt = date),
+                                );
+                              },
+                              child: Container(
+                                height: 52,
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                decoration: BoxDecoration(
+                                  color: context.bgSurfaceHover,
+                                  borderRadius: BorderRadius.circular(9999),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        formatDateShort(completedAt),
+                                        style: TextStyle(
+                                          color: completedAt != null ? context.textPrimary : context.textMuted,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (completedAt != null)
+                                      GestureDetector(
+                                        onTap: () {
+                                          HapticFeedback.selectionClick();
+                                          setModalState(() => completedAt = null);
+                                        },
+                                        child: Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                            color: context.bgPrimary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              PhosphorIcons.x(PhosphorIconsStyle.bold),
+                                              size: 13,
+                                              color: context.textMuted,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Icon(
+                                        PhosphorIcons.caretDown(PhosphorIconsStyle.bold),
+                                        size: 14,
+                                        color: context.textMuted,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
 
                   // Actions: Save & optional Remove
                   Row(
@@ -1250,6 +1596,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                           borderRadius: BorderRadius.circular(9999),
                           onTap: () async {
                             Navigator.of(ctx).pop();
+                            HapticFeedback.mediumImpact();
                             await ref.read(watchlistProvider.notifier).removeItem(item.id);
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -1282,15 +1629,42 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                           borderRadius: BorderRadius.circular(9999),
                           onTap: () async {
                             Navigator.of(ctx).pop();
+                            HapticFeedback.mediumImpact();
+
+                            final double finalScoreToSave = userScore > 0 ? userScore.toDouble() : 0.0;
                             await ref.read(watchlistProvider.notifier).updateItem(
                                   mediaId: item.id,
                                   status: selectedStatus,
                                   progressEpisodes: episodes,
+                                  score: finalScoreToSave,
+                                  startedAt: startedAt,
+                                  completedAt: completedAt,
                                 );
+
+                            // Sincronizare automată AniList dacă este conectat
+                            final anilistState = ref.read(anilistProvider);
+                            if (anilistState.isConnected) {
+                              final anilistId = item.anilistId ?? int.tryParse(item.id.replaceAll('anilist-', ''));
+                              if (anilistId != null) {
+                                await ref.read(anilistProvider.notifier).syncMedia(
+                                      anilistMediaId: anilistId,
+                                      status: selectedStatus,
+                                      score: userScore > 0 ? userScore.toDouble() : null,
+                                      progress: episodes,
+                                      startedAt: startedAt,
+                                      completedAt: completedAt,
+                                    );
+                              }
+                            }
+
                             if (!context.mounted) return;
+                            final String syncSuffix = anilistState.isConnected ? ' & sincronizat pe AniList' : '';
+                            final String msg = userScore > 0
+                                ? 'Salvat în Watchlist (Nota $userScore/10)$syncSuffix!'
+                                : 'Salvat în Watchlist$syncSuffix!';
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Salvat în Watchlist!'),
+                              SnackBar(
+                                content: Text(msg),
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );
@@ -1317,12 +1691,13 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   ),
                 ],
               ),
-            );
-          },
-        );
-      },
-    );
-  }
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
   String _formatStatusText(String status) {
     switch (status.toUpperCase()) {
@@ -1356,91 +1731,20 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     }
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(BuildContext context, String status) {
     switch (status) {
       case 'WATCHING':
-        return const Color(0xFF10B981);
+        return context.signalLive;
       case 'COMPLETED':
         return const Color(0xFF60A5FA);
       case 'PLAN_TO_WATCH':
-        return const Color(0xFFF59E0B);
+        return context.scoreGold;
       case 'ON_HOLD':
         return const Color(0xFFFB923C);
       case 'DROPPED':
-        return const Color(0xFFEF4444);
+        return context.error;
       default:
-        return const Color(0xFF64748B);
+        return context.textMuted;
     }
-  }
-}
-
-/// Floating Circle Button in Liquid Glass Style (52px)
-class _DetailFloatingCircleButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-  final double size;
-
-  const _DetailFloatingCircleButton({
-    required this.child,
-    required this.onTap,
-    this.size = 52,
-  });
-
-  @override
-  State<_DetailFloatingCircleButton> createState() => _DetailFloatingCircleButtonState();
-}
-
-class _DetailFloatingCircleButtonState extends State<_DetailFloatingCircleButton> {
-  bool _isPressed = false;
-  static final _glassFilter = ImageFilter.blur(sigmaX: 18, sigmaY: 18);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        HapticFeedback.lightImpact();
-        setState(() => _isPressed = true);
-      },
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 1.08 : 1.0,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutBack,
-        child: ClipOval(
-          child: BackdropFilter(
-            filter: _glassFilter,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
-              width: widget.size,
-              height: widget.size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _isPressed
-                    ? context.bgSurfaceHover
-                    : context.bgSurface.withValues(alpha: context.isDarkMode ? 0.75 : 0.88),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: context.isDarkMode
-                          ? (_isPressed ? 0.35 : 0.20)
-                          : (_isPressed ? 0.10 : 0.05),
-                    ),
-                    blurRadius: _isPressed ? 10 : 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: widget.child,
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

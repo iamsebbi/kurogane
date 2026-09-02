@@ -21,9 +21,6 @@ import '../widgets/floating_circle_button.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
-  static const String _defaultCoverImage =
-      'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=85';
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
@@ -36,19 +33,17 @@ class ProfileScreen extends ConsumerWidget {
     // Date Locale & Cloud Profil (Username, Pronume, Bio)
     final profileData = ref.watch(userProfileProvider);
 
-    // Username-ul oficial ales la înregistrare / onboarding
+    // 1. Numele afișat (Display Name): Numele real din contul Google / Firebase
+    final displayName = (user.displayName != null && user.displayName!.trim().isNotEmpty)
+        ? user.displayName!.trim()
+        : (profileData.username != null && profileData.username!.trim().isNotEmpty)
+            ? profileData.username!.trim()
+            : (user.email?.split('@')[0] ?? 'Membru Kurogane');
+
+    // 2. Handle-ul unic (@handle): Identificatorul permanent din Kurogane API
     final username = (profileData.username != null && profileData.username!.trim().isNotEmpty)
         ? profileData.username!.trim().toLowerCase().replaceAll(' ', '_')
-        : (user.displayName != null && user.displayName!.isNotEmpty)
-            ? user.displayName!.toLowerCase().replaceAll(' ', '_')
-            : (user.email?.split('@')[0] ?? 'membru');
-
-    // Numele afișat (Display Name)
-    final displayName = (profileData.username != null && profileData.username!.trim().isNotEmpty)
-        ? profileData.username!.trim()
-        : user.displayName != null && user.displayName!.isNotEmpty
-            ? user.displayName!
-            : (user.email?.split('@')[0] ?? 'Membru Kurogane');
+        : (user.email?.split('@')[0] ?? 'membru');
 
     // Date Live din Watchlist
     final watchlistAsync = ref.watch(watchlistProvider);
@@ -67,25 +62,58 @@ class ProfileScreen extends ConsumerWidget {
         ? (scoredItems.fold<double>(0.0, (sum, i) => sum + i.score!) / scoredItems.length).toStringAsFixed(1)
         : '—';
 
-    // Genuri favorite calculate dinamic din anime-urile din listă
-    final Map<String, int> genreCounts = {};
+    // Genuri favorite calculate dinamic pe baza algoritmului Taste Score (Punctaj Ponderat)
+    final Map<String, int> genreScores = {};
+    int qualifyingSeriesCount = 0;
+
     for (final item in watchlist) {
-      if (item.mediaItem?.genres != null) {
+      if (item.status == 'DROPPED') continue;
+
+      final score = item.score ?? 0.0;
+      int points = 0;
+
+      if (item.status == 'COMPLETED' || item.status == 'WATCHING') {
+        qualifyingSeriesCount++;
+        if (score >= 8.0) {
+          points = 10;
+        } else if (score >= 6.0) {
+          points = 5;
+        } else if (score <= 0.0) {
+          points = 3; // vizionat fără notă explicită
+        } else {
+          points = 0; // notă < 6.0, nu adăugăm afinitate pozitivă
+        }
+      } else if (item.status == 'PLAN_TO_WATCH') {
+        points = 1;
+      }
+
+      if (points > 0 && item.mediaItem?.genres != null) {
         for (final g in item.mediaItem!.genres) {
-          genreCounts[g] = (genreCounts[g] ?? 0) + 1;
+          final trimmed = g.trim();
+          if (trimmed.isNotEmpty) {
+            genreScores[trimmed] = (genreScores[trimmed] ?? 0) + points;
+          }
         }
       }
     }
-    final sortedGenres = genreCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final List<String> userTags = sortedGenres.isNotEmpty
-        ? sortedGenres.take(4).map((e) => '#${e.key}').toList()
-        : ['#Shonen', '#Fantasy', '#AnimeLover', '#Kurogane'];
 
-    // Imagine de cover dinamică: preia banner-ul primului anime din lista utilizatorului
-    final dynamicCover = watchlist.isNotEmpty && watchlist.first.mediaItem?.bannerImage != null
-        ? watchlist.first.mediaItem!.bannerImage!
-        : _defaultCoverImage;
+    // Prag minim: necesită cel puțin 2 serii relevante (vizionate sau în curs)
+    final List<String> userTags;
+    if (qualifyingSeriesCount >= 2 && genreScores.isNotEmpty) {
+      final sortedGenres = genreScores.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      userTags = sortedGenres.take(4).map((e) => '#${e.key}').toList();
+    } else {
+      userTags = const [];
+    }
+
+    // Imagine de cover dinamică: preia banner-ul primului anime din lista utilizatorului care are banner
+    final String? dynamicCover = watchlist
+        .map((i) => i.mediaItem?.bannerImage)
+        .firstWhere(
+          (b) => b != null && b.trim().isNotEmpty,
+          orElse: () => null,
+        );
 
     return Scaffold(
       backgroundColor: context.bgPrimary,
@@ -150,6 +178,14 @@ class ProfileScreen extends ConsumerWidget {
                       creationDate: user.metadata.creationTime,
                       bio: profileData.bio,
                       tags: userTags,
+                      onAddBio: () => EditProfileScreen.show(
+                        context,
+                        user: user,
+                        currentDisplayName: displayName,
+                        currentHandle: username,
+                        currentPronoun: profileData.pronoun,
+                        currentBio: profileData.bio,
+                      ),
                     ),
 
                     const SizedBox(height: 32),
@@ -385,7 +421,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildCompactSliverHeader(
     BuildContext context,
     WidgetRef ref,
-    String coverImageUrl,
+    String? coverImageUrl,
   ) {
     return SliverAppBar(
       expandedHeight: 145.0,
@@ -435,22 +471,16 @@ class ProfileScreen extends ConsumerWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            CachedNetworkImage(
-              imageUrl: coverImageUrl,
-              fit: BoxFit.cover,
-              alignment: Alignment.topCenter,
-              placeholder: (context, url) => Container(color: context.bgSurface),
-              errorWidget: (_, __, ___) => Container(
-                color: context.bgSurface,
-                child: Center(
-                  child: Icon(
-                    PhosphorIcons.user(PhosphorIconsStyle.bold),
-                    size: 48,
-                    color: context.textMuted,
-                  ),
-                ),
-              ),
-            ),
+            if (coverImageUrl != null && coverImageUrl.trim().isNotEmpty)
+              CachedNetworkImage(
+                imageUrl: coverImageUrl,
+                fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
+                placeholder: (context, url) => _buildNativeLiquidGlassCover(context),
+                errorWidget: (_, __, ___) => _buildNativeLiquidGlassCover(context),
+              )
+            else
+              _buildNativeLiquidGlassCover(context),
 
             // Top subtle shadow for button contrast
             Positioned(
@@ -495,6 +525,69 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Cover nativ Liquid Glass utilizat când nu există banner anime sau imaginea nu se poate încărca
+  Widget _buildNativeLiquidGlassCover(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: context.bgPrimary,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            context.bgAccent.withValues(alpha: 0.65),
+            context.bgSurface,
+            context.bgPrimary,
+          ],
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Ambient glow top-right cu accent primar (aura Liquid Glass)
+          Positioned(
+            top: -45,
+            right: -25,
+            width: 240,
+            height: 200,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    context.accentPrimary.withValues(alpha: 0.16),
+                    context.accentPrimary.withValues(alpha: 0.04),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Brand warmth glow subtil top-left
+          Positioned(
+            top: -25,
+            left: -35,
+            width: 200,
+            height: 160,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    context.brandHighlight.withValues(alpha: 0.10),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -704,8 +797,10 @@ class ProfileScreen extends ConsumerWidget {
     required DateTime? creationDate,
     required String bio,
     required List<String> tags,
+    VoidCallback? onAddBio,
   }) {
     final memberSinceText = _formatMemberSince(creationDate);
+    final cleanBio = bio.trim();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -730,10 +825,10 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
 
-        if (bio.isNotEmpty) ...[
+        if (cleanBio.isNotEmpty) ...[
           const SizedBox(height: 10),
           Text(
-            bio,
+            cleanBio,
             style: TextStyle(
               color: context.textPrimary.withValues(alpha: 0.88),
               fontSize: 13,
@@ -741,16 +836,49 @@ class ProfileScreen extends ConsumerWidget {
               fontWeight: FontWeight.w400,
             ),
           ),
+        ] else if (onAddBio != null) ...[
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onAddBio();
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    PhosphorIcons.pencilSimpleLine(PhosphorIconsStyle.bold),
+                    size: 14,
+                    color: context.textMuted,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Adaugă un bio…',
+                    style: TextStyle(
+                      color: context.textMuted,
+                      fontSize: 12.5,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
 
-        const SizedBox(height: 14),
-
-        // Tag-uri dinamice pe baza activității
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: tags.map((t) => _buildInterestTag(context, t)).toList(),
-        ),
+        // Tag-uri dinamice pe baza activității (afișate doar dacă există suficiente date)
+        if (tags.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tags.map((t) => _buildInterestTag(context, t)).toList(),
+          ),
+        ],
       ],
     );
   }

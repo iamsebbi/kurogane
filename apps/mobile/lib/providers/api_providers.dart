@@ -188,6 +188,8 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
     double? score,
     int progressEpisodes = 0,
     String? notes,
+    String? startedAt,
+    String? completedAt,
   }) async {
     final currentList = state.value;
 
@@ -202,14 +204,20 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
           }
           final newStatus = (total != null && total > 0 && clamped >= total) ? 'COMPLETED' : status;
 
+          final resolvedScore = (score == 0.0) ? null : (score ?? item.score);
+          final resolvedStartedAt = startedAt ?? item.startedAt;
+          final resolvedCompletedAt = completedAt ?? item.completedAt;
+
           return WatchlistItemRecord(
             id: item.id,
             userId: item.userId,
             mediaId: item.mediaId,
             status: newStatus,
-            score: score ?? item.score,
+            score: resolvedScore,
             progressEpisodes: clamped,
             notes: notes ?? item.notes,
+            startedAt: resolvedStartedAt,
+            completedAt: resolvedCompletedAt,
             mediaItem: item.mediaItem,
             createdAt: item.createdAt,
             updatedAt: DateTime.now().toIso8601String(),
@@ -223,12 +231,15 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
 
     // 2. Persist to API and silently reconcile
     try {
+      final resolvedScore = (score == 0.0) ? null : score;
       await _client.upsertWatchlistItem(
         mediaId: mediaId,
         status: status,
-        score: score,
+        score: resolvedScore,
         progressEpisodes: progressEpisodes,
         notes: notes,
+        startedAt: startedAt,
+        completedAt: completedAt,
       );
       await fetchWatchlist(isSilent: true);
     } catch (e) {

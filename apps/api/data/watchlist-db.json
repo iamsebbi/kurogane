@@ -4,53 +4,67 @@
     "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
     "mediaId": "anilist-178789",
     "status": "COMPLETED",
-    "score": 9,
     "progressEpisodes": 14,
-    "createdAt": "2026-09-01T16:06:09.698Z",
-    "updatedAt": "2026-09-01T16:06:13.393Z",
+    "score": 9,
+    "notes": null,
+    "createdAt": "2026-09-01T16:06:10.814356+00:00",
+    "updatedAt": "2026-09-01T16:06:13.393+00:00"
+  },
+  {
+    "id": "witem-1788307374310-g57ev",
+    "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
+    "mediaId": "anilist-16498",
+    "status": "COMPLETED",
+    "score": 8,
+    "progressEpisodes": 25,
+    "startedAt": "2026-09-02",
+    "completedAt": "2026-09-02",
+    "createdAt": "2026-09-02T00:02:54.310Z",
+    "updatedAt": "2026-09-02T00:02:54.310Z",
     "mediaItem": {
-      "id": "anilist-178789",
-      "anilistId": 178789,
+      "id": "anilist-16498",
+      "anilistId": 16498,
       "title": {
-        "romaji": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
-        "english": "Mushoku Tensei: Jobless Reincarnation Season 3",
-        "native": "無職転生Ⅲ ～異世界行ったら本気だす～",
-        "userPreferred": "Mushoku Tensei III: Isekai Ittara Honki Dasu"
+        "romaji": "Shingeki no Kyojin",
+        "english": "Attack on Titan",
+        "native": "進撃の巨人",
+        "userPreferred": "Shingeki no Kyojin"
       },
       "type": "ANIME",
       "format": "TV",
-      "status": "RELEASING",
-      "season": "SUMMER",
-      "episodes": 14,
+      "status": "FINISHED",
+      "season": "SPRING",
+      "episodes": 25,
+      "chapters": null,
+      "volumes": null,
       "genres": [
-        "Adventure",
+        "Action",
         "Drama",
-        "Ecchi",
-        "Fantasy"
+        "Fantasy",
+        "Mystery"
       ],
       "studios": [
-        "Studio Bind",
-        "Hakuhodo DY Music & Pictures",
-        "Toho",
-        "KADOKAWA",
-        "Frontier Works",
-        "BS11",
-        "GREE Entertainment",
-        "EGG FIRM"
+        "WIT STUDIO",
+        "Pony Canyon",
+        "Kodansha",
+        "Production I.G",
+        "Dentsu",
+        "Pony Canyon Enterprise",
+        "Mainichi Broadcasting System"
       ],
-      "description": "The third season of Mushoku Tensei: Isekai Ittara Honki Dasu.",
+      "description": "Several hundred years ago, humans were nearly exterminated by titans. Titans are typically several stories tall, seem to have no intelligence, devour human beings and, worst of all, seem to do it for the pleasure rather than as a food source. A small percentage of humanity survived by walling themselves in a city protected by extremely high walls, even taller than the biggest of titans.\r\nFlash forward to the present and the city has not seen a titan in over 100 years. Teenage boy Eren and his foster sister Mikasa witness something horrific as the city walls are destroyed by a colossal titan that appears out of thin air. As the smaller titans flood the city, the two kids watch in horror as their mother is eaten alive. Eren vows that he will murder every single titan and take revenge for all of mankind.\r\n(Source: MangaHelpers)",
       "coverImage": {
-        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx178789-hNXjKFzUq7mk.jpg",
-        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx178789-hNXjKFzUq7mk.jpg",
-        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx178789-hNXjKFzUq7mk.jpg",
-        "color": "#28bbe4"
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16498-buvcRTBx4NSm.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx16498-buvcRTBx4NSm.jpg",
+        "color": "#f1a143"
       },
-      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/178789-9nHWmoRLlcLu.jpg",
-      "year": 2026,
+      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/16498-8jpFCOcDmneX.jpg",
+      "year": 2013,
       "scores": {
-        "averageScore": 8.4,
-        "reviewCount": 11950,
-        "weightedScore": 8.4
+        "averageScore": 8.5,
+        "reviewCount": 597876,
+        "weightedScore": 8.5
       },
       "source": "ANILIST"
     }

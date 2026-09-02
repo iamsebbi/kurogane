@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +15,7 @@ class UserProfileData {
 
   const UserProfileData({
     this.pronoun = 'el/lui',
-    this.bio = 'Anime & Manga Enthusiast • Membru Kurogane Universe',
+    this.bio = '',
     this.username,
     this.avatarUrl,
     this.bannerUrl,
@@ -77,7 +76,12 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final pronoun = prefs.getString('kurogane_user_pronoun') ?? 'el/lui';
-      final bio = prefs.getString('kurogane_user_bio') ?? 'Anime & Manga Enthusiast • Membru Kurogane Universe';
+      String bio = prefs.getString('kurogane_user_bio') ?? '';
+      if (bio == 'Anime & Manga Enthusiast • Membru Kurogane Universe' ||
+          bio == 'Entuziast Anime & Manga pe Kurogane.') {
+        bio = '';
+        await prefs.setString('kurogane_user_bio', '');
+      }
       final username = prefs.getString('kurogane_user_name');
       final avatarUrl = prefs.getString('kurogane_user_avatar');
       final bannerUrl = prefs.getString('kurogane_user_banner');
@@ -104,7 +108,11 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
       final profileMap = await _apiClient.getProfile();
       if (profileMap != null && profileMap['profile'] != null) {
         final profile = profileMap['profile'] as Map<String, dynamic>;
-        final bio = profile['bio'] as String?;
+        String? bio = profile['bio'] as String?;
+        if (bio == 'Anime & Manga Enthusiast • Membru Kurogane Universe' ||
+            bio == 'Entuziast Anime & Manga pe Kurogane.') {
+          bio = '';
+        }
         final pronouns = profile['pronouns'] as String?;
         final username = profile['username'] as String?;
         final avatarUrl = profile['avatarUrl'] as String?;
@@ -119,8 +127,12 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
         if (username != null) await prefs.setString('kurogane_user_name', username);
         if (avatarUrl != null) await prefs.setString('kurogane_user_avatar', avatarUrl);
         if (bannerUrl != null) await prefs.setString('kurogane_user_banner', bannerUrl);
+
         if (rawChangedAt != null) {
           await prefs.setString('kurogane_user_username_changed_at', rawChangedAt);
+        } else {
+          // Backend-ul este sursa unică de adevăr: dacă pe backend e null, deblocăm și pe mobil
+          await prefs.remove('kurogane_user_username_changed_at');
         }
 
         state = state.copyWith(
@@ -130,7 +142,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
           avatarUrl: avatarUrl ?? state.avatarUrl,
           bannerUrl: bannerUrl ?? state.bannerUrl,
           favoriteGenres: favGenres.isNotEmpty ? favGenres : state.favoriteGenres,
-          usernameLastChangedAt: usernameLastChangedAt ?? state.usernameLastChangedAt,
+          usernameLastChangedAt: usernameLastChangedAt,
+          clearUsernameLastChangedAt: rawChangedAt == null,
         );
       }
     } catch (e) {
@@ -149,49 +162,23 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
         username.trim().isNotEmpty &&
         username.trim().toLowerCase() != (state.username ?? '').trim().toLowerCase();
 
-    DateTime? updatedChangedAt = state.usernameLastChangedAt;
-
-    // 1. Optimistic local update (instant 0ms UI feedback)
+    // 1. Salvare optimistică locală pentru bio / pronume / avatar
     try {
       final prefs = await SharedPreferences.getInstance();
-      if (pronoun != null) {
-        await prefs.setString('kurogane_user_pronoun', pronoun);
-      }
-      if (bio != null) {
-        await prefs.setString('kurogane_user_bio', bio);
-      }
-      if (username != null) {
-        await prefs.setString('kurogane_user_name', username);
-      }
-      if (avatarUrl != null) {
-        await prefs.setString('kurogane_user_avatar', avatarUrl);
-      }
-      if (bannerUrl != null) {
-        await prefs.setString('kurogane_user_banner', bannerUrl);
-      }
-      if (isChangingUsername) {
-        updatedChangedAt = DateTime.now();
-        await prefs.setString('kurogane_user_username_changed_at', updatedChangedAt.toIso8601String());
-      }
+      if (pronoun != null) await prefs.setString('kurogane_user_pronoun', pronoun);
+      if (bio != null) await prefs.setString('kurogane_user_bio', bio);
+      if (avatarUrl != null) await prefs.setString('kurogane_user_avatar', avatarUrl);
+      if (bannerUrl != null) await prefs.setString('kurogane_user_banner', bannerUrl);
     } catch (_) {}
 
     state = state.copyWith(
-      pronoun: pronoun,
-      bio: bio,
-      username: username,
-      avatarUrl: avatarUrl,
-      bannerUrl: bannerUrl,
-      usernameLastChangedAt: updatedChangedAt,
+      pronoun: pronoun ?? state.pronoun,
+      bio: bio ?? state.bio,
+      avatarUrl: avatarUrl ?? state.avatarUrl,
+      bannerUrl: bannerUrl ?? state.bannerUrl,
     );
 
-    // 2. Update Firebase DisplayName for consistency across SDKs
-    if (username != null && username.isNotEmpty) {
-      try {
-        await FirebaseAuth.instance.currentUser?.updateDisplayName(username);
-      } catch (_) {}
-    }
-
-    // 3. Persist to API & Supabase Cloud
+    // 2. Persistență sigură către API Backend & Supabase Cloud
     if (_apiClient != null) {
       try {
         await _apiClient.updateProfile(
@@ -201,8 +188,26 @@ class UserProfileNotifier extends StateNotifier<UserProfileData> {
           avatarUrl: avatarUrl,
           bannerUrl: bannerUrl,
         );
+
+        // Numai DUPĂ ce backend-ul confirmă succesul, salvăm noul username și activăm cooldown-ul
+        final prefs = await SharedPreferences.getInstance();
+        if (username != null) {
+          await prefs.setString('kurogane_user_name', username);
+        }
+        if (isChangingUsername) {
+          final now = DateTime.now();
+          await prefs.setString('kurogane_user_username_changed_at', now.toIso8601String());
+          state = state.copyWith(
+            username: username,
+            usernameLastChangedAt: now,
+          );
+        } else {
+          state = state.copyWith(username: username ?? state.username);
+        }
       } catch (e) {
         debugPrint('[UserProfileNotifier] Error updating backend profile: $e');
+        // Dacă backend-ul a respins sau a dat eroare, reconciliem starea cu backend-ul
+        await syncFromBackend();
         rethrow;
       }
     }

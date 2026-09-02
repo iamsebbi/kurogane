@@ -127,12 +127,28 @@ class AnilistSyncService {
     await prefs.remove(_prefAvatarKey);
   }
 
-  /// Sincronizare notă, progres și status către AniList
+  Map<String, int>? _parseFuzzyDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return null;
+    final parts = dateStr.split('-');
+    if (parts.length == 3) {
+      final y = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      final d = int.tryParse(parts[2]);
+      if (y != null && m != null && d != null) {
+        return {'year': y, 'month': m, 'day': d};
+      }
+    }
+    return null;
+  }
+
+  /// Sincronizare notă, progres, status și date către AniList
   Future<bool> saveMediaListEntry({
     required int anilistMediaId,
     required String status, // CURRENT, PLANNING, COMPLETED, DROPPED, PAUSED
     double? score,
     int? progress,
+    String? startedAt,
+    String? completedAt,
   }) async {
     if (!isAuthenticated || _accessToken == null) return false;
 
@@ -159,9 +175,12 @@ class AnilistSyncService {
         break;
     }
 
+    final fuzzyStartedAt = _parseFuzzyDate(startedAt);
+    final fuzzyCompletedAt = _parseFuzzyDate(completedAt);
+
     const String mutation = '''
-      mutation (\$mediaId: Int, \$status: MediaListStatus, \$score: Float, \$progress: Int) {
-        SaveMediaListEntry (mediaId: \$mediaId, status: \$status, score: \$score, progress: \$progress) {
+      mutation (\$mediaId: Int, \$status: MediaListStatus, \$score: Float, \$progress: Int, \$startedAt: FuzzyDateInput, \$completedAt: FuzzyDateInput) {
+        SaveMediaListEntry (mediaId: \$mediaId, status: \$status, score: \$score, progress: \$progress, startedAt: \$startedAt, completedAt: \$completedAt) {
           id
           status
           score
@@ -180,6 +199,8 @@ class AnilistSyncService {
             'status': anilistStatus,
             if (score != null) 'score': score,
             if (progress != null) 'progress': progress,
+            if (fuzzyStartedAt != null) 'startedAt': fuzzyStartedAt,
+            if (fuzzyCompletedAt != null) 'completedAt': fuzzyCompletedAt,
           },
         },
         options: Options(

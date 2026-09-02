@@ -277,6 +277,8 @@ class ApiClient {
     double? score,
     int progressEpisodes = 0,
     String? notes,
+    String? startedAt,
+    String? completedAt,
   }) async {
     try {
       final response = await _post(
@@ -287,6 +289,8 @@ class ApiClient {
           'score': score,
           'progressEpisodes': progressEpisodes,
           'notes': notes,
+          if (startedAt != null) 'startedAt': startedAt,
+          if (completedAt != null) 'completedAt': completedAt,
         },
       );
       return response != null && response.statusCode == 200;

@@ -687,13 +687,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       const SizedBox(height: 24),
 
                       // 4. Bio / Despre mine
-                      Text(
-                        'Despre Tine (Bio)',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: context.textPrimary,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Despre Tine (Bio)',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: context.textPrimary,
+                            ),
+                          ),
+                          ValueListenableBuilder<TextEditingValue>(
+                            valueListenable: _bioController,
+                            builder: (context, value, _) {
+                              final count = value.text.length;
+                              final isNearLimit = count > 450;
+                              return Text(
+                                '$count / 500',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: count >= 500
+                                      ? context.error
+                                      : (isNearLimit ? context.brandHighlight : context.textMuted),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -707,6 +729,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           controller: _bioController,
                           enabled: !_isSaving,
                           maxLines: 4,
+                          maxLength: 500,
+                          buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
                           style: TextStyle(
                             color: context.textPrimary,
                             fontSize: 16,

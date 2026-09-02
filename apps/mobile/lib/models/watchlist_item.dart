@@ -46,6 +46,8 @@ class WatchlistItemRecord {
   final double? score;
   final int progressEpisodes;
   final String? notes;
+  final String? startedAt;
+  final String? completedAt;
   final MediaItem? mediaItem;
   final String createdAt;
   final String updatedAt;
@@ -60,6 +62,8 @@ class WatchlistItemRecord {
     this.score,
     required this.progressEpisodes,
     this.notes,
+    this.startedAt,
+    this.completedAt,
     this.mediaItem,
     required this.createdAt,
     required this.updatedAt,
@@ -74,6 +78,8 @@ class WatchlistItemRecord {
       score: (json['score'] as num?)?.toDouble(),
       progressEpisodes: (json['progressEpisodes'] as num?)?.toInt() ?? 0,
       notes: json['notes'] as String?,
+      startedAt: json['startedAt'] as String?,
+      completedAt: json['completedAt'] as String?,
       mediaItem: json['mediaItem'] != null ? MediaItem.fromJson(json['mediaItem'] as Map<String, dynamic>) : null,
       createdAt: json['createdAt'] as String? ?? '',
       updatedAt: json['updatedAt'] as String? ?? '',

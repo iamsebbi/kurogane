@@ -3,6 +3,7 @@ import crypto from 'crypto';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || process.env.NEXT_PUBLIC_RESEND_API_KEY || '';
 
 const MAX_OTP_ATTEMPTS = 5;
+const MAX_HOURLY_REQUESTS = 5;
 const OTP_COOLDOWN_MS = 60 * 1000; // 1 minute between resends
 const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
 const OTP_SALT =

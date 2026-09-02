@@ -162,6 +162,8 @@ export interface WatchlistItemRecord {
   score?: number;
   progressEpisodes: number;
   notes?: string;
+  startedAt?: string;
+  completedAt?: string;
   mediaItem?: MediaItem;
   createdAt: string;
   updatedAt: string;

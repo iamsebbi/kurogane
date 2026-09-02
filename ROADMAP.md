@@ -39,6 +39,25 @@ This document tracks planned features, architectural enhancements, and upcoming 
 
 ---
 
+## 6. Mobile Profile Screen Enhancements & Zero Hardcoding (`apps/mobile`)
+
+- **Audit & De-hardcoding Plan:** Documentat în detaliu în [PROFILE_SCREEN_AUDIT.md](file:///d:/kurogane/PROFILE_SCREEN_AUDIT.md).
+- **Dynamic Verification Badge:** Condiționare `sealCheck` pe baza `userProfile.isVerified` din Supabase / API.
+- **Dynamic Profile Banner & Fallback:** Înlocuire URL Unsplash static cu gradient tematic nativ și suport pentru custom banner.
+- **Configurabilitate Client OAuth:** Externalizare `client_id` AniList în constante/configurații dinamice.
+- **Activitate Recentă Extinsă:** Paginare și acces către lista completă din profil.
+
+---
+
+## 7. Mobile Series Detail Screen Enhancements (`apps/mobile`)
+
+- **Audit & Component Refactor Plan:** Documentat în detaliu în [SERIES_DETAIL_SCREEN_AUDIT.md](file:///d:/kurogane/SERIES_DETAIL_SCREEN_AUDIT.md).
+- **Unificare Butoane Plutitoare:** Înlocuire clasă duplicată privată cu widget-ul global `FloatingCircleButton` (52px, blur 18).
+- **Calibrare Scor Inițial:** Înlocuire scor static 8.0 cu media reală a seriei în modalul de notare.
+- **Centralizare Culori & Tokens:** Aliniere culori hex de status și stea la `AppColors`.
+
+---
+
 ## Data Sources & Information Capabilities
 
 ### 1. Offline Database (`anime-offline-database-minified.json` — 40,000+ Media Entries)

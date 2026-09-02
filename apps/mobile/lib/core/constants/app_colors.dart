@@ -78,6 +78,10 @@ extension ThemeColors on BuildContext {
   Color get onError => isDarkMode ? AppColors.onError : AppColors.lightOnError;
   Color get brandHighlight => isDarkMode ? AppColors.brandHighlight : AppColors.lightBrandHighlight;
 
+  // Accents
+  Color get signalLive => isDarkMode ? AppColors.signalLive : AppColors.lightSignalLive;
+  Color get scoreGold => isDarkMode ? AppColors.scoreGold : AppColors.lightScoreGold;
+
   // Drawer
   Color get drawerBackground => isDarkMode ? AppColors.drawerBackground : AppColors.lightDrawerBackground;
   Color get drawerTextAndIcons => isDarkMode ? AppColors.drawerTextAndIcons : AppColors.lightDrawerTextAndIcons;

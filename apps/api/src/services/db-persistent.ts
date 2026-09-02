@@ -378,7 +378,7 @@ class PersistentDatabaseService {
             username,
             email,
             avatarUrl: decodedFb.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
-            bio: 'Entuziast Anime & Manga pe Kurogane.',
+            bio: '',
             pronouns: 'he/him',
             bannerUrl: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
             createdAt: new Date().toISOString(),
@@ -420,7 +420,7 @@ class PersistentDatabaseService {
             username,
             email,
             avatarUrl: parsed.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
-            bio: 'Entuziast Anime & Manga pe Kurogane.',
+            bio: '',
             pronouns: 'he/him',
             bannerUrl: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
             createdAt: new Date().toISOString(),
@@ -500,7 +500,7 @@ class PersistentDatabaseService {
       email: data.email ? normalizeIdentifier(data.email) : existing?.email || '',
       username: newUsername,
       avatarUrl: data.avatarUrl || existing?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userId)}`,
-      bio: data.bio !== undefined ? data.bio : existing?.bio || 'Entuziast Anime & Manga pe Kurogane.',
+      bio: data.bio !== undefined ? data.bio : existing?.bio || '',
       pronouns: data.pronouns !== undefined ? data.pronouns : existing?.pronouns || 'he/him',
       bannerUrl: data.bannerUrl || existing?.bannerUrl || 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
       favoriteGenres: data.favoriteGenres || existing?.favoriteGenres || [],
@@ -567,7 +567,9 @@ class PersistentDatabaseService {
     status: WatchlistStatus,
     score?: number,
     progressEpisodes: number = 0,
-    notes?: string
+    notes?: string,
+    startedAt?: string | null,
+    completedAt?: string | null
   ): Promise<WatchlistItemRecord> {
     const requestingUser = this.users.get(userId);
     const userEmail = requestingUser?.email?.toLowerCase().trim();
@@ -619,6 +621,10 @@ class PersistentDatabaseService {
         ? 'COMPLETED'
         : normalizedStatus;
 
+    const existingRecord = existingId && this.watchlist.has(existingId) ? this.watchlist.get(existingId) : undefined;
+    const resolvedStartedAt = startedAt !== undefined ? (startedAt || undefined) : existingRecord?.startedAt;
+    const resolvedCompletedAt = completedAt !== undefined ? (completedAt || undefined) : existingRecord?.completedAt;
+
     const record: WatchlistItemRecord = {
       id,
       userId,
@@ -627,7 +633,9 @@ class PersistentDatabaseService {
       score,
       progressEpisodes: clampedEpisodes,
       notes,
-      createdAt: existingId && this.watchlist.has(existingId) ? this.watchlist.get(existingId)!.createdAt : now,
+      startedAt: resolvedStartedAt,
+      completedAt: resolvedCompletedAt,
+      createdAt: existingRecord ? existingRecord.createdAt : now,
       updatedAt: now,
       mediaItem,
     };

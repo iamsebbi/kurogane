@@ -8,6 +8,9 @@ const router = Router();
 router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const user = req.user!;
+    if (!user.id) {
+      return res.status(401).json({ error: 'Sesiune utilizator invalidă.' });
+    }
     const items = await persistentDb.getUserWatchlist(user.id);
     res.json({ items });
   } catch (error: any) {
@@ -20,7 +23,10 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const user = req.user!;
-    const { mediaId, status, score, progressEpisodes, notes } = req.body;
+    if (!user.id) {
+      return res.status(401).json({ error: 'Sesiune utilizator invalidă.' });
+    }
+    const { mediaId, status, score, progressEpisodes, notes, startedAt, completedAt } = req.body;
 
     if (!mediaId || !status) {
       return res.status(400).json({ error: 'mediaId și status sunt obligatorii.' });
@@ -44,13 +50,19 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       }
     }
 
+    // Parse startedAt & completedAt safely
+    const parsedStartedAt = typeof startedAt === 'string' ? (startedAt.trim() || undefined) : (startedAt === null ? null : undefined);
+    const parsedCompletedAt = typeof completedAt === 'string' ? (completedAt.trim() || undefined) : (completedAt === null ? null : undefined);
+
     const item = await persistentDb.upsertWatchlistItem(
       user.id,
       String(mediaId).trim(),
       normalizeWatchlistStatus(status),
       parsedScore,
       parsedProgress,
-      typeof notes === 'string' ? notes.trim() : undefined
+      typeof notes === 'string' ? notes.trim() : undefined,
+      parsedStartedAt,
+      parsedCompletedAt
     );
 
     res.json({ success: true, item });
@@ -64,6 +76,9 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 router.delete('/:mediaId', requireAuth, (req: Request, res: Response) => {
   try {
     const user = req.user!;
+    if (!user.id) {
+      return res.status(401).json({ error: 'Sesiune utilizator invalidă.' });
+    }
     const { mediaId } = req.params;
     const removed = persistentDb.removeWatchlistItem(user.id, String(mediaId).trim());
     res.json({ success: removed });

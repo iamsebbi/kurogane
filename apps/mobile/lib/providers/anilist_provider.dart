@@ -86,6 +86,8 @@ class AnilistNotifier extends StateNotifier<AnilistState> {
     required String status,
     double? score,
     int? progress,
+    String? startedAt,
+    String? completedAt,
   }) async {
     if (!state.isConnected) return false;
     return await _service.saveMediaListEntry(
@@ -93,6 +95,8 @@ class AnilistNotifier extends StateNotifier<AnilistState> {
       status: status,
       score: score,
       progress: progress,
+      startedAt: startedAt,
+      completedAt: completedAt,
     );
   }
 
