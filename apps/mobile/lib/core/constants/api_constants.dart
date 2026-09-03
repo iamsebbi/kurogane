@@ -12,33 +12,27 @@ class ApiConstants {
     if (_configuredUrl.isNotEmpty) {
       return _configuredUrl;
     }
-    if (kDebugMode) {
-      if (kIsWeb) return 'http://localhost:4000';
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        return 'http://127.0.0.1:4000';
-      }
-      return 'http://localhost:4000';
+    if (kIsWeb) return 'http://localhost:4000';
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://127.0.0.1:4000';
     }
-    return cloudBaseUrl;
+    return 'http://localhost:4000';
   }
 
   static List<String> get candidateBaseUrls {
     if (_configuredUrl.isNotEmpty) {
       return [_configuredUrl];
     }
-    if (kDebugMode) {
-      if (kIsWeb) return ['http://localhost:4000', cloudBaseUrl];
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        return [
-          'http://127.0.0.1:4000',    // Physical phone (with adb reverse) or local loopback
-          'http://10.0.2.2:4000',      // Android Studio Emulator standard host alias
-          'http://192.168.1.224:4000', // Physical phone over Wi-Fi (LAN IP)
-          cloudBaseUrl,                // Cloud fallback
-        ];
-      }
-      return ['http://localhost:4000', 'http://192.168.1.224:4000', cloudBaseUrl];
+    if (kIsWeb) return ['http://localhost:4000', cloudBaseUrl];
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return [
+        'http://127.0.0.1:4000',     // Physical phone (with adb reverse) or local loopback
+        'http://192.168.1.224:4000',  // Physical phone over Wi-Fi (LAN IP)
+        'http://10.0.2.2:4000',       // Android Studio Emulator standard host alias
+        cloudBaseUrl,                 // Cloud fallback
+      ];
     }
-    return [cloudBaseUrl];
+    return ['http://localhost:4000', 'http://192.168.1.224:4000', cloudBaseUrl];
   }
 
   // Endpoints
