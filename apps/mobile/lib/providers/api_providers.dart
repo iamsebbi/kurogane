@@ -25,19 +25,19 @@ final newsListProvider = FutureProvider<List<NewsArticle>>((ref) async {
 });
 
 // Media Detail Family Provider
-final mediaDetailProvider = FutureProvider.family<MediaItem?, String>((ref, id) async {
+final mediaDetailProvider = FutureProvider.autoDispose.family<MediaItem?, String>((ref, id) async {
   final client = ref.watch(apiClientProvider);
   return await client.getMediaById(id);
 });
 
 // Watch Order Family Provider
-final watchOrderProvider = FutureProvider.family<WatchOrderGuide?, String>((ref, id) async {
+final watchOrderProvider = FutureProvider.autoDispose.family<WatchOrderGuide?, String>((ref, id) async {
   final client = ref.watch(apiClientProvider);
   return await client.getWatchOrder(id);
 });
 
 // Similar Media Family Provider
-final similarMediaProvider = FutureProvider.family<List<MediaItem>, String>((ref, id) async {
+final similarMediaProvider = FutureProvider.autoDispose.family<List<MediaItem>, String>((ref, id) async {
   final client = ref.watch(apiClientProvider);
   return await client.getSimilarMedia(id);
 });
@@ -168,14 +168,38 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
     fetchWatchlist();
   }
 
-  Future<void> fetchWatchlist({bool isSilent = false}) async {
+  Future<void> fetchWatchlist({bool isSilent = false, bool preserveCurrentOrder = false}) async {
+    if (!mounted) return;
     if (!isSilent) {
       state = const AsyncValue.loading();
     }
     try {
       final items = await _client.getWatchlist();
+      if (!mounted) return;
+
+      // Păstrăm ordinea statică a listei pe ecran dacă este o reconciliere silențioasă sau dacă se solicită explicit
+      if ((preserveCurrentOrder || isSilent) && state.value != null && state.value!.isNotEmpty) {
+        final currentList = state.value!;
+        final orderMap = <String, int>{};
+        for (int i = 0; i < currentList.length; i++) {
+          orderMap[currentList[i].mediaId] = i;
+        }
+
+        items.sort((a, b) {
+          final indexA = orderMap[a.mediaId];
+          final indexB = orderMap[b.mediaId];
+          if (indexA != null && indexB != null) {
+            return indexA.compareTo(indexB);
+          }
+          if (indexA != null) return -1;
+          if (indexB != null) return 1;
+          return 0;
+        });
+      }
+
       state = AsyncValue.data(items);
     } catch (e, st) {
+      if (!mounted) return;
       if (state.value == null) {
         state = AsyncValue.error(e, st);
       }
@@ -229,7 +253,7 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
       state = AsyncValue.data(updatedList);
     }
 
-    // 2. Persist to API and silently reconcile
+    // 2. Persist to API and silently reconcile păstrând poziția statică a seriei
     try {
       final resolvedScore = (score == 0.0) ? null : score;
       await _client.upsertWatchlistItem(
@@ -241,10 +265,10 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
         startedAt: startedAt,
         completedAt: completedAt,
       );
-      await fetchWatchlist(isSilent: true);
+      await fetchWatchlist(isSilent: true, preserveCurrentOrder: true);
     } catch (e) {
-      // If error occurs, reload live state
-      await fetchWatchlist(isSilent: true);
+      // If error occurs, reload live state păstrând ordinea
+      await fetchWatchlist(isSilent: true, preserveCurrentOrder: true);
     }
   }
 
@@ -272,9 +296,9 @@ class WatchlistNotifier extends StateNotifier<AsyncValue<List<WatchlistItemRecor
     }
     try {
       await _client.deleteWatchlistItem(mediaId);
-      await fetchWatchlist(isSilent: true);
+      await fetchWatchlist(isSilent: true, preserveCurrentOrder: true);
     } catch (e) {
-      await fetchWatchlist(isSilent: true);
+      await fetchWatchlist(isSilent: true, preserveCurrentOrder: true);
     }
   }
 }
@@ -284,3 +308,7 @@ final watchlistProvider = StateNotifierProvider<WatchlistNotifier, AsyncValue<Li
   ref.watch(authStateProvider);
   return WatchlistNotifier(client);
 });
+
+/// Provider pentru numărul de notificări necitite (0 ascunde bulina roșie conform auditului)
+final unreadNotificationsCountProvider = StateProvider<int>((ref) => 0);
+

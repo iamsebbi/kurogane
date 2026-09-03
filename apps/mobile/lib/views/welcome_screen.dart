@@ -103,7 +103,7 @@ class WelcomeScreen extends StatelessWidget {
 
                     // Title
                     const Text(
-                      'Descoperă Universul\nKurogane',
+                      'Discover the Universe of\nKurogane',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Zalando Sans Expanded',
@@ -117,7 +117,7 @@ class WelcomeScreen extends StatelessWidget {
 
                     // Tagline
                     const Text(
-                      'Platforma ta dedicată pentru anime, manga și urmărirea episoadelor preferate în timp real.',
+                      'Your dedicated platform for anime, manga, and real-time episode tracking.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.textSecondary,
@@ -143,7 +143,7 @@ class WelcomeScreen extends StatelessWidget {
                           Container(width: 1, height: 28, color: AppColors.borderSubtle),
                           _buildMiniFeature(PhosphorIcons.shieldCheck(PhosphorIconsStyle.bold), 'Anti-Bombing'),
                           Container(width: 1, height: 28, color: AppColors.borderSubtle),
-                          _buildMiniFeature(PhosphorIcons.devices(PhosphorIconsStyle.bold), 'Sincronizare'),
+                          _buildMiniFeature(PhosphorIcons.devices(PhosphorIconsStyle.bold), 'Sync'),
                         ],
                       ),
                     ),
@@ -179,11 +179,11 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
 
-                    // Secondary "Continuă ca Oaspete" Button
+                    // Secondary "Continue as Guest" Button
                     TextButton(
                       onPressed: () => _completeWelcome(context, goToLogin: false),
                       child: const Text(
-                        'Continuă ca Oaspete',
+                        'Continue as Guest',
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13.5,

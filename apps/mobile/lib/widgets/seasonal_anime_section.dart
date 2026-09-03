@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../models/media_item.dart';
 import 'seasonal_anime_card.dart';
 
@@ -32,9 +33,9 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
     super.dispose();
   }
 
-  /// Calculează dinamic titlul și icon-ul sezonului curent în limba română (fără "Anime •")
+  /// Calculates dynamic season name and icon in English
   Map<String, dynamic> _getDynamicSeasonInfo(MediaItem? sampleItem) {
-    String seasonName = 'Vară';
+    String seasonName = AppStrings.seasonSummer;
     IconData seasonIcon = PhosphorIcons.sun(PhosphorIconsStyle.bold);
     int year = DateTime.now().year;
 
@@ -44,37 +45,37 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
         year = sampleItem.year!;
       }
       if (s.contains('WINTER') || s.contains('IARN')) {
-        seasonName = 'Iarnă';
+        seasonName = AppStrings.seasonWinter;
         seasonIcon = PhosphorIcons.snowflake(PhosphorIconsStyle.bold);
       } else if (s.contains('SPRING') || s.contains('PRIM')) {
-        seasonName = 'Primăvară';
+        seasonName = AppStrings.seasonSpring;
         seasonIcon = PhosphorIcons.flower(PhosphorIconsStyle.bold);
       } else if (s.contains('SUMMER') || s.contains('VAR')) {
-        seasonName = 'Vară';
+        seasonName = AppStrings.seasonSummer;
         seasonIcon = PhosphorIcons.sun(PhosphorIconsStyle.bold);
       } else if (s.contains('FALL') || s.contains('AUTUMN') || s.contains('TOAM')) {
-        seasonName = 'Toamnă';
+        seasonName = AppStrings.seasonFall;
         seasonIcon = PhosphorIcons.leaf(PhosphorIconsStyle.bold);
       }
     } else {
       final month = DateTime.now().month;
       if (month == 12 || month == 1 || month == 2) {
-        seasonName = 'Iarnă';
+        seasonName = AppStrings.seasonWinter;
         seasonIcon = PhosphorIcons.snowflake(PhosphorIconsStyle.bold);
       } else if (month >= 3 && month <= 5) {
-        seasonName = 'Primăvară';
+        seasonName = AppStrings.seasonSpring;
         seasonIcon = PhosphorIcons.flower(PhosphorIconsStyle.bold);
       } else if (month >= 6 && month <= 8) {
-        seasonName = 'Vară';
+        seasonName = AppStrings.seasonSummer;
         seasonIcon = PhosphorIcons.sun(PhosphorIconsStyle.bold);
       } else {
-        seasonName = 'Toamnă';
+        seasonName = AppStrings.seasonFall;
         seasonIcon = PhosphorIcons.leaf(PhosphorIconsStyle.bold);
       }
     }
 
     return {
-      'title': 'Sezonul de $seasonName $year',
+      'title': AppStrings.seasonTitle(seasonName, year),
       'icon': seasonIcon,
     };
   }

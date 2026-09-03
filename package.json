@@ -12,6 +12,9 @@
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:api": "npm run dev --workspace=apps/api",
     "dev:mobile": "cd apps/mobile && flutter run",
+    "dev:mobile:phone": "cd apps/mobile && flutter run -d 46041FDAP000FT",
+    "dev:mobile:emulator": "cd apps/mobile && flutter run -d emulator-5554",
+    "mobile:reverse": "powershell -ExecutionPolicy Bypass -File scripts/reverse-ports.ps1",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"

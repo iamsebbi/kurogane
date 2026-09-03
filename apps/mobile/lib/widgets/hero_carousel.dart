@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../models/media_item.dart';
 import '../views/media_detail_screen.dart';
 
@@ -76,15 +77,15 @@ class _HeroCarouselState extends State<HeroCarousel> {
     final year = now.year;
     String season;
     if (month >= 3 && month <= 5) {
-      season = 'Primăvară';
+      season = AppStrings.seasonSpring;
     } else if (month >= 6 && month <= 8) {
-      season = 'Vară';
+      season = AppStrings.seasonSummer;
     } else if (month >= 9 && month <= 11) {
-      season = 'Toamnă';
+      season = AppStrings.seasonFall;
     } else {
-      season = 'Iarnă';
+      season = AppStrings.seasonWinter;
     }
-    return 'Trending • $season $year';
+    return AppStrings.trendingSeasonTitle(season, year);
   }
 
   bool _isNewSeason(MediaItem item) {

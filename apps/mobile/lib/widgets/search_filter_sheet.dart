@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../providers/api_providers.dart';
 
 class SearchFilterSheet extends ConsumerStatefulWidget {
@@ -76,7 +77,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
     _MicroTagItem(tag: 'Anti-Hero', label: 'Anti-Hero', icon: PhosphorIcons.sword(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Xianxia', label: 'Xianxia', icon: PhosphorIcons.yinYang(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Cyberpunk', label: 'Cyberpunk', icon: PhosphorIcons.robot(PhosphorIconsStyle.bold)),
-    _MicroTagItem(tag: 'Post-Apocalyptic', label: 'Post-Apocaliptic', icon: PhosphorIcons.skull(PhosphorIconsStyle.bold)),
+    _MicroTagItem(tag: 'Post-Apocalyptic', label: 'Post-Apocalyptic', icon: PhosphorIcons.skull(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Time Travel', label: 'Time Travel', icon: PhosphorIcons.hourglass(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'High Fantasy', label: 'High Fantasy', icon: PhosphorIcons.castleTurret(PhosphorIconsStyle.bold)),
     _MicroTagItem(tag: 'Revenge', label: 'Revenge', icon: PhosphorIcons.fire(PhosphorIconsStyle.bold)),
@@ -188,7 +189,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                 Row(
                   children: [
                     Text(
-                      'Filtre Avansate',
+                      AppStrings.exploreFilters,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -213,8 +214,8 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- SECTION 1: Tip Media (Segmented Control - Full Rounded Stadium) ---
-                  _buildSectionTitle(context, 'Tip Media'),
+                  // --- SECTION 1: Media Type (Segmented Control - Full Rounded Stadium) ---
+                  _buildSectionTitle(context, AppStrings.filterMediaType),
                   const SizedBox(height: 8),
                   _buildSegmentedControl(
                     context: context,
@@ -226,7 +227,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                   _buildSectionSpacing(),
 
                   // --- SECTION 2: Format (Segmented Control - Full Rounded Stadium) ---
-                  _buildSectionTitle(context, 'Format'),
+                  _buildSectionTitle(context, AppStrings.filterFormat),
                   const SizedBox(height: 8),
                   _buildSegmentedControl(
                     context: context,
@@ -237,8 +238,8 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
 
                   _buildSectionSpacing(),
 
-                  // --- SECTION 3: Genuri (Full Rounded Multi-Select Pills, Solid Flat Colors) ---
-                  _buildSectionTitle(context, 'Genuri'),
+                  // --- SECTION 3: Genres (Full Rounded Multi-Select Pills, Solid Flat Colors) ---
+                  _buildSectionTitle(context, AppStrings.filterGenres),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -266,11 +267,11 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
 
                   _buildSectionSpacing(),
 
-                  // --- SECTION 4: Micro-Tag-uri & Trope-uri (Full Rounded, Flat High Contrast) ---
+                  // --- SECTION 4: Tags / Themes (Full Rounded, Flat High Contrast) ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildSectionTitle(context, 'Micro-Tag-uri & Trope-uri'),
+                      _buildSectionTitle(context, AppStrings.filterTagsThemes),
                       if (_selectedMicroTags.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
@@ -279,7 +280,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
-                            '${_selectedMicroTags.length} selectate',
+                            '${_selectedMicroTags.length} selected',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -340,8 +341,8 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                           const SizedBox(width: 6),
                           Text(
                             _showAllMicroTags
-                                ? 'Arată mai puține tag-uri'
-                                : '+ Vezi toate tag-urile (${_allMicroTags.length - 10} în plus)',
+                                ? AppStrings.filterShowFewerTags
+                                : AppStrings.filterSeeAllTags(_allMicroTags.length - 10),
                             style: TextStyle(
                               color: context.isDarkMode ? context.accentPrimary : AppColors.brandHighlight,
                               fontSize: 13,
@@ -360,7 +361,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
             ),
           ),
 
-          // 3. Sticky Bottom Footer: Reset Circle Button (Left) + Stadium "Aplică Filtrele" (Right)
+          // 3. Sticky Bottom Footer: Reset Circle Button (Left) + Stadium "Apply Filters" (Right)
           Container(
             padding: EdgeInsets.fromLTRB(20, 12, 20, (bottomInset > 0 ? bottomInset : bottomPadding) + 12),
             color: context.bgSurface,
@@ -387,7 +388,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                 ),
                 const SizedBox(width: 12),
 
-                // Expanded "Aplică Filtrele" Button
+                // Expanded "Apply Filters" Button
                 Expanded(
                   child: SizedBox(
                     height: 50,
@@ -400,7 +401,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
                         shadowColor: Colors.transparent,
                       ),
                       child: Text(
-                        'Aplică Filtrele',
+                        AppStrings.filterApply,
                         style: TextStyle(
                           color: context.onPrimary,
                           fontWeight: FontWeight.w800,

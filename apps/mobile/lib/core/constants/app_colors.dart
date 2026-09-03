@@ -31,6 +31,13 @@ class AppColors {
   static const Color badgeViolet = Color(0xFFF26A4B);
   static const Color highlightEmber = Color(0xFFF26A4B);
 
+  // Watchlist Semantic Statuses (Dark Mode)
+  static const Color statusWatching = Color(0xFF4ADE80);
+  static const Color statusCompleted = Color(0xFF60A5FA);
+  static const Color statusPlanToWatch = Color(0xFFA78BFA);
+  static const Color statusOnHold = Color(0xFFFB923C);
+  static const Color statusDropped = Color(0xFFEF4444);
+
   // --- LIGHT THEME PALETTE ---
   static const Color lightBgPrimary = Color(0xFFE9E4D8); // surface
   static const Color lightBgSurface = Color(0xFFF4EFE4); // surfaceContainer
@@ -59,6 +66,13 @@ class AppColors {
   static const Color lightScoreGold = Color(0xFFD97706);
   static const Color lightBadgeViolet = Color(0xFFF26A4B);
   static const Color lightHighlightEmber = Color(0xFFF26A4B);
+
+  // Watchlist Semantic Statuses (Light Mode)
+  static const Color lightStatusWatching = Color(0xFF16A34A);
+  static const Color lightStatusCompleted = Color(0xFF2563EB);
+  static const Color lightStatusPlanToWatch = Color(0xFF7C3AED);
+  static const Color lightStatusOnHold = Color(0xFFEA580C);
+  static const Color lightStatusDropped = Color(0xFFDC2626);
 }
 
 extension ThemeColors on BuildContext {
@@ -81,6 +95,13 @@ extension ThemeColors on BuildContext {
   // Accents
   Color get signalLive => isDarkMode ? AppColors.signalLive : AppColors.lightSignalLive;
   Color get scoreGold => isDarkMode ? AppColors.scoreGold : AppColors.lightScoreGold;
+
+  // Watchlist Statuses
+  Color get statusWatching => isDarkMode ? AppColors.statusWatching : AppColors.lightStatusWatching;
+  Color get statusCompleted => isDarkMode ? AppColors.statusCompleted : AppColors.lightStatusCompleted;
+  Color get statusPlanToWatch => isDarkMode ? AppColors.statusPlanToWatch : AppColors.lightStatusPlanToWatch;
+  Color get statusOnHold => isDarkMode ? AppColors.statusOnHold : AppColors.lightStatusOnHold;
+  Color get statusDropped => isDarkMode ? AppColors.statusDropped : AppColors.lightStatusDropped;
 
   // Drawer
   Color get drawerBackground => isDarkMode ? AppColors.drawerBackground : AppColors.lightDrawerBackground;

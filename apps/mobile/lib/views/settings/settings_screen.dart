@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_strings.dart';
 import '../../core/theme/theme_provider.dart';
 import '../../providers/api_providers.dart';
 import '../../providers/auth_provider.dart';
@@ -47,7 +48,7 @@ class SettingsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   children: [
                     // --- 1. AFIȘARE & CONȚINUT ---
-                    _buildSettingsGroupHeader(context, 'AFIȘARE & CONȚINUT'),
+                    _buildSettingsGroupHeader(context, 'DISPLAY & CONTENT'),
                     _buildGroupCard(
                       context: context,
                       children: [
@@ -57,8 +58,8 @@ class SettingsScreen extends ConsumerWidget {
                               ? PhosphorIcons.moon(PhosphorIconsStyle.bold)
                               : PhosphorIcons.sun(PhosphorIconsStyle.bold),
                           title: isDarkMode
-                              ? 'Temă Întunecată (OLED Dark)'
-                              : 'Temă Luminoasă (Light Mode)',
+                              ? 'Dark Mode (OLED Dark)'
+                              : 'Light Mode',
                           hasSwitch: true,
                           switchValue: isDarkMode,
                           onSwitchChanged: (val) {
@@ -70,19 +71,19 @@ class SettingsScreen extends ConsumerWidget {
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.translate(PhosphorIconsStyle.bold),
-                          title: 'Limbă Aplicație',
-                          subtitle: 'Română (RO)',
-                          badgeLabel: 'RO',
+                          title: 'App Language',
+                          subtitle: 'English (EN)',
+                          badgeLabel: 'EN',
                           onTap: () {
-                            _showDevelopmentNotice(context, 'Suportul multi-limbă (Română / English) va fi disponibil în următorul update.');
+                            _showDevelopmentNotice(context, 'Multi-language support will be available in an upcoming update.');
                           },
                         ),
                         _buildSettingsDivider(context),
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.eyeSlash(PhosphorIconsStyle.bold),
-                          title: 'Filtru Conținut Adult / Ecchi (+18)',
-                          subtitle: 'Ascunde automat seriile NSFW/Ecchi din recomandări',
+                          title: 'Adult / Ecchi Content Filter (+18)',
+                          subtitle: 'Automatically hide NSFW/Ecchi series from recommendations',
                           hasSwitch: true,
                           switchValue: settings.adultContentFilter,
                           onSwitchChanged: (val) {
@@ -95,7 +96,7 @@ class SettingsScreen extends ConsumerWidget {
                           context: context,
                           icon: PhosphorIcons.maskHappy(PhosphorIconsStyle.bold),
                           title: 'Spoiler Blur',
-                          subtitle: 'Ascunde imagini și sinopsis pentru episoade nevăzute',
+                          subtitle: 'Hide thumbnails and synopses for unwatched episodes',
                           hasSwitch: true,
                           switchValue: settings.spoilerBlur,
                           onSwitchChanged: (val) {
@@ -107,8 +108,8 @@ class SettingsScreen extends ConsumerWidget {
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.bold),
-                          title: 'Anti-Review Bombing (Algoritm Activ)',
-                          subtitle: 'Filtrează scorurile extreme generate de boți',
+                          title: 'Anti-Review Bombing (Active Algorithm)',
+                          subtitle: 'Filters out anomalous review spikes and bot scores',
                           hasSwitch: true,
                           switchValue: settings.antiReviewBombing,
                           onSwitchChanged: (val) {
@@ -122,15 +123,15 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
 
                     // --- 2. NOTIFICĂRI ---
-                    _buildSettingsGroupHeader(context, 'NOTIFICĂRI'),
+                    _buildSettingsGroupHeader(context, 'NOTIFICATIONS'),
                     _buildGroupCard(
                       context: context,
                       children: [
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.bellRinging(PhosphorIconsStyle.bold),
-                          title: 'Episoade Noi din Watchlist',
-                          subtitle: 'Notificări când apar episoade din seriile urmărite',
+                          title: 'New Episodes from Watchlist',
+                          subtitle: 'Notifications when new episodes air for tracked series',
                           hasSwitch: true,
                           switchValue: settings.notifyNewEpisodes,
                           onSwitchChanged: (val) {
@@ -142,8 +143,8 @@ class SettingsScreen extends ConsumerWidget {
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.sparkle(PhosphorIconsStyle.bold),
-                          title: 'Anunțuri Sezon Nou & Premiere',
-                          subtitle: 'Alertă când un anime din listă primește sezon nou',
+                          title: 'New Season Announcements & Premieres',
+                          subtitle: 'Alert when an anime in your list announces a new season',
                           hasSwitch: true,
                           switchValue: settings.notifyNewSeasons,
                           onSwitchChanged: (val) {
@@ -155,7 +156,7 @@ class SettingsScreen extends ConsumerWidget {
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.newspaper(PhosphorIconsStyle.bold),
-                          title: 'Update-uri Aplicație & Changelog',
+                          title: 'App Updates & Changelog',
                           hasSwitch: true,
                           switchValue: settings.notifyAppUpdates,
                           onSwitchChanged: (val) {
@@ -169,17 +170,17 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
 
                     // --- 3. SINCRONIZARE & DATE ---
-                    _buildSettingsGroupHeader(context, 'SINCRONIZARE & DATE'),
+                    _buildSettingsGroupHeader(context, 'SYNC & DATA'),
                     _buildGroupCard(
                       context: context,
                       children: [
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold),
-                          title: 'Frecvență Sincronizare AniList',
+                          title: 'AniList Sync Frequency',
                           subtitle: settings.syncFrequency == 'auto'
-                              ? 'Automat la pornirea aplicației'
-                              : 'Manual prin buton',
+                              ? 'Automatically on app start'
+                              : 'Manual via button',
                           badgeLabel: settings.syncFrequency.toUpperCase(),
                           onTap: () {
                             HapticFeedback.lightImpact();
@@ -191,8 +192,8 @@ class SettingsScreen extends ConsumerWidget {
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.wifiHigh(PhosphorIconsStyle.bold),
-                          title: 'Sincronizare doar pe Wi-Fi',
-                          subtitle: 'Economisește datele mobile la descărcarea imaginilor',
+                          title: 'Sync on Wi-Fi only',
+                          subtitle: 'Saves mobile data when downloading images',
                           hasSwitch: true,
                           switchValue: settings.syncWifiOnly,
                           onSwitchChanged: (val) {
@@ -204,8 +205,8 @@ class SettingsScreen extends ConsumerWidget {
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.trash(PhosphorIconsStyle.bold),
-                          title: 'Ștergere Cache Local & Re-sync',
-                          subtitle: 'Curăță imaginile temporare și reîncarcă datele proaspete',
+                          title: 'Clear Local Cache & Re-sync',
+                          subtitle: 'Cleans temporary images and reloads fresh data',
                           onTap: () => _confirmClearCache(context, ref),
                         ),
                       ],
@@ -215,42 +216,42 @@ class SettingsScreen extends ConsumerWidget {
 
                     // --- 4. CONT & SECURITATE (MEMBRI CONECTAȚI) ---
                     if (isUserLoggedIn) ...[
-                      _buildSettingsGroupHeader(context, 'CONT & SECURITATE'),
+                      _buildSettingsGroupHeader(context, 'ACCOUNT & SECURITY'),
                       _buildGroupCard(
                         context: context,
                         children: [
                           _buildSettingsTile(
                             context: context,
                             icon: PhosphorIcons.envelope(PhosphorIconsStyle.bold),
-                            title: 'Email Asociat',
-                            subtitle: currentUser.email ?? 'Neconfigurat',
-                            badgeLabel: 'VERIFICAT',
+                            title: 'Linked Email',
+                            subtitle: currentUser.email ?? 'Not configured',
+                            badgeLabel: 'VERIFIED',
                           ),
                           _buildSettingsDivider(context),
                           _buildSettingsTile(
                             context: context,
                             icon: PhosphorIcons.key(PhosphorIconsStyle.bold),
-                            title: 'Schimbă Parola',
-                            subtitle: 'Trimite link de securitate pe email',
+                            title: 'Change Password',
+                            subtitle: 'Send security reset link to email',
                             onTap: () => _handlePasswordReset(context, ref, currentUser.email),
                           ),
                           _buildSettingsDivider(context),
                           _buildSettingsTile(
                             context: context,
                             icon: PhosphorIcons.devices(PhosphorIconsStyle.bold),
-                            title: 'Sesiuni Active',
-                            subtitle: '1 dispozitiv conectat (Dispozitiv curent)',
-                            badgeLabel: 'ÎN LUCRU ⏳',
+                            title: 'Active Sessions',
+                            subtitle: '1 active device (Current device)',
+                            badgeLabel: 'COMING SOON',
                             onTap: () {
-                              _showDevelopmentNotice(context, 'Gestionarea sesiunilor active remote este în curs de implementare.');
+                              _showDevelopmentNotice(context, 'Remote session management is currently being implemented.');
                             },
                           ),
                           _buildSettingsDivider(context),
                           _buildSettingsTile(
                             context: context,
                             icon: PhosphorIcons.userMinus(PhosphorIconsStyle.bold),
-                            title: 'Ștergere Cont (GDPR)',
-                            subtitle: 'Șterge ireversibil contul și toate datele tale',
+                            title: 'Delete Account (GDPR)',
+                            subtitle: 'Permanently delete your account and all data',
                             titleColor: context.error,
                             onTap: () => _confirmDeleteAccount(context),
                           ),
@@ -260,17 +261,17 @@ class SettingsScreen extends ConsumerWidget {
                     ],
 
                     // --- 5. PRIVACITATE ---
-                    _buildSettingsGroupHeader(context, 'PRIVACITATE'),
+                    _buildSettingsGroupHeader(context, 'PRIVACY'),
                     _buildGroupCard(
                       context: context,
                       children: [
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.globe(PhosphorIconsStyle.bold),
-                          title: 'Profil Public',
+                          title: 'Public Profile',
                           subtitle: settings.isProfilePublic
-                              ? 'Watchlist-ul și scorurile sunt vizibile'
-                              : 'Doar tu poți vedea profilul',
+                              ? 'Watchlist and scores are public'
+                              : 'Only you can view your profile',
                           hasSwitch: true,
                           switchValue: settings.isProfilePublic,
                           onSwitchChanged: (val) {
@@ -282,8 +283,8 @@ class SettingsScreen extends ConsumerWidget {
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.clockCounterClockwise(PhosphorIconsStyle.bold),
-                          title: 'Ascunde Activitatea Recentă',
-                          subtitle: 'Nu afișa ultimele episoade vizionate',
+                          title: 'Hide Recent Activity',
+                          subtitle: 'Do not display recently watched episodes',
                           hasSwitch: true,
                           switchValue: settings.hideRecentActivity,
                           onSwitchChanged: (val) {
@@ -297,38 +298,38 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
 
                     // --- 6. SUPORT & FEEDBACK ---
-                    _buildSettingsGroupHeader(context, 'SUPORT & FEEDBACK'),
+                    _buildSettingsGroupHeader(context, 'SUPPORT & FEEDBACK'),
                     _buildGroupCard(
                       context: context,
                       children: [
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.chatTeardropText(PhosphorIconsStyle.bold),
-                          title: 'Trimite Feedback / Raportează o Problemă',
+                          title: 'Send Feedback / Report an Issue',
                           onTap: () => _showFeedbackDialog(context),
                         ),
                         _buildSettingsDivider(context),
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.star(PhosphorIconsStyle.bold),
-                          title: 'Evaluează Aplicația (Rate the App)',
-                          badgeLabel: 'STORE ⏳',
+                          title: 'Rate the App',
+                          badgeLabel: 'STORE',
                           onTap: () {
-                            _showDevelopmentNotice(context, 'Link-ul către Google Play Store va fi activ la lansarea publică.');
+                            _showDevelopmentNotice(context, 'Google Play Store link will be active at public release.');
                           },
                         ),
                         _buildSettingsDivider(context),
                         _buildSettingsTile(
                           context: context,
                           icon: PhosphorIcons.info(PhosphorIconsStyle.bold),
-                          title: 'Despre Kurogane Anime App',
-                          subtitle: 'Versiunea 1.0.0 • Build Premium',
+                          title: 'About Kurogane Anime App',
+                          subtitle: 'Version 1.0.0 • Premium Build',
                           onTap: () {
                             showAboutDialog(
                               context: context,
                               applicationName: 'Kurogane Anime',
                               applicationVersion: '1.0.0',
-                              applicationLegalese: '© 2026 Kurogane. Toate drepturile rezervate.',
+                              applicationLegalese: '© 2026 Kurogane. All rights reserved.',
                             );
                           },
                         ),
@@ -376,7 +377,7 @@ class SettingsScreen extends ConsumerWidget {
           // Titlu Ecran
           Expanded(
             child: Text(
-              'Setări & Preferințe',
+              'Settings & Preferences',
               style: TextStyle(
                 fontFamily: 'Zalando Sans Expanded',
                 fontSize: 18,
@@ -535,7 +536,7 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: context.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Ștergere Cache',
+          'Clear Cache',
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
             fontWeight: FontWeight.w800,
@@ -544,13 +545,13 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
         content: Text(
-          'Vrei să golești imaginile și datele stocate temporar? Aplicația va reîncărca informațiile proaspete.',
+          'Do you want to clear temporarily cached images and data? The app will reload fresh information.',
           style: TextStyle(color: context.textSecondary, fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: Text('Anulează', style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
+            child: Text(AppStrings.cancel, style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -561,7 +562,7 @@ class SettingsScreen extends ConsumerWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Cache-ul a fost curățat și datele au fost resincronizate!'),
+                    content: Text('Cache cleared and data resynced!'),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -572,7 +573,7 @@ class SettingsScreen extends ConsumerWidget {
               foregroundColor: context.onPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
             ),
-            child: const Text('Curăță Cache', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: const Text('Clear Cache', style: TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -587,7 +588,7 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: context.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Resetare Parolă',
+          'Reset Password',
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
             fontWeight: FontWeight.w800,
@@ -596,13 +597,13 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
         content: Text(
-          'Vom trimite un email de securitate către $email cu instrucțiunile pentru setarea unei parole noi.',
+          'We will send a security email to $email with instructions to set a new password.',
           style: TextStyle(color: context.textSecondary, fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: Text('Anulează', style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
+            child: Text(AppStrings.cancel, style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -611,7 +612,7 @@ class SettingsScreen extends ConsumerWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Email-ul de resetare a fost trimis la $email.'),
+                    content: Text('Password reset email sent to $email.'),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -622,7 +623,7 @@ class SettingsScreen extends ConsumerWidget {
               foregroundColor: context.onPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
             ),
-            child: const Text('Trimite Email', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: const Text('Send Email', style: TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -636,7 +637,7 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: context.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Ștergere Cont (GDPR)',
+          'Delete Account (GDPR)',
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
             fontWeight: FontWeight.w800,
@@ -645,25 +646,25 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
         content: Text(
-          'Această acțiune este permanentă și ireversibilă. Toate listele, recenziile și istoricul tău vor fi șterse definitiv conform normelor GDPR.',
+          'This action is permanent and irreversible. All your lists, reviews, and history will be permanently deleted in accordance with GDPR regulations.',
           style: TextStyle(color: context.textSecondary, fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: Text('Anulează', style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
+            child: Text(AppStrings.cancel, style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(dialogCtx).pop();
-              _showDevelopmentNotice(context, 'Pentru securitate maximă, confirmarea de ștergere definitivă prin re-autentificare va fi activă în build-ul următor.');
+              _showDevelopmentNotice(context, 'For security, account deletion confirmation will be activated in the next build.');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: context.error,
               foregroundColor: context.onError,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
             ),
-            child: const Text('Înțeleg, continuă', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: const Text('I understand, continue', style: TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -678,7 +679,7 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: context.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Trimite Feedback',
+          'Send Feedback',
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
             fontWeight: FontWeight.w800,
@@ -691,7 +692,7 @@ class SettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ce putem îmbunătăți în Kurogane Anime App?',
+              'What can we improve in Kurogane Anime App?',
               style: TextStyle(color: context.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 12),
@@ -707,7 +708,7 @@ class SettingsScreen extends ConsumerWidget {
                 style: TextStyle(color: context.textPrimary, fontSize: 13),
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: 'Scrie părerea sau problema întâmpinată…',
+                  hintText: 'Type your feedback or issue encountered…',
                   hintStyle: TextStyle(color: context.textMuted, fontSize: 12.5),
                 ),
               ),
@@ -717,7 +718,7 @@ class SettingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: Text('Anulează', style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
+            child: Text(AppStrings.cancel, style: TextStyle(color: context.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -725,7 +726,7 @@ class SettingsScreen extends ConsumerWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Îți mulțumim! Mesajul tău a fost trimis echipei Kurogane.'),
+                    content: Text('Thank you! Your feedback has been sent to the Kurogane team.'),
                     backgroundColor: AppColors.signalLive,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -737,7 +738,7 @@ class SettingsScreen extends ConsumerWidget {
               foregroundColor: context.onPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
             ),
-            child: const Text('Trimite', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: const Text('Send', style: TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),

@@ -50,7 +50,7 @@ class _SeasonalAnimeCardState extends ConsumerState<SeasonalAnimeCard> {
       if (widget.item.genres.isNotEmpty) {
         return widget.item.genres.take(3).join(' • ');
       }
-      return 'Sezon nou în difuzare pe Kurogane.';
+      return 'New season airing on Kurogane.';
     }
     // Curățare tag-uri HTML din descriere dacă există
     final unescaped = raw
@@ -108,7 +108,7 @@ class _SeasonalAnimeCardState extends ConsumerState<SeasonalAnimeCard> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Eliminat din Watchlist'),
+              content: Text('Removed from Watchlist'),
               duration: Duration(seconds: 1),
               behavior: SnackBarBehavior.floating,
             ),
@@ -123,7 +123,7 @@ class _SeasonalAnimeCardState extends ConsumerState<SeasonalAnimeCard> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Adăugat în Watchlist: ${_sanitizeTitle(widget.item.title.userPreferred)}'),
+              content: Text('Added to Watchlist: ${_sanitizeTitle(widget.item.title.userPreferred)}'),
               duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
               backgroundColor: context.accentPrimary,
@@ -135,7 +135,7 @@ class _SeasonalAnimeCardState extends ConsumerState<SeasonalAnimeCard> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Eroare la salvarea în Watchlist'),
+            content: Text('Error saving to Watchlist'),
             duration: Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
           ),
@@ -267,7 +267,7 @@ class _SeasonalAnimeCardState extends ConsumerState<SeasonalAnimeCard> {
                                     const SizedBox(width: 5),
                                     const Flexible(
                                       child: Text(
-                                        'Sezon Nou',
+                                        'New Season',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(

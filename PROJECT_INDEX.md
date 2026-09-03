@@ -247,8 +247,17 @@ npm run test:search --workspace=apps/api
 Mobile:
 
 ```bash
-cd apps/mobile
-flutter run
+# 1. Reverse port 4000 for physical phone & emulator (automatic ADB forwarding)
+npm run mobile:reverse
+
+# 2. Run on physical phone (Pixel 9 Pro)
+npm run dev:mobile:phone
+
+# 3. Run on local Android Studio Emulator
+npm run dev:mobile:emulator
+
+# Or choose device interactively
+npm run dev:mobile
 ```
 
 ---

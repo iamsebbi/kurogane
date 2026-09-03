@@ -1,72 +1,1032 @@
 [
   {
-    "id": "witem-1788278769698-nkqq4",
+    "id": "witem-1788439428255-wj5vf",
     "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
-    "mediaId": "anilist-178789",
-    "status": "COMPLETED",
-    "progressEpisodes": 14,
-    "score": 9,
+    "mediaId": "anilist-159309",
+    "status": "DROPPED",
+    "progressEpisodes": 3,
     "notes": null,
-    "createdAt": "2026-09-01T16:06:10.814356+00:00",
-    "updatedAt": "2026-09-01T16:06:13.393+00:00"
+    "createdAt": "2026-09-03T12:43:48.702014+00:00",
+    "updatedAt": "2026-09-03T17:37:59.504+00:00"
   },
   {
-    "id": "witem-1788307374310-g57ev",
+    "id": "witem-1788457065752-zc9tb",
     "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
     "mediaId": "anilist-16498",
+    "status": "WATCHING",
+    "progressEpisodes": 4,
+    "notes": null,
+    "createdAt": "2026-09-03T17:37:46.802736+00:00",
+    "updatedAt": "2026-09-03T17:37:45.752+00:00"
+  },
+  {
+    "id": "witem-1788457071494-g6v6f",
+    "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
+    "mediaId": "anilist-101922",
+    "status": "WATCHING",
+    "progressEpisodes": 6,
+    "notes": null,
+    "createdAt": "2026-09-03T17:37:52.3438+00:00",
+    "updatedAt": "2026-09-03T17:38:06.278+00:00"
+  },
+  {
+    "id": "witem-1788460682033-5eaw3",
+    "userId": "YMYxA74Wi3aRnZLW7o2RspK285E3",
+    "mediaId": "anilist-204466",
+    "status": "WATCHING",
+    "progressEpisodes": 1,
+    "notes": null,
+    "createdAt": "2026-09-03T18:38:04.680137+00:00",
+    "updatedAt": "2026-09-03T18:39:00.554+00:00"
+  },
+  {
+    "id": "witem-1788460710528-2288e",
+    "userId": "YMYxA74Wi3aRnZLW7o2RspK285E3",
+    "mediaId": "anilist-207141",
+    "status": "WATCHING",
+    "progressEpisodes": 2,
+    "notes": null,
+    "createdAt": "2026-09-03T18:38:32.534199+00:00",
+    "updatedAt": "2026-09-03T18:38:55.363+00:00"
+  },
+  {
+    "id": "witem-1788464735445-h848v",
+    "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
+    "mediaId": "anilist-154587",
     "status": "COMPLETED",
-    "score": 8,
-    "progressEpisodes": 25,
-    "startedAt": "2026-09-02",
-    "completedAt": "2026-09-02",
-    "createdAt": "2026-09-02T00:02:54.310Z",
-    "updatedAt": "2026-09-02T00:02:54.310Z",
+    "score": 7,
+    "progressEpisodes": 28,
+    "startedAt": "2026-09-03",
+    "completedAt": "2026-09-03",
+    "createdAt": "2026-09-03T19:45:35.445Z",
+    "updatedAt": "2026-09-03T19:48:49.093Z",
     "mediaItem": {
-      "id": "anilist-16498",
-      "anilistId": 16498,
+      "id": "anilist-154587",
+      "anilistId": 154587,
       "title": {
-        "romaji": "Shingeki no Kyojin",
-        "english": "Attack on Titan",
-        "native": "進撃の巨人",
-        "userPreferred": "Shingeki no Kyojin"
+        "romaji": "Sousou no Frieren",
+        "english": "Frieren: Beyond Journey’s End",
+        "native": "葬送のフリーレン",
+        "userPreferred": "Sousou no Frieren"
       },
       "type": "ANIME",
       "format": "TV",
       "status": "FINISHED",
-      "season": "SPRING",
-      "episodes": 25,
+      "season": "FALL",
+      "episodes": 28,
       "chapters": null,
       "volumes": null,
       "genres": [
-        "Action",
+        "Adventure",
         "Drama",
-        "Fantasy",
-        "Mystery"
+        "Fantasy"
       ],
       "studios": [
-        "WIT STUDIO",
-        "Pony Canyon",
-        "Kodansha",
-        "Production I.G",
-        "Dentsu",
-        "Pony Canyon Enterprise",
-        "Mainichi Broadcasting System"
+        "Toho",
+        "MADHOUSE",
+        "Shogakukan",
+        "Nippon Television Network",
+        "Shogakukan-Shueisha Productions",
+        "Aniplex",
+        "Dentsu"
       ],
-      "description": "Several hundred years ago, humans were nearly exterminated by titans. Titans are typically several stories tall, seem to have no intelligence, devour human beings and, worst of all, seem to do it for the pleasure rather than as a food source. A small percentage of humanity survived by walling themselves in a city protected by extremely high walls, even taller than the biggest of titans.\r\nFlash forward to the present and the city has not seen a titan in over 100 years. Teenage boy Eren and his foster sister Mikasa witness something horrific as the city walls are destroyed by a colossal titan that appears out of thin air. As the smaller titans flood the city, the two kids watch in horror as their mother is eaten alive. Eren vows that he will murder every single titan and take revenge for all of mankind.\r\n(Source: MangaHelpers)",
+      "description": "The adventure is over but life goes on for an elf mage just beginning to learn what living is all about. Elf mage Frieren and her courageous fellow adventurers have defeated the Demon King and brought peace to the land. But Frieren will long outlive the rest of her former party. How will she come to understand what life means to the people around her? Decades after their victory, the funeral of one her friends confronts Frieren with her own near immortality. Frieren sets out to fulfill the last wishes of her comrades and finds herself beginning a new adventure…\n\n(Source: Crunchyroll)",
       "coverImage": {
-        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg",
-        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16498-buvcRTBx4NSm.jpg",
-        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx16498-buvcRTBx4NSm.jpg",
-        "color": "#f1a143"
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx154587-qQTzQnEJJ3oB.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154587-qQTzQnEJJ3oB.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx154587-qQTzQnEJJ3oB.jpg",
+        "color": "#bbf1a1"
       },
-      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/16498-8jpFCOcDmneX.jpg",
-      "year": 2013,
+      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154587-ivXNJ23SM1xB.jpg",
+      "year": 2023,
       "scores": {
-        "averageScore": 8.5,
-        "reviewCount": 597876,
-        "weightedScore": 8.5
+        "averageScore": 9.1,
+        "reviewCount": 207411,
+        "weightedScore": 9.1
       },
-      "source": "ANILIST"
+      "source": "ANILIST",
+      "characters": [
+        {
+          "id": 176754,
+          "name": "Frieren",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b176754-PCnpqIOkjhFk.png",
+          "role": "MAIN",
+          "voiceActor": {
+            "id": 112215,
+            "name": "Atsumi Tanezaki",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n112215-kfABGD8W2YSJ.jpg",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 183965,
+          "name": "Fern",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b183965-uGFohBjlFoTp.png",
+          "role": "MAIN",
+          "voiceActor": {
+            "id": 124390,
+            "name": "Kana Ichinose",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n124390-03LHel2XSFel.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184313,
+          "name": "Stark",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184313-CQl6GSt4RSny.jpg",
+          "role": "MAIN",
+          "voiceActor": {
+            "id": 133507,
+            "name": "Chiaki Kobayashi",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n133507-oT1bd4Gax1Qg.jpg",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184311,
+          "name": "Himmel",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184311-wQFySqYXEqf1.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95270,
+            "name": "Nobuhiko Okamoto",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95270-LqNIF238L59u.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184310,
+          "name": "Heiter",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184310-tiXvrq4FINXP.jpg",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95236,
+            "name": "Hiroki Touchi",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95236-nlMo4dnjdT8p.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184312,
+          "name": "Eisen",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184312-kxd5H6iOHIq4.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95926,
+            "name": "Youji Ueda",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95926-00Pd2b8WZwQS.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 219733,
+          "name": "Flamme",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b219733-FgXseEhMdDE9.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95100,
+            "name": "Atsuko Tanaka",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95100-v07xvA8V2Yeh.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 315278,
+          "name": "Qual",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b315278-PKRDf4IJJ1GK.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95025,
+            "name": "Hiroki Yasumoto",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95025-LGHr4VufmfCc.jpg",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 205177,
+          "name": "Sein",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b205177-hLV4nVQjoBIC.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95513,
+            "name": "Yuuichi Nakamura",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95513-up9ZDuocHgRs.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 219110,
+          "name": "Aura",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b219110-LEB5T4oG0gel.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 101996,
+            "name": "Ayana Taketatsu",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n101996-PcY5iaq5LHgd.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 219732,
+          "name": "Kraft",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b219732-GKmSY9oTm6cR.jpg",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95160,
+            "name": "Takehito Koyasu",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95160-jWevcH7BmfE1.jpg",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 219734,
+          "name": "Serie",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b219734-aS4UMAb16DGd.jpg",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95655,
+            "name": "Mariya Ise",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95655-cR519BXmteKA.png",
+            "language": "Japanese"
+          }
+        }
+      ],
+      "staff": [
+        {
+          "id": 122202,
+          "name": "Kanehito Yamada",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n122202-lxoDudr9vaul.jpg",
+          "role": "Original Story"
+        },
+        {
+          "id": 170189,
+          "name": "Tsukasa Abe",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n170189-HOqnSDEYpFKZ.jpg",
+          "role": "Original Character Design"
+        },
+        {
+          "id": 134254,
+          "name": "Keiichirou Saitou",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n134254-bqcsuWzJr87n.png",
+          "role": "Director"
+        },
+        {
+          "id": 119119,
+          "name": "Tomohiro Suzuki",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n119119-VrfR5lH1CdYC.png",
+          "role": "Series Composition"
+        },
+        {
+          "id": 131949,
+          "name": "Tooru Iwazawa",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n131949-cxKnoMZWKriL.png",
+          "role": "Action Director"
+        },
+        {
+          "id": 140343,
+          "name": "Reiko Nagasawa",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n140343-fJeQWHEGGWBw.png",
+          "role": "Character Design"
+        },
+        {
+          "id": 301998,
+          "name": "Hironobu Yoshinaka",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n301998-3229lHv9WaOD.jpg",
+          "role": "Original Work Assistance"
+        },
+        {
+          "id": 251859,
+          "name": "Katsumasa Ogura",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n251859-mHnJTN94buyV.png",
+          "role": "Original Work Assistance"
+        },
+        {
+          "id": 225507,
+          "name": "Kazunori Ooshima",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n225507-GuvkyspimbKw.jpg",
+          "role": "Original Work Assistance"
+        },
+        {
+          "id": 315812,
+          "name": "Masato Ishizawa",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/default.jpg",
+          "role": "Title Logo Design"
+        },
+        {
+          "id": 122660,
+          "name": "Akiko Takase",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n122660-pf3cXCTfaAyi.jpg",
+          "role": "Design Works"
+        },
+        {
+          "id": 132969,
+          "name": "Ran Kamezawa",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/default.jpg",
+          "role": "Design Works"
+        }
+      ],
+      "communityMetrics": {
+        "rankings": [
+          {
+            "rank": 1,
+            "type": "RATED",
+            "context": "highest rated all time",
+            "allTime": true
+          },
+          {
+            "rank": 53,
+            "type": "POPULAR",
+            "context": "most popular all time",
+            "allTime": true
+          },
+          {
+            "rank": 1,
+            "type": "RATED",
+            "context": "highest rated",
+            "allTime": false
+          },
+          {
+            "rank": 2,
+            "type": "POPULAR",
+            "context": "most popular",
+            "allTime": false
+          },
+          {
+            "rank": 1,
+            "type": "RATED",
+            "context": "highest rated",
+            "allTime": false
+          },
+          {
+            "rank": 1,
+            "type": "POPULAR",
+            "context": "most popular",
+            "allTime": false
+          }
+        ],
+        "scoreDistribution": [
+          {
+            "score": 10,
+            "amount": 1112
+          },
+          {
+            "score": 20,
+            "amount": 205
+          },
+          {
+            "score": 30,
+            "amount": 395
+          },
+          {
+            "score": 40,
+            "amount": 634
+          },
+          {
+            "score": 50,
+            "amount": 1532
+          },
+          {
+            "score": 60,
+            "amount": 2311
+          },
+          {
+            "score": 70,
+            "amount": 7805
+          },
+          {
+            "score": 80,
+            "amount": 20988
+          },
+          {
+            "score": 90,
+            "amount": 68335
+          },
+          {
+            "score": 100,
+            "amount": 104094
+          }
+        ],
+        "statusDistribution": [
+          {
+            "status": "CURRENT",
+            "amount": 72528
+          },
+          {
+            "status": "PLANNING",
+            "amount": 90794
+          },
+          {
+            "status": "COMPLETED",
+            "amount": 293825
+          },
+          {
+            "status": "DROPPED",
+            "amount": 7192
+          },
+          {
+            "status": "PAUSED",
+            "amount": 12346
+          }
+        ]
+      },
+      "startDate": {
+        "year": 2023,
+        "month": 9,
+        "day": 29
+      },
+      "endDate": {
+        "year": 2024,
+        "month": 3,
+        "day": 22
+      },
+      "adaptationSource": "MANGA",
+      "relations": [
+        {
+          "id": "anilist-118586",
+          "anilistId": 118586,
+          "relationType": "SOURCE",
+          "title": "Sousou no Frieren",
+          "format": "MANGA",
+          "type": "MANGA",
+          "status": "RELEASING",
+          "season": null,
+          "episodes": null,
+          "releaseYear": 2020,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx118586-CXKgWikBFQgS.jpg"
+        },
+        {
+          "id": "anilist-169811",
+          "anilistId": 169811,
+          "relationType": "CHARACTER",
+          "title": "Yuusha",
+          "format": "MUSIC",
+          "type": "ANIME",
+          "status": "FINISHED",
+          "season": null,
+          "episodes": 1,
+          "releaseYear": 2023,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169811-tsuH0SJVJy40.jpg"
+        },
+        {
+          "id": "anilist-170068",
+          "anilistId": 170068,
+          "relationType": "SIDE_STORY",
+          "title": "Sousou no Frieren: ●● no Mahou",
+          "format": "ONA",
+          "type": "ANIME",
+          "status": "FINISHED",
+          "season": "FALL",
+          "episodes": 12,
+          "releaseYear": 2023,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170068-ijY3tCP8KoWP.jpg"
+        },
+        {
+          "id": "anilist-175691",
+          "anilistId": 175691,
+          "relationType": "OTHER",
+          "title": "Haru",
+          "format": "MUSIC",
+          "type": "ANIME",
+          "status": "FINISHED",
+          "season": null,
+          "episodes": 1,
+          "releaseYear": 2024,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx175691-lTfPc3P63Uyx.png"
+        },
+        {
+          "id": "anilist-182255",
+          "anilistId": 182255,
+          "relationType": "SEQUEL",
+          "title": "Sousou no Frieren 2nd Season",
+          "format": "TV",
+          "type": "ANIME",
+          "status": "FINISHED",
+          "season": "WINTER",
+          "episodes": 10,
+          "releaseYear": 2026,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx182255-butzrqd4I0aC.jpg"
+        },
+        {
+          "id": "anilist-189513",
+          "anilistId": 189513,
+          "relationType": "SIDE_STORY",
+          "title": "Sousou no Frieren: ●● no Mahou Part 2",
+          "format": "ONA",
+          "type": "ANIME",
+          "status": "FINISHED",
+          "season": "SPRING",
+          "episodes": 6,
+          "releaseYear": 2025,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx189513-1R9Sryve0K53.png"
+        }
+      ],
+      "themes": [
+        {
+          "type": "OP",
+          "title": "Yuusha",
+          "artists": [
+            "YOASOBI"
+          ],
+          "episodes": "OP1"
+        },
+        {
+          "type": "ED",
+          "title": "Anytime Anywhere",
+          "artists": [
+            "milet"
+          ],
+          "episodes": "ED1"
+        },
+        {
+          "type": "ED",
+          "title": "bliss",
+          "artists": [
+            "milet"
+          ],
+          "episodes": "ED1-TV"
+        },
+        {
+          "type": "OP",
+          "title": "Haru",
+          "artists": [
+            "Yorushika"
+          ],
+          "episodes": "OP2"
+        }
+      ]
+    }
+  },
+  {
+    "id": "witem-1788465223289-cyklh",
+    "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
+    "mediaId": "anilist-182255",
+    "status": "PLAN_TO_WATCH",
+    "progressEpisodes": 0,
+    "startedAt": "2026-09-03",
+    "completedAt": "2026-09-03",
+    "createdAt": "2026-09-03T19:53:43.289Z",
+    "updatedAt": "2026-09-03T19:53:43.289Z",
+    "mediaItem": {
+      "id": "anilist-182255",
+      "anilistId": 182255,
+      "title": {
+        "romaji": "Sousou no Frieren 2nd Season",
+        "english": "Frieren: Beyond Journey’s End Season 2",
+        "native": "葬送のフリーレン 第2期",
+        "userPreferred": "Sousou no Frieren 2nd Season"
+      },
+      "type": "ANIME",
+      "format": "TV",
+      "status": "FINISHED",
+      "season": "WINTER",
+      "episodes": 10,
+      "chapters": null,
+      "volumes": null,
+      "genres": [
+        "Adventure",
+        "Drama",
+        "Fantasy"
+      ],
+      "studios": [
+        "Toho",
+        "MADHOUSE",
+        "Shogakukan",
+        "Nippon Television Network",
+        "MADHOUSE",
+        "Shogakukan-Shueisha Productions",
+        "Aniplex",
+        "Dentsu"
+      ],
+      "description": "Following the First-Class Mage Exam, the trio—elven mage Frieren, warrior Stark, and first-class mage Fern—gains access to the dangerous Northern Plateau. As the party presses onward toward Aureole, formidable adversaries force Stark to confront his insecurities, solidifying his resolve and his role as the party's frontliner. Meanwhile, Fern continues to cherish the gifts she has been blessed with throughout her life, each a reminder of those she holds dear.\n\nFrieren—still honoring her vow to understand humanity—revisits memories of her journey with the Hero's party and her fleeting encounter with a legendary figure. As she reflects on the passage of time, the elven mage quietly questions whether she has truly changed, yet in the small, almost subtle choices that she makes, there are signs that she might have become more human than she realizes.\n\n(Source: MAL Rewrite)",
+      "coverImage": {
+        "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx182255-butzrqd4I0aC.jpg",
+        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx182255-butzrqd4I0aC.jpg",
+        "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx182255-butzrqd4I0aC.jpg",
+        "color": "#5dc9f1"
+      },
+      "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/182255-wyHvp6zJbWsO.jpg",
+      "year": 2026,
+      "scores": {
+        "averageScore": 8.8,
+        "reviewCount": 65733,
+        "weightedScore": 8.8
+      },
+      "source": "ANILIST",
+      "characters": [
+        {
+          "id": 176754,
+          "name": "Frieren",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b176754-PCnpqIOkjhFk.png",
+          "role": "MAIN",
+          "voiceActor": {
+            "id": 112215,
+            "name": "Atsumi Tanezaki",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n112215-kfABGD8W2YSJ.jpg",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 183965,
+          "name": "Fern",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b183965-uGFohBjlFoTp.png",
+          "role": "MAIN",
+          "voiceActor": {
+            "id": 124390,
+            "name": "Kana Ichinose",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n124390-03LHel2XSFel.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184313,
+          "name": "Stark",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184313-CQl6GSt4RSny.jpg",
+          "role": "MAIN",
+          "voiceActor": {
+            "id": 133507,
+            "name": "Chiaki Kobayashi",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n133507-oT1bd4Gax1Qg.jpg",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184311,
+          "name": "Himmel",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184311-wQFySqYXEqf1.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95270,
+            "name": "Nobuhiko Okamoto",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95270-LqNIF238L59u.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184310,
+          "name": "Heiter",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184310-tiXvrq4FINXP.jpg",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95236,
+            "name": "Hiroki Touchi",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95236-nlMo4dnjdT8p.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 184312,
+          "name": "Eisen",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b184312-kxd5H6iOHIq4.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95926,
+            "name": "Youji Ueda",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95926-00Pd2b8WZwQS.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 321716,
+          "name": "Wirbel",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b321716-ORxrJOHaI4H4.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95196,
+            "name": "Kishou Taniyama",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95196-t2vbxQMee0ci.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 321718,
+          "name": "Ehre",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b321718-MV9ZCxtNdOpJ.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95762,
+            "name": "Kanae Itou",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95762-qhWmwni3TT6Y.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 327305,
+          "name": "Scharf",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b327305-DsvizGfxKnE8.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 184624,
+            "name": "Yuuji Murai",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n184624-uVkK5jlcPgpH.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 331267,
+          "name": "Minami no Yuusha",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b331267-hLeSvYXwuTDt.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 95021,
+            "name": "Kazuhiko Inoue",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n95021-9qAoAn6GNZ3S.png",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 331423,
+          "name": "Dach Hakushaku",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b331423-D1WkXFsj0Rdk.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 168154,
+            "name": "Kousuke Kobayashi",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n168154-0qRi0eFr7HY9.jpg",
+            "language": "Japanese"
+          }
+        },
+        {
+          "id": 315929,
+          "name": "Edel",
+          "image": "https://s4.anilist.co/file/anilistcdn/character/medium/b315929-mJfCA4CLVxJZ.png",
+          "role": "SUPPORTING",
+          "voiceActor": {
+            "id": 106661,
+            "name": "Tomoyo Kurosawa",
+            "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n106661-xn3K6nAx2ijO.jpg",
+            "language": "Japanese"
+          }
+        }
+      ],
+      "staff": [
+        {
+          "id": 122202,
+          "name": "Kanehito Yamada",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n122202-lxoDudr9vaul.jpg",
+          "role": "Original Story"
+        },
+        {
+          "id": 170189,
+          "name": "Tsukasa Abe",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n170189-HOqnSDEYpFKZ.jpg",
+          "role": "Original Character Design"
+        },
+        {
+          "id": 165996,
+          "name": "Tomoya Kitagawa",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/default.jpg",
+          "role": "Director"
+        },
+        {
+          "id": 153321,
+          "name": "Daiki Harashina",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n153321-9pfyMp1WHNSv.png",
+          "role": "Assistant Director"
+        },
+        {
+          "id": 119119,
+          "name": "Tomohiro Suzuki",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n119119-VrfR5lH1CdYC.png",
+          "role": "Series Composition"
+        },
+        {
+          "id": 122660,
+          "name": "Akiko Takase",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n122660-pf3cXCTfaAyi.jpg",
+          "role": "Character Design"
+        },
+        {
+          "id": 134263,
+          "name": "Keisuke Kojima",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n134263-u6hdg3uh0O5n.png",
+          "role": "Character Design"
+        },
+        {
+          "id": 297833,
+          "name": "Yuri Fujinaka",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n297833-dcT8PjbWAdYE.png",
+          "role": "Character Design"
+        },
+        {
+          "id": 225507,
+          "name": "Kazunori Ooshima",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n225507-GuvkyspimbKw.jpg",
+          "role": "Original Work Assistance"
+        },
+        {
+          "id": 301998,
+          "name": "Hironobu Yoshinaka",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n301998-3229lHv9WaOD.jpg",
+          "role": "Original Work Assistance"
+        },
+        {
+          "id": 281660,
+          "name": "Haruka Tajima",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/default.jpg",
+          "role": "Original Work Assistance"
+        },
+        {
+          "id": 251859,
+          "name": "Katsumasa Ogura",
+          "image": "https://s4.anilist.co/file/anilistcdn/staff/medium/n251859-mHnJTN94buyV.png",
+          "role": "Original Work Assistance"
+        }
+      ],
+      "communityMetrics": {
+        "rankings": [
+          {
+            "rank": 23,
+            "type": "RATED",
+            "context": "highest rated all time",
+            "allTime": true
+          },
+          {
+            "rank": 230,
+            "type": "POPULAR",
+            "context": "most popular all time",
+            "allTime": true
+          },
+          {
+            "rank": 3,
+            "type": "RATED",
+            "context": "highest rated",
+            "allTime": false
+          },
+          {
+            "rank": 2,
+            "type": "POPULAR",
+            "context": "most popular",
+            "allTime": false
+          },
+          {
+            "rank": 1,
+            "type": "RATED",
+            "context": "highest rated",
+            "allTime": false
+          },
+          {
+            "rank": 2,
+            "type": "POPULAR",
+            "context": "most popular",
+            "allTime": false
+          }
+        ],
+        "scoreDistribution": [
+          {
+            "score": 10,
+            "amount": 251
+          },
+          {
+            "score": 20,
+            "amount": 40
+          },
+          {
+            "score": 30,
+            "amount": 67
+          },
+          {
+            "score": 40,
+            "amount": 120
+          },
+          {
+            "score": 50,
+            "amount": 457
+          },
+          {
+            "score": 60,
+            "amount": 911
+          },
+          {
+            "score": 70,
+            "amount": 4010
+          },
+          {
+            "score": 80,
+            "amount": 12505
+          },
+          {
+            "score": 90,
+            "amount": 26271
+          },
+          {
+            "score": 100,
+            "amount": 21101
+          }
+        ],
+        "statusDistribution": [
+          {
+            "status": "CURRENT",
+            "amount": 39474
+          },
+          {
+            "status": "PLANNING",
+            "amount": 62290
+          },
+          {
+            "status": "COMPLETED",
+            "amount": 117262
+          },
+          {
+            "status": "DROPPED",
+            "amount": 746
+          },
+          {
+            "status": "PAUSED",
+            "amount": 2593
+          }
+        ]
+      },
+      "startDate": {
+        "year": 2026,
+        "month": 1,
+        "day": 16
+      },
+      "endDate": {
+        "year": 2026,
+        "month": 3,
+        "day": 27
+      },
+      "adaptationSource": "MANGA",
+      "relations": [
+        {
+          "id": "anilist-118586",
+          "anilistId": 118586,
+          "relationType": "SOURCE",
+          "title": "Sousou no Frieren",
+          "format": "MANGA",
+          "type": "MANGA",
+          "status": "RELEASING",
+          "season": null,
+          "episodes": null,
+          "releaseYear": 2020,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx118586-CXKgWikBFQgS.jpg"
+        },
+        {
+          "id": "anilist-154587",
+          "anilistId": 154587,
+          "relationType": "PREQUEL",
+          "title": "Sousou no Frieren",
+          "format": "TV",
+          "type": "ANIME",
+          "status": "FINISHED",
+          "season": "FALL",
+          "episodes": 28,
+          "releaseYear": 2023,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154587-qQTzQnEJJ3oB.jpg"
+        },
+        {
+          "id": "anilist-206425",
+          "anilistId": 206425,
+          "relationType": "SIDE_STORY",
+          "title": "Sousou no Frieren: ●● no Mahou Part 3",
+          "format": "ONA",
+          "type": "ANIME",
+          "status": "RELEASING",
+          "season": "WINTER",
+          "episodes": null,
+          "releaseYear": 2026,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b206425-WOwXsfDbHZwb.jpg"
+        },
+        {
+          "id": "anilist-209939",
+          "anilistId": 209939,
+          "relationType": "SEQUEL",
+          "title": "Sousou no Frieren 3rd Season",
+          "format": "TV",
+          "type": "ANIME",
+          "status": "NOT_YET_RELEASED",
+          "season": "FALL",
+          "episodes": null,
+          "releaseYear": 2027,
+          "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx209939-g2Njkml1rheG.jpg"
+        }
+      ],
+      "themes": [
+        {
+          "type": "OP",
+          "title": "lulu.",
+          "artists": [
+            "Mrs. GREEN APPLE"
+          ],
+          "episodes": "OP1"
+        },
+        {
+          "type": "ED",
+          "title": "The Story of Us",
+          "artists": [
+            "milet"
+          ],
+          "episodes": "ED1"
+        },
+        {
+          "type": "ED",
+          "title": "Trace",
+          "artists": [
+            "milet"
+          ],
+          "episodes": "ED2"
+        }
+      ]
     }
   }
 ]

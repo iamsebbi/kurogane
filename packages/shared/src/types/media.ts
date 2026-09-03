@@ -52,17 +52,145 @@ export interface WatchOrderNode {
   isCanon: boolean;
 }
 
+export type WatchOrderPresetStatus = 'draft' | 'pending_review' | 'community_verified' | 'rejected' | 'flagged';
+
+export interface WatchOrderPresetItem {
+  id?: string;
+  presetId?: string;
+  mediaId: string;
+  position: number;
+  isCanon?: boolean;
+  note?: string;
+  mediaItem?: Partial<MediaItem>;
+}
+
+export interface WatchOrderPreset {
+  id: string;
+  franchiseRoot: string;
+  title: string;
+  description?: string;
+  submittedBy?: string | null;
+  submitterUsername?: string;
+  submitterAvatarUrl?: string;
+  status: WatchOrderPresetStatus;
+  upvotes: number;
+  downvotes: number;
+  reportCount?: number;
+  isSelectiveCurated?: boolean;
+  isPossiblyOutdated?: boolean;
+  missingItemsCount?: number;
+  missingTitles?: string[];
+  userVote?: number | null; // 1, -1 sau null
+  items: WatchOrderPresetItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WatchOrderVoteResult {
+  success: boolean;
+  upvotes: number;
+  downvotes: number;
+  status: WatchOrderPresetStatus;
+  ratio: number;
+  userVote: number;
+}
+
 export interface WatchOrderGuide {
   franchiseId: string;
   franchiseName: string;
   description?: string;
   communityTip?: string; // Ghid explicativ de sfaturi pentru începători
+  authority?: 'editorial' | 'community_verified' | 'algorithmic';
   paths: {
     RECOMMENDED: WatchOrderNode[];
     CHRONOLOGICAL: WatchOrderNode[];
     RELEASE: WatchOrderNode[];
   };
   spinOffs?: WatchOrderNode[];
+  communityPresets?: WatchOrderPreset[];
+}
+
+export interface CharacterVoiceActor {
+  id: number;
+  name: string;
+  image?: string;
+  language?: string;
+}
+
+export interface MediaCharacter {
+  id: number;
+  name: string;
+  image?: string;
+  role: 'MAIN' | 'SUPPORTING' | string;
+  voiceActor?: CharacterVoiceActor;
+}
+
+export interface MediaStaff {
+  id: number;
+  name: string;
+  image?: string;
+  role: string;
+}
+
+export interface MediaThemeSong {
+  type: 'OP' | 'ED';
+  title: string;
+  artists: string[];
+  episodes?: string;
+}
+
+export interface CommunityRanking {
+  rank: number;
+  type: 'RATED' | 'POPULAR' | string;
+  allTime: boolean;
+  context: string;
+}
+
+export interface ScoreDistributionItem {
+  score: number;
+  amount: number;
+}
+
+export interface StatusDistributionItem {
+  status: 'CURRENT' | 'PLANNING' | 'COMPLETED' | 'DROPPED' | 'PAUSED' | string;
+  amount: number;
+}
+
+export interface CommunityMetrics {
+  rankings: CommunityRanking[];
+  scoreDistribution: ScoreDistributionItem[];
+  statusDistribution: StatusDistributionItem[];
+}
+
+export interface FuzzyDate {
+  year?: number | null;
+  month?: number | null;
+  day?: number | null;
+}
+
+export type MediaRelationType =
+  | 'PREQUEL'
+  | 'SEQUEL'
+  | 'PARENT'
+  | 'SIDE_STORY'
+  | 'SPIN_OFF'
+  | 'ALTERNATIVE'
+  | 'SUMMARY'
+  | 'OTHER'
+  | 'ADAPTATION'
+  | 'CHARACTER';
+
+export interface MediaRelation {
+  id: string;
+  anilistId: number;
+  relationType: MediaRelationType;
+  title: string;
+  format?: string;
+  type?: string;
+  status?: string;
+  episodes?: number;
+  releaseYear?: number;
+  coverImage?: string;
 }
 
 export interface MediaItem {
@@ -90,6 +218,14 @@ export interface MediaItem {
   scores: ScoreMetrics;
   source: DataSource;
   watchOrderTree?: WatchOrderNode[];
+  characters?: MediaCharacter[];
+  staff?: MediaStaff[];
+  themes?: MediaThemeSong[];
+  communityMetrics?: CommunityMetrics;
+  startDate?: FuzzyDate;
+  endDate?: FuzzyDate;
+  adaptationSource?: string;
+  relations?: MediaRelation[];
 }
 
 export interface CategoryShelf {

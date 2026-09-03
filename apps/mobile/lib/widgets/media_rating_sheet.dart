@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../models/media_item.dart';
 import '../models/watchlist_item.dart';
 import '../providers/anilist_provider.dart';
@@ -56,14 +57,14 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
   }
 
   String _getScoreLabel(double score) {
-    if (score <= 0) return 'Fără notă';
-    if (score >= 9.5) return 'Capodoperă Absolută';
-    if (score >= 8.5) return 'Excelent';
-    if (score >= 7.5) return 'Foarte Bun';
-    if (score >= 6.5) return 'Bun';
+    if (score <= 0) return AppStrings.noScore;
+    if (score >= 9.5) return 'Masterpiece';
+    if (score >= 8.5) return 'Great';
+    if (score >= 7.5) return 'Very Good';
+    if (score >= 6.5) return 'Good';
     if (score >= 5.5) return 'Decent';
-    if (score >= 4.0) return 'Mediocru';
-    return 'Slab';
+    if (score >= 4.0) return 'Mediocre';
+    return 'Poor';
   }
 
   Color _getScoreColor(double score) {
@@ -86,7 +87,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
     HapticFeedback.mediumImpact();
 
     try {
-      // 1. Salvare în Kurogane Watchlist
+      // 1. Save to Kurogane Watchlist
       await ref.read(watchlistProvider.notifier).updateItem(
         mediaId: widget.media.id,
         status: _status,
@@ -94,7 +95,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
         progressEpisodes: _progress,
       );
 
-      // 2. Sincronizare automată în AniList (dacă este conectat)
+      // 2. Synchronize with AniList if connected
       final anilistState = ref.read(anilistProvider);
       if (anilistState.isConnected) {
         final anilistId = widget.media.anilistId ??
@@ -115,8 +116,8 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
           SnackBar(
             content: Text(
               anilistState.isConnected
-                  ? 'Salvat în Kurogane & Sincronizat cu AniList!'
-                  : 'Progresul și nota au fost salvate!',
+                  ? 'Saved to Kurogane & synced with AniList!'
+                  : 'Progress and score saved!',
             ),
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
@@ -127,7 +128,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
       if (mounted) {
         setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Eroare: $e')),
+          SnackBar(content: Text('${AppStrings.errorPrefix}: $e')),
         );
       }
     }
@@ -200,7 +201,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Actualizează nota și progresul',
+                        'Update score and progress',
                         style: TextStyle(
                           color: context.textSecondary,
                           fontSize: 12,
@@ -220,13 +221,12 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
 
             // 1. Selector Status
             Text(
-              'STATUS VIZIONARE',
+              AppStrings.watchStatus,
               style: TextStyle(
                 fontFamily: 'Google Sans',
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: context.textSecondary,
-                letterSpacing: 0.8,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w700,
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 10),
@@ -235,15 +235,15 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
               physics: const BouncingScrollPhysics(),
               child: Row(
                 children: [
-                  _buildStatusPill('În Curs', 'WATCHING', PhosphorIcons.play(PhosphorIconsStyle.bold)),
+                  _buildStatusPill(AppStrings.statusWatching, 'WATCHING', PhosphorIcons.play(PhosphorIconsStyle.bold)),
                   const SizedBox(width: 8),
-                  _buildStatusPill('Completat', 'COMPLETED', PhosphorIcons.check(PhosphorIconsStyle.bold)),
+                  _buildStatusPill(AppStrings.statusCompleted, 'COMPLETED', PhosphorIcons.check(PhosphorIconsStyle.bold)),
                   const SizedBox(width: 8),
-                  _buildStatusPill('Plănuit', 'PLAN_TO_WATCH', PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold)),
+                  _buildStatusPill(AppStrings.statusPlanToWatch, 'PLAN_TO_WATCH', PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold)),
                   const SizedBox(width: 8),
-                  _buildStatusPill('În Așteptare', 'ON_HOLD', PhosphorIcons.pause(PhosphorIconsStyle.bold)),
+                  _buildStatusPill(AppStrings.statusOnHold, 'ON_HOLD', PhosphorIcons.pause(PhosphorIconsStyle.bold)),
                   const SizedBox(width: 8),
-                  _buildStatusPill('Renunțat', 'DROPPED', PhosphorIcons.x(PhosphorIconsStyle.bold)),
+                  _buildStatusPill(AppStrings.statusDropped, 'DROPPED', PhosphorIcons.x(PhosphorIconsStyle.bold)),
                 ],
               ),
             ),
@@ -255,13 +255,12 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'NOTA TA (1 – 10)',
+                  AppStrings.yourScore,
                   style: TextStyle(
                     fontFamily: 'Google Sans',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: context.textSecondary,
-                    letterSpacing: 0.8,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: context.textPrimary,
                   ),
                 ),
                 Container(
@@ -280,7 +279,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        _score > 0 ? '${_score.toStringAsFixed(1)} • ${_getScoreLabel(_score)}' : 'Fără notă',
+                        _score > 0 ? '${_score.toStringAsFixed(1)} • ${_getScoreLabel(_score)}' : AppStrings.noScore,
                         style: TextStyle(
                           color: _getScoreColor(_score),
                           fontWeight: FontWeight.w800,
@@ -322,17 +321,16 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'EPISOADE URMĂRITE',
+                  AppStrings.episodeProgress,
                   style: TextStyle(
                     fontFamily: 'Google Sans',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: context.textSecondary,
-                    letterSpacing: 0.8,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: context.textPrimary,
                   ),
                 ),
                 Text(
-                  totalEpisodes != null ? 'din $totalEpisodes ep' : 'Total necunoscut',
+                  totalEpisodes != null ? 'of $totalEpisodes ep' : 'Total unknown',
                   style: TextStyle(
                     color: context.textSecondary,
                     fontSize: 12,
@@ -441,7 +439,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Sincronizare activă cu @${anilistState.user!.name}',
+                      'Active sync with @${anilistState.user!.name}',
                       style: const TextStyle(
                         color: Color(0xFF3B82F6),
                         fontSize: 12,
@@ -452,7 +450,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
                 ),
               ),
 
-            // Buton Salvare
+            // Save Button
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -475,7 +473,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
                         ),
                       )
                     : Text(
-                        'SALVEAZĂ MODIFICĂRILE',
+                        'SAVE CHANGES',
                         style: TextStyle(
                           color: context.onPrimary,
                           fontWeight: FontWeight.w800,
@@ -551,7 +549,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
         backgroundColor: context.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'Număr Episod',
+          'Episode Number',
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
             fontWeight: FontWeight.w800,
@@ -564,7 +562,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
           autofocus: true,
           style: TextStyle(color: context.textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
           decoration: InputDecoration(
-            hintText: 'Introdu episodul văzut...',
+            hintText: 'Enter episode watched...',
             hintStyle: TextStyle(color: context.textMuted),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
@@ -572,7 +570,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dlgCtx).pop(),
-            child: Text('Anulează', style: TextStyle(color: context.textSecondary)),
+            child: Text(AppStrings.cancel, style: TextStyle(color: context.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -593,7 +591,7 @@ class _MediaRatingSheetState extends ConsumerState<MediaRatingSheet> {
               backgroundColor: context.accentPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text('Setează', style: TextStyle(color: context.onPrimary, fontWeight: FontWeight.bold)),
+            child: Text('Set', style: TextStyle(color: context.onPrimary, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

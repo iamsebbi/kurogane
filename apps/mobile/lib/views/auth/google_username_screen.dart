@@ -83,7 +83,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
       setState(() {
         _isChecking = false;
         _isAvailable = false;
-        _statusMessage = 'Numele de utilizator nu poate fi gol.';
+        _statusMessage = 'Username cannot be empty.';
       });
       return;
     }
@@ -92,7 +92,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
       setState(() {
         _isChecking = false;
         _isAvailable = false;
-        _statusMessage = 'Folosește 2-24 caractere (litere, cifre, _, -, .)';
+        _statusMessage = 'Use 2-24 characters (letters, numbers, _, -, .)';
       });
       return;
     }
@@ -120,8 +120,8 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
       _isChecking = false;
       _isAvailable = result.available;
       _statusMessage = result.available
-          ? 'Nume de utilizator disponibil'
-          : (result.error ?? 'Acest nume de utilizator este deja folosit.');
+          ? 'Username available'
+          : (result.error ?? 'This username is already taken.');
     });
   }
 
@@ -131,7 +131,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
 
     if (!AuthService.isValidUsername(text)) {
       setState(() {
-        _statusMessage = 'Numele trebuie să aibă între 2 și 24 caractere valide.';
+        _statusMessage = 'Username must have between 2 and 24 valid characters.';
         _isAvailable = false;
       });
       return;
@@ -175,7 +175,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Bun venit pe Kurogane! Profilul tău a fost creat.'),
+          content: Text('Welcome to Kurogane! Your profile has been created.'),
           backgroundColor: AppColors.signalLive,
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 3),
@@ -185,7 +185,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
       if (mounted) {
         setState(() {
           _submitPhase = _SubmitPhase.idle;
-          _statusMessage = 'A apărut o eroare la salvarea profilului. Reîncearcă.';
+          _statusMessage = 'An error occurred while saving your profile. Please retry.';
         });
       }
     }
@@ -212,7 +212,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
 
                     // Titlu Principal
                     Text(
-                      'Alege-ți Numele de Utilizator',
+                      'Choose Your Username',
                       style: TextStyle(
                         color: context.textPrimary,
                         fontFamily: 'Zalando Sans Expanded',
@@ -226,7 +226,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
 
                     // Subtitlu
                     Text(
-                      'Sub acest @handle vei fi recunoscut în comunitatea Kurogane, în comentarii și în clasamente.',
+                      'Under this @handle you will be recognized across the Kurogane community, reviews, and rankings.',
                       style: TextStyle(
                         color: context.textSecondary,
                         fontFamily: 'Google Sans',
@@ -288,7 +288,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
                                 fontWeight: FontWeight.w700,
                               ),
                               decoration: InputDecoration(
-                                hintText: 'nume_utilizator',
+                                hintText: 'username',
                                 hintStyle: TextStyle(
                                   color: context.textMuted,
                                   fontFamily: 'Google Sans',
@@ -404,7 +404,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
                           ),
                         ),
                         child: Text(
-                          'Păstrează @${widget.suggestedUsername}',
+                          'Keep @${widget.suggestedUsername}',
                           style: const TextStyle(
                             fontFamily: 'Google Sans',
                             fontSize: 13.5,
@@ -458,7 +458,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
             ),
             const SizedBox(width: 8),
             const Text(
-              'Gata!',
+              'Done!',
               style: TextStyle(
                 fontFamily: 'Google Sans',
                 fontSize: 16,
@@ -477,7 +477,7 @@ class _GoogleUsernameScreenState extends ConsumerState<GoogleUsernameScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Confirmă și Continuă',
+              'Confirm and Continue',
               style: TextStyle(
                 fontFamily: 'Google Sans',
                 fontSize: 15.5,

@@ -1,13 +1,15 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_profile_provider.dart';
 import '../../../services/auth_service.dart';
 import '../../widgets/blur_fade_route.dart';
+import '../../widgets/floating_circle_button.dart';
+import '../../widgets/tactile_scale_button.dart';
 import 'login_screen.dart';
 import 'widgets/auth_logo_header.dart';
 import 'widgets/auth_text_field.dart';
@@ -94,23 +96,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (email.isEmpty || username.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      setState(() => _localError = 'Te rugăm să completezi toate câmpurile.');
+      setState(() => _localError = AppStrings.fillAllFields);
       return;
     }
     if (!AuthService.isValidEmail(email)) {
-      setState(() => _localError = 'Adresa de email nu este validă.');
+      setState(() => _localError = AppStrings.invalidEmail);
       return;
     }
     if (!AuthService.isValidUsername(username)) {
-      setState(() => _localError = 'Username-ul trebuie să aibă între 2 și 24 caractere (litere, cifre, _, -).');
+      setState(() => _localError = 'Username must be 2-24 characters (letters, numbers, _, -).');
       return;
     }
     if (password.length < 8) {
-      setState(() => _localError = 'Parola trebuie să aibă cel puțin 8 caractere.');
+      setState(() => _localError = 'Password must be at least 8 characters.');
       return;
     }
     if (password != confirmPassword) {
-      setState(() => _localError = 'Parolele introduse nu coincid.');
+      setState(() => _localError = AppStrings.passwordsDoNotMatch);
       return;
     }
 
@@ -131,7 +133,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Cont creat cu succes! Bine ai venit pe Kurogane.'),
+            content: Text(AppStrings.registerSuccess),
             backgroundColor: AppColors.signalLive,
             behavior: SnackBarBehavior.floating,
             duration: Duration(seconds: 3),
@@ -174,7 +176,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Autentificare cu Google reușită! Bine ai venit pe Kurogane.'),
+            content: Text(AppStrings.googleSignInSuccess),
             backgroundColor: AppColors.signalLive,
             behavior: SnackBarBehavior.floating,
             duration: Duration(seconds: 3),
@@ -202,7 +204,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (Navigator.of(context).canPop() && !widget.showCloseButton)
-                    _AuthFloatingCircleButton(
+                    FloatingCircleButton(
                       size: 52,
                       onTap: () => Navigator.of(context).pop(),
                       child: Icon(
@@ -214,7 +216,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   else
                     const SizedBox(width: 52, height: 52),
                   if (widget.showCloseButton)
-                    _AuthFloatingCircleButton(
+                    FloatingCircleButton(
                       size: 52,
                       onTap: () => Navigator.of(context).pop(),
                       child: Icon(
@@ -241,8 +243,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     // Kurogane Minimalist Header
                     const AuthLogoHeader(
-                      title: 'Creare Cont Nou',
-                      subtitle: 'Alătură-te comunității Kurogane.',
+                      title: AppStrings.createAccount,
+                      subtitle: AppStrings.createAccountSubtitle,
                     ),
                     const SizedBox(height: 28),
 
@@ -289,8 +291,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           // 1. Email Field
                           AuthTextField(
                             controller: _emailController,
-                            label: 'Adresă de Email',
-                            hint: 'email@exemplu.com',
+                            label: AppStrings.email,
+                            hint: 'email@example.com',
                             icon: PhosphorIcons.envelope(PhosphorIconsStyle.bold),
                             keyboardType: TextInputType.emailAddress,
                             suffixIcon: _emailController.text.isNotEmpty
@@ -308,8 +310,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           // 2. Username Field
                           AuthTextField(
                             controller: _usernameController,
-                            label: 'Nume de Utilizator (2-24 caractere)',
-                            hint: 'ex: sebbi_otaku',
+                            label: 'Username (2-24 characters)',
+                            hint: 'e.g. sebbi_otaku',
                             icon: PhosphorIcons.user(PhosphorIconsStyle.bold),
                             suffixIcon: _usernameController.text.isNotEmpty
                                 ? Icon(
@@ -326,7 +328,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           // 3. Password Field
                           AuthTextField(
                             controller: _passwordController,
-                            label: 'Parolă (minim 8 caractere)',
+                            label: 'Password (min 8 characters)',
                             hint: '••••••••',
                             icon: PhosphorIcons.lockKey(PhosphorIconsStyle.bold),
                             obscureText: _obscurePassword,
@@ -359,7 +361,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           // 4. Confirm Password Field
                           AuthTextField(
                             controller: _confirmPasswordController,
-                            label: 'Confirmă Parola',
+                            label: AppStrings.confirmPassword,
                             hint: '••••••••',
                             icon: PhosphorIcons.lockKey(PhosphorIconsStyle.bold),
                             obscureText: _obscureConfirmPassword,
@@ -390,7 +392,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: 22),
 
                           // Primary Action Button (Solid Accent Color + OnPrimary + Tap Feedback)
-                          _AuthScaleButton(
+                          TactileScaleButton(
                             onTap: isLoading ? () {} : _handleRegister,
                             child: Container(
                               height: 52,
@@ -409,7 +411,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       ),
                                     )
                                   : Text(
-                                      'Creează contul',
+                                      AppStrings.signUp,
                                       style: TextStyle(
                                         color: context.onPrimary,
                                         fontWeight: FontWeight.w700,
@@ -437,7 +439,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Ai deja cont? ',
+                            '${AppStrings.alreadyHaveAccount} ',
                             style: TextStyle(
                               color: context.textSecondary,
                               fontSize: 13.5,
@@ -454,7 +456,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               );
                             },
                             child: Text(
-                              'Conectează-te',
+                              AppStrings.signIn,
                               style: TextStyle(
                                 color: context.textPrimary,
                                 fontWeight: FontWeight.w800,
@@ -473,116 +475,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// --- FLOATING 52px GLASS CIRCLE BUTTON PENTRU AUTH ---
-class _AuthFloatingCircleButton extends StatefulWidget {
-  final double size;
-  final VoidCallback onTap;
-  final Widget child;
-
-  const _AuthFloatingCircleButton({
-    required this.size,
-    required this.onTap,
-    required this.child,
-  });
-
-  @override
-  State<_AuthFloatingCircleButton> createState() => _AuthFloatingCircleButtonState();
-}
-
-class _AuthFloatingCircleButtonState extends State<_AuthFloatingCircleButton> {
-  bool _isPressed = false;
-
-  static final ImageFilter _glassFilter = ImageFilter.compose(
-    outer: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-    inner: const ColorFilter.matrix(<double>[
-      1.6296, -0.5720, -0.0576, 0, 0,
-     -0.1704,  1.2280, -0.0576, 0, 0,
-     -0.1704, -0.5720,  1.7424, 0, 0,
-      0,       0,       0,      1, 0,
-    ]),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 1.15 : 1.0,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutBack,
-        child: ClipOval(
-          child: BackdropFilter(
-            filter: _glassFilter,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
-              width: widget.size,
-              height: widget.size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _isPressed
-                    ? context.bgSurfaceHover
-                    : context.bgSurface.withValues(alpha: context.isDarkMode ? 0.75 : 0.88),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                        alpha: context.isDarkMode ? (_isPressed ? 0.5 : 0.35) : (_isPressed ? 0.12 : 0.08)),
-                    blurRadius: _isPressed ? 14 : 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: widget.child,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AuthScaleButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-
-  const _AuthScaleButton({
-    required this.child,
-    required this.onTap,
-  });
-
-  @override
-  State<_AuthScaleButton> createState() => _AuthScaleButtonState();
-}
-
-class _AuthScaleButtonState extends State<_AuthScaleButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.96 : 1.0,
-        duration: const Duration(milliseconds: 130),
-        curve: Curves.easeOutCubic,
-        child: widget.child,
       ),
     );
   }

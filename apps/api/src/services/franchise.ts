@@ -168,24 +168,22 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
       RECOMMENDED: [
         {
           id: 'fate-ubw',
-          mediaId: 'anilist-20755',
+          mediaId: 'anilist-19603',
           title: 'Fate/stay night: Unlimited Blade Works',
           type: 'TV',
           episodesInfo: '25 Episoade (Sezoanele 1 & 2)',
           releaseYear: 2014,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/10/67671.jpg',
           orderIndex: 1,
           note: 'Punctul ideal de start! Prezintă universul și ruta lui Rin Tohsaka fără spoilere din VN.',
           isCanon: true,
         },
         {
           id: 'fate-hf-1',
-          mediaId: 'anilist-21717',
+          mediaId: 'anilist-20791',
           title: 'Fate/stay night: Heaven\'s Feel - I. Presage Flower',
           type: 'MOVIE',
           episodesInfo: 'Trilogia de filme (Filmul 1)',
           releaseYear: 2017,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/8/88099.jpg',
           orderIndex: 2,
           note: 'Ruta întunecată a Sakurei Matou. Vizionează toate cele 3 filme Heaven\'s Feel aici.',
           isCanon: true,
@@ -197,7 +195,6 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
           type: 'TV',
           episodesInfo: '25 Episoade (Al IV-lea Război)',
           releaseYear: 2011,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/2/33947.jpg',
           orderIndex: 3,
           note: 'Prequel-ul maestru regizat de ufotable. Dezvăluie originile lui Kiritsugu și Seiba.',
           isCanon: true,
@@ -209,7 +206,6 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
           type: 'TV',
           episodesInfo: '24 Episoade (Ruta Saber)',
           releaseYear: 2006,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/13/11690.jpg',
           orderIndex: 4,
           note: 'Prima adaptare TV (Ruta originală Saber). Opțională datorită animației mai vechi.',
           isCanon: true,
@@ -223,31 +219,28 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
           type: 'TV',
           episodesInfo: '25 Episoade',
           releaseYear: 2011,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/2/33947.jpg',
           orderIndex: 1,
           note: 'Cronologic primul eveniment istoric. Avertisment: conține spoilere pentru finalul Heaven\'s Feel!',
           isCanon: true,
         },
         {
           id: 'fate-ubw-c',
-          mediaId: 'anilist-20755',
+          mediaId: 'anilist-19603',
           title: 'Fate/stay night: Unlimited Blade Works (Anul 2004)',
           type: 'TV',
           episodesInfo: '25 Episoade',
           releaseYear: 2014,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/10/67671.jpg',
           orderIndex: 2,
           note: 'Evenimentele din al V-lea Război al Graalului la 10 ani după Fate/Zero.',
           isCanon: true,
         },
         {
           id: 'fate-hf-c',
-          mediaId: 'anilist-21717',
+          mediaId: 'anilist-20791',
           title: 'Fate/stay night: Heaven\'s Feel Trilogy',
           type: 'MOVIE',
           episodesInfo: '3 Filme',
           releaseYear: 2017,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/8/88099.jpg',
           orderIndex: 3,
           note: 'Concluzia adevărată a războiului din 2004.',
           isCanon: true,
@@ -261,7 +254,6 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
           type: 'TV',
           episodesInfo: '24 Episoade',
           releaseYear: 2006,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/13/11690.jpg',
           orderIndex: 1,
           isCanon: true,
         },
@@ -272,29 +264,26 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
           type: 'TV',
           episodesInfo: '25 Episoade',
           releaseYear: 2011,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/2/33947.jpg',
           orderIndex: 2,
           isCanon: true,
         },
         {
           id: 'fate-r3',
-          mediaId: 'anilist-20755',
+          mediaId: 'anilist-19603',
           title: 'Fate/stay night: UBW (2014)',
           type: 'TV',
           episodesInfo: '25 Episoade',
           releaseYear: 2014,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/10/67671.jpg',
           orderIndex: 3,
           isCanon: true,
         },
         {
           id: 'fate-r4',
-          mediaId: 'anilist-21717',
+          mediaId: 'anilist-20791',
           title: 'Fate/stay night: Heaven\'s Feel Trilogy (2017-2020)',
           type: 'MOVIE',
           episodesInfo: '3 Filme',
           releaseYear: 2017,
-          coverImage: 'https://cdn.myanimelist.net/images/anime/8/88099.jpg',
           orderIndex: 4,
           isCanon: true,
         },
@@ -333,7 +322,7 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
     franchiseName: 'Demon Slayer (Kimetsu no Yaiba)',
     description: 'Călătoria lui Tanjiro Kamado pentru răzbunarea familiei și vindecarea surorii sale Nezuko.',
     communityTip:
-      '✨ Ghid Demon Slayer: Ordinea este simplă și liniară. Vizionează Sezonul 1 ➔ Filmul Mugen Train (sau varianta TV) ➔ Sezonul 2 (Entertainment District) ➔ Sezonul 3 (Swordsmith Village) ➔ Sezonul 4 (Hashira Training).',
+      'Filmul Mugen Train este 100% canonic și leagă direct Sezonul 1 de Sezonul 2. Dacă ai vizionat filmul, poți începe Sezonul 2 direct de la episodul 8 (Arc-ul Entertainment District).',
     paths: {
       RECOMMENDED: [
         {
@@ -479,7 +468,7 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
     franchiseName: 'Attack on Titan (Shingeki no Kyojin)',
     description: 'Lupta omenirii împotriva titanilor din spatele Zidurilor.',
     communityTip:
-      '✨ Ghid Attack on Titan: Seria se vizionează în ordinea sezoanelor: Sezonul 1 ➔ Sezonul 2 ➔ Sezonul 3 (Partea 1 & 2) ➔ The Final Season (Partea 1, 2, 3, 4).',
+      'Toate filmele lansate sunt rezumate (recap-uri) și pot fi omise fără a pierde povestea canonică. OVA-urile «No Regrets» oferă povestea de fundal esențială a lui Levi.',
     paths: {
       RECOMMENDED: [
         {
@@ -581,56 +570,72 @@ const FRANCHISE_GUIDES: Record<string, WatchOrderGuide> = {
 
 export class FranchiseService {
   /**
+   * Hydrates real AniList cover images for all guide nodes dynamically
+   */
+  private async hydrateGuideCovers(guide: WatchOrderGuide): Promise<WatchOrderGuide> {
+    const cloned: WatchOrderGuide = JSON.parse(JSON.stringify(guide));
+    for (const pathKey of Object.keys(cloned.paths)) {
+      for (const node of cloned.paths[pathKey]) {
+        if (node.mediaId) {
+          try {
+            const media = await dbService.getMediaByIdAsync(node.mediaId);
+            if (media?.coverImage?.large) {
+              node.coverImage = media.coverImage.large;
+            }
+          } catch (_) {}
+        }
+      }
+    }
+    return cloned;
+  }
+
+  /**
    * Returns Watch Order Guide for a given media ID
    */
-  public getWatchOrderGuide(mediaId: string): WatchOrderGuide | null {
-    const item = dbService.getMediaById(mediaId);
+  public async getWatchOrderGuide(mediaId: string): Promise<WatchOrderGuide | null> {
+    const item = await dbService.getMediaByIdAsync(mediaId);
     const titleLower = item?.title.userPreferred.toLowerCase() || '';
 
-    // 1. Check explicit pre-configured guides
+    // 1. Check explicit pre-configured guides (Exact ID sets to avoid false positives)
+    const narutoIds = new Set(['anilist-20', 'anilist-1735', 'anilist-20596', 'anilist-21040', 'anilist-97938']);
     if (
-      mediaId.includes('20') ||
-      mediaId.includes('1735') ||
-      mediaId.includes('20596') ||
-      titleLower.includes('naruto') ||
-      titleLower.includes('boruto')
+      narutoIds.has(mediaId) ||
+      /\bnaruto\b/i.test(titleLower) ||
+      /\bboruto\b/i.test(titleLower)
     ) {
-      return FRANCHISE_GUIDES['naruto-series'];
+      return this.hydrateGuideCovers(FRANCHISE_GUIDES['naruto-series']);
     }
 
+    const fateIds = new Set(['anilist-10087', 'anilist-19603', 'anilist-20791', 'anilist-356', 'anilist-98035', 'anilist-103275']);
     if (
-      mediaId.includes('10087') ||
-      mediaId.includes('20755') ||
-      mediaId.includes('21717') ||
-      mediaId.includes('356') ||
-      mediaId.includes('98035') ||
-      titleLower.includes('fate/')
+      fateIds.has(mediaId) ||
+      titleLower.startsWith('fate/') ||
+      titleLower.startsWith('fate ') ||
+      titleLower.includes('fate/stay') ||
+      titleLower.includes('fate/zero')
     ) {
-      return FRANCHISE_GUIDES['fate-series'];
+      return this.hydrateGuideCovers(FRANCHISE_GUIDES['fate-series']);
     }
 
+    const demonSlayerIds = new Set(['anilist-101922', 'anilist-112151', 'anilist-129874', 'anilist-145139']);
     if (
-      mediaId.includes('101922') ||
-      mediaId.includes('112151') ||
-      mediaId.includes('129874') ||
-      mediaId.includes('145139') ||
+      demonSlayerIds.has(mediaId) ||
       titleLower.includes('demon slayer') ||
       titleLower.includes('kimetsu no yaiba')
     ) {
-      return FRANCHISE_GUIDES['demon-slayer'];
+      return this.hydrateGuideCovers(FRANCHISE_GUIDES['demon-slayer']);
     }
 
+    const aotIds = new Set(['anilist-16498', 'anilist-20958', 'anilist-99147', 'anilist-110277']);
     if (
-      mediaId.includes('16498') ||
-      mediaId.includes('20958') ||
-      mediaId.includes('99147') ||
+      aotIds.has(mediaId) ||
       titleLower.includes('attack on titan') ||
       titleLower.includes('shingeki no kyojin')
     ) {
-      return FRANCHISE_GUIDES['attack-on-titan'];
+      return this.hydrateGuideCovers(FRANCHISE_GUIDES['attack-on-titan']);
     }
 
-    // 2. Dynamic Watch Order Builder for all other series
+    // 2. Dynamic Watch Order Builder for all other series (e.g. Ansatsu Kyoushitsu)
     if (item) {
       return this.buildDynamicWatchOrderGuide(item);
     }
@@ -648,7 +653,9 @@ export class FranchiseService {
       return mRoot.length >= 3 && (mRoot === rootTitle || mRoot.includes(rootTitle) || rootTitle.includes(mRoot));
     });
 
-    if (relatedItems.length === 0) return null;
+    if (!relatedItems.some((m) => m.id === item.id)) {
+      relatedItems.push(item);
+    }
 
     // Sort by release year
     const sorted = relatedItems.sort((a, b) => (a.year || 9999) - (b.year || 9999));
@@ -699,16 +706,21 @@ export class FranchiseService {
   }
 
   private sanitizeRoot(title: string): string {
-    if (!title) return '';
-    return title
-      .toLowerCase()
-      .replace(/:\s*(season|part|cour)\s*\d+/gi, '')
-      .replace(/\s+\d+(st|nd|rd|th)?\s+(season|part|cour)/gi, '')
-      .replace(/\s+(season|part|cour)\s+\d+/gi, '')
-      .replace(/[:\-].*$/, '')
-      .replace(/[^a-z0-9]/gi, '');
+    return sanitizeRoot(title);
   }
 }
 
+export function sanitizeRoot(title: string): string {
+  if (!title) return '';
+  return title
+    .toLowerCase()
+    .replace(/:\s*(season|part|cour)\s*\d+/gi, '')
+    .replace(/\s+\d+(st|nd|rd|th)?\s+(season|part|cour)/gi, '')
+    .replace(/\s+(season|part|cour)\s+\d+/gi, '')
+    .replace(/[:\-].*$/, '')
+    .replace(/[^a-z0-9]/gi, '');
+}
+
 export const franchiseService = new FranchiseService();
+
 

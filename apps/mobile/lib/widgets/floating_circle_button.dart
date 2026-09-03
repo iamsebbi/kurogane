@@ -26,6 +26,10 @@ class _FloatingCircleButtonState extends State<FloatingCircleButton> {
 
   @override
   Widget build(BuildContext context) {
+    final Color buttonBg = _isPressed
+        ? (context.isDarkMode ? const Color(0xFF383838) : Colors.white)
+        : (context.isDarkMode ? const Color(0xFF2C2C2C) : const Color(0xFFFAF7F0));
+
     return GestureDetector(
       onTapDown: (_) {
         HapticFeedback.lightImpact();
@@ -50,20 +54,17 @@ class _FloatingCircleButtonState extends State<FloatingCircleButton> {
               height: widget.size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _isPressed
-                    ? context.bgSurfaceHover
-                    : context.bgSurface.withValues(alpha: context.isDarkMode ? 0.75 : 0.88),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: context.isDarkMode
-                          ? (_isPressed ? 0.35 : 0.20)
-                          : (_isPressed ? 0.10 : 0.05),
-                    ),
-                    blurRadius: _isPressed ? 10 : 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                color: buttonBg.withValues(
+                  alpha: _isPressed
+                      ? (context.isDarkMode ? 0.88 : 0.96)
+                      : (context.isDarkMode ? 0.72 : 0.78),
+                ),
+                border: Border.all(
+                  color: !context.isDarkMode
+                      ? Colors.white.withValues(alpha: _isPressed ? 0.95 : 0.70)
+                      : Colors.transparent,
+                  width: 0.6,
+                ),
               ),
               alignment: Alignment.center,
               child: widget.child,

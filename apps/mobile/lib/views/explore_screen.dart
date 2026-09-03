@@ -3,15 +3,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
-import '../models/media_item.dart';
+import '../core/constants/app_strings.dart';
 import '../providers/api_providers.dart';
-import '../widgets/media_card.dart';
+import '../widgets/clean_poster_card.dart';
+import '../widgets/floating_circle_button.dart';
 import '../widgets/search_filter_sheet.dart';
-import '../widgets/blur_fade_route.dart';
-import 'media_detail_screen.dart';
+import '../widgets/standard_horizontal_card.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -55,16 +54,16 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   String _getSortLabel(String sortBy) {
     switch (sortBy) {
       case 'SCORE_DESC':
-        return 'Scor';
+        return AppStrings.sortScore;
       case 'POPULARITY_DESC':
-        return 'Popularitate';
+        return AppStrings.sortPopularity;
       case 'YEAR_DESC':
-        return 'An';
+        return AppStrings.sortYear;
       case 'TITLE_ASC':
-        return 'Titlu (A-Z)';
+        return AppStrings.sortTitleAz;
       case 'RELEVANCE':
       default:
-        return 'Relevanță';
+        return AppStrings.sortRelevance;
     }
   }
 
@@ -106,7 +105,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           size: 48, color: AppColors.alertCoral),
                       const SizedBox(height: 16),
                       Text(
-                        'Eroare la încărcarea conținutului',
+                        AppStrings.exploreLoadError,
                         style: TextStyle(
                           color: context.textPrimary,
                           fontSize: 16,
@@ -124,7 +123,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       ElevatedButton.icon(
                         onPressed: () => ref.invalidate(searchResultsProvider),
                         icon: const Icon(Icons.refresh_rounded, size: 18),
-                        label: const Text('Reîncearcă'),
+                        label: const Text(AppStrings.retry),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: context.accentPrimary,
                           foregroundColor: context.onPrimary,
@@ -158,7 +157,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           ),
                           const SizedBox(height: 18),
                           Text(
-                            isUserFiltering ? 'Niciun rezultat găsit' : 'Catalogul este gol',
+                            isUserFiltering ? AppStrings.exploreNoResultsTitle : 'Catalog is empty',
                             style: TextStyle(
                               color: context.textPrimary,
                               fontSize: 17,
@@ -169,8 +168,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           const SizedBox(height: 8),
                           Text(
                             isUserFiltering
-                                ? 'Nu am găsit titluri care să corespundă criteriilor alese.\nÎncearcă să resetezi sau să lărgești filtrele.'
-                                : 'Verifică conexiunea la serverul Kurogane.',
+                                ? AppStrings.exploreNoResultsSubtitle
+                                : 'Check your connection to Kurogane server.',
                             style: TextStyle(
                               color: context.textSecondary,
                               fontSize: 13,
@@ -183,7 +182,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                             ElevatedButton.icon(
                               onPressed: _resetAllFilters,
                               icon: const Icon(Icons.refresh_rounded, size: 17),
-                              label: const Text('Resetează toate filtrele'),
+                              label: const Text(AppStrings.exploreResetFilters),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: context.accentPrimary,
                                 foregroundColor: context.onPrimary,
@@ -238,7 +237,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      'Doar ${results.length} ${results.length == 1 ? "rezultat găsit" : "rezultate găsite"} pentru selecția ta. Încearcă să lărgești filtrele pentru mai multe titluri.',
+                                      'Only ${results.length} ${results.length == 1 ? "result found" : "results found"} for your selection. Try broadening your filters for more titles.',
                                       style: TextStyle(
                                         color: context.textPrimary,
                                         fontSize: 12,
@@ -266,7 +265,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                             ),
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
-                                return MediaCard(item: results[index], width: double.infinity);
+                                return CleanPosterCard.fromMediaItem(
+                                  item: results[index],
+                                );
                               },
                               childCount: results.length,
                             ),
@@ -278,7 +279,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           sliver: SliverList(
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
-                                return _buildExploreListItem(context, results[index]);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: StandardHorizontalCard.fromMediaItem(
+                                    item: results[index],
+                                  ),
+                                );
                               },
                               childCount: results.length,
                             ),
@@ -313,7 +319,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Explorează',
+                                  AppStrings.exploreTitle,
                                   style: TextStyle(
                                     color: context.textPrimary,
                                     fontFamily: 'Zalando Sans Expanded',
@@ -325,7 +331,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               ),
 
                               // Floating Filter Button
-                              _ExploreFloatingCircleButton(
+                              FloatingCircleButton(
                                 size: 48,
                                 onTap: () {
                                   showModalBottomSheet(
@@ -383,7 +389,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                 fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
-                                hintText: 'Caută titlu, gen sau acronim (ex: aot, jjk)...',
+                                hintText: AppStrings.exploreSearchHint,
                                 hintStyle: TextStyle(
                                   color: context.textMuted,
                                   fontSize: 13,
@@ -472,11 +478,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       elevation: 6,
       itemBuilder: (context) => [
-        _buildSortMenuItem(context, 'RELEVANCE', 'Relevanță', PhosphorIcons.target(PhosphorIconsStyle.bold), currentSort),
-        _buildSortMenuItem(context, 'SCORE_DESC', 'Scor', PhosphorIcons.star(PhosphorIconsStyle.fill), currentSort),
-        _buildSortMenuItem(context, 'POPULARITY_DESC', 'Popularitate', PhosphorIcons.fire(PhosphorIconsStyle.fill), currentSort),
-        _buildSortMenuItem(context, 'YEAR_DESC', 'An (Recent)', PhosphorIcons.calendar(PhosphorIconsStyle.bold), currentSort),
-        _buildSortMenuItem(context, 'TITLE_ASC', 'Titlu (A-Z)', PhosphorIcons.sortAscending(PhosphorIconsStyle.bold), currentSort),
+        _buildSortMenuItem(context, 'RELEVANCE', AppStrings.sortRelevance, PhosphorIcons.target(PhosphorIconsStyle.bold), currentSort),
+        _buildSortMenuItem(context, 'SCORE_DESC', AppStrings.sortScore, PhosphorIcons.star(PhosphorIconsStyle.fill), currentSort),
+        _buildSortMenuItem(context, 'POPULARITY_DESC', AppStrings.sortPopularity, PhosphorIcons.fire(PhosphorIconsStyle.fill), currentSort),
+        _buildSortMenuItem(context, 'YEAR_DESC', AppStrings.sortYear, PhosphorIcons.calendar(PhosphorIconsStyle.bold), currentSort),
+        _buildSortMenuItem(context, 'TITLE_ASC', AppStrings.sortTitleAz, PhosphorIcons.sortAscending(PhosphorIconsStyle.bold), currentSort),
       ],
       child: Container(
         height: 38,
@@ -611,7 +617,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          'Grilă',
+                          AppStrings.viewGrid,
                           style: TextStyle(
                             color: _isGridView ? context.onPrimary : context.textSecondary,
                             fontWeight: _isGridView ? FontWeight.w800 : FontWeight.w600,
@@ -625,7 +631,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 ),
               ),
 
-              // Listă Tab
+              // List Tab
               Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -644,7 +650,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          'Listă',
+                          AppStrings.viewList,
                           style: TextStyle(
                             color: !_isGridView ? context.onPrimary : context.textSecondary,
                             fontWeight: !_isGridView ? FontWeight.w800 : FontWeight.w600,
@@ -660,303 +666,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  String _formatYearSeason(MediaItem item) {
-    String seasonStr = '';
-    if (item.season != null && item.season!.isNotEmpty) {
-      final s = item.season!.toUpperCase();
-      if (s == 'WINTER') {
-        seasonStr = 'Winter';
-      } else if (s == 'SPRING') {
-        seasonStr = 'Spring';
-      } else if (s == 'SUMMER') {
-        seasonStr = 'Summer';
-      } else if (s == 'FALL') {
-        seasonStr = 'Fall';
-      } else {
-        seasonStr = item.season![0].toUpperCase() + item.season!.substring(1).toLowerCase();
-      }
-    }
-
-    if (item.year != null && item.year! > 0) {
-      if (seasonStr.isNotEmpty) {
-        return '${item.year} $seasonStr';
-      }
-      return '${item.year}';
-    } else if (seasonStr.isNotEmpty) {
-      return seasonStr;
-    }
-    return '';
-  }
-
-  Widget _buildExploreListItem(BuildContext context, MediaItem item) {
-    final title = item.title.userPreferred;
-    final rawScore = item.scores.weightedScore > 0 ? item.scores.weightedScore : item.scores.averageScore;
-    final formattedScore = rawScore > 0 ? (rawScore > 10 ? (rawScore / 10).toStringAsFixed(1) : rawScore.toStringAsFixed(1)) : null;
-    final yearSeasonText = _formatYearSeason(item);
-    final coverUrl = item.coverImage.large.isNotEmpty
-        ? item.coverImage.large
-        : (item.coverImage.extraLarge ?? '');
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: _ExploreCardScaleTile(
-        onTap: () {
-          Navigator.of(context).push(
-            BlurFadePageRoute(
-              child: MediaDetailScreen(mediaId: item.id, initialItem: item),
-            ),
-          );
-        },
-        child: Container(
-          height: 98,
-          decoration: BoxDecoration(
-            color: context.bgSurface,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              if (!context.isDarkMode)
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Row(
-            children: [
-              // Left Poster
-              SizedBox(
-                width: 78,
-                height: 98,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    CachedNetworkImage(
-                      imageUrl: coverUrl,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
-                      placeholder: (context, url) => Container(color: context.bgSurfaceHover),
-                      errorWidget: (context, url, error) => Container(
-                        color: context.bgSurfaceHover,
-                        child: Icon(
-                          PhosphorIcons.imageBroken(PhosphorIconsStyle.bold),
-                          color: context.textMuted,
-                        ),
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Colors.transparent,
-                              context.bgSurface.withValues(alpha: 0.05),
-                              context.bgSurface.withValues(alpha: 0.70),
-                              context.bgSurface,
-                            ],
-                            stops: const [0.25, 0.60, 0.88, 1.0],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Right Content Area
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 12, 14, 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontFamily: 'Zalando Sans Expanded',
-                                color: context.textPrimary,
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w700,
-                                height: 1.25,
-                              ),
-                            ),
-                            if (yearSeasonText.isNotEmpty) ...[
-                              const SizedBox(height: 5),
-                              Text(
-                                yearSeasonText,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontFamily: 'Google Sans',
-                                  color: context.textMuted,
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      if (formattedScore != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          height: 24,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xE60F1419),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                PhosphorIcons.star(PhosphorIconsStyle.fill),
-                                size: 11,
-                                color: AppColors.scoreGold,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                formattedScore,
-                                style: const TextStyle(
-                                  color: AppColors.scoreGold,
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.bold,
-                                  fontFeatures: [FontFeature.tabularFigures()],
-                                  height: 1.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ExploreCardScaleTile extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-
-  const _ExploreCardScaleTile({
-    required this.child,
-    required this.onTap,
-  });
-
-  @override
-  State<_ExploreCardScaleTile> createState() => _ExploreCardScaleTileState();
-}
-
-class _ExploreCardScaleTileState extends State<_ExploreCardScaleTile> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 130),
-        curve: Curves.easeOutCubic,
-        child: AnimatedOpacity(
-          opacity: _isPressed ? 0.92 : 1.0,
-          duration: const Duration(milliseconds: 130),
-          child: widget.child,
-        ),
-      ),
-    );
-  }
-}
-
-class _ExploreFloatingCircleButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-  final double size;
-
-  const _ExploreFloatingCircleButton({
-    required this.child,
-    required this.onTap,
-    this.size = 52,
-  });
-
-  @override
-  State<_ExploreFloatingCircleButton> createState() => _ExploreFloatingCircleButtonState();
-}
-
-class _ExploreFloatingCircleButtonState extends State<_ExploreFloatingCircleButton> {
-  bool _isPressed = false;
-  static final _glassFilter = ImageFilter.blur(sigmaX: 18, sigmaY: 18);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        HapticFeedback.lightImpact();
-        setState(() => _isPressed = true);
-      },
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 1.15 : 1.0,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutBack,
-        child: ClipOval(
-          child: BackdropFilter(
-            filter: _glassFilter,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
-              width: widget.size,
-              height: widget.size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _isPressed
-                    ? context.bgSurfaceHover
-                    : context.bgSurface.withValues(alpha: context.isDarkMode ? 0.75 : 0.88),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                        alpha: context.isDarkMode ? (_isPressed ? 0.5 : 0.35) : (_isPressed ? 0.12 : 0.08)),
-                    blurRadius: _isPressed ? 14 : 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: widget.child,
-            ),
-          ),
-        ),
       ),
     );
   }

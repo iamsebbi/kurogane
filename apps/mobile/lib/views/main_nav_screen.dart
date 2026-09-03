@@ -6,9 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../providers/api_providers.dart';
 import '../widgets/border_beam.dart';
-import '../widgets/media_card.dart';
+import '../widgets/clean_poster_card.dart';
 import 'home_screen.dart';
 import 'explore_screen.dart';
 import 'watchlist_screen.dart';
@@ -77,17 +78,17 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
         _NavItemData(
           icon: PhosphorIcons.house(PhosphorIconsStyle.bold),
           activeIcon: PhosphorIcons.house(PhosphorIconsStyle.fill),
-          label: 'Acasă',
+          label: AppStrings.navHome,
         ),
         _NavItemData(
           icon: PhosphorIcons.compass(PhosphorIconsStyle.bold),
           activeIcon: PhosphorIcons.compass(PhosphorIconsStyle.fill),
-          label: 'Explorare',
+          label: AppStrings.navExplore,
         ),
         _NavItemData(
           icon: PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
           activeIcon: PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.fill),
-          label: 'Watchlist',
+          label: AppStrings.navWatchlist,
         ),
       ];
 
@@ -440,7 +441,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
                 cursorColor: context.textPrimary,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: 'Caută titlu sau acronim (ex: aot, jjk)...',
+                  hintText: AppStrings.quickSearchPlaceholder,
                   hintStyle: TextStyle(
                     color: context.textMuted,
                     fontSize: 13.5,
@@ -613,7 +614,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Căutare Rapidă',
+                        AppStrings.quickSearchEmptyTitle,
                         style: TextStyle(
                           color: context.textPrimary,
                           fontSize: 17,
@@ -622,7 +623,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Tastează un titlu, gen sau acronim pentru rezultate instantanee.',
+                        AppStrings.quickSearchEmptySubtitle,
                         style: TextStyle(
                           color: context.textSecondary,
                           fontSize: 13,
@@ -646,7 +647,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: Text(
-                      'Eroare la căutare: $err',
+                      '${AppStrings.errorPrefix}: $err',
                       style: const TextStyle(color: AppColors.alertCoral, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
@@ -668,7 +669,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
                             ),
                             const SizedBox(height: 14),
                             Text(
-                              'Niciun rezultat pentru "$query"',
+                              '${AppStrings.quickSearchNoResults} "$query"',
                               style: TextStyle(
                                 color: context.textPrimary,
                                 fontSize: 15,
@@ -678,7 +679,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Verifică ortografia sau încearcă un alt titlu.',
+                              AppStrings.quickSearchTryAgain,
                               style: TextStyle(
                                 color: context.textSecondary,
                                 fontSize: 12.5,
@@ -695,14 +696,16 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
                     padding: EdgeInsets.fromLTRB(16, 16, 16, barBottom + 70),
                     physics: const BouncingScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.52,
-                      crossAxisSpacing: 10,
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.63,
+                      crossAxisSpacing: 12,
                       mainAxisSpacing: 14,
                     ),
                     itemCount: results.length,
                     itemBuilder: (context, index) {
-                      return MediaCard(item: results[index]);
+                      return CleanPosterCard.fromMediaItem(
+                        item: results[index],
+                      );
                     },
                   );
                 },

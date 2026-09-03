@@ -6,15 +6,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
+import '../core/utils/media_status_helper.dart';
 import '../models/media_item.dart';
 import '../models/watchlist_item.dart';
-import '../providers/anilist_provider.dart';
 import '../providers/api_providers.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/pill_badge.dart';
-import '../widgets/watch_order_tree_view.dart';
-import '../widgets/media_card.dart';
+import '../widgets/media_relations_view.dart';
 import '../widgets/floating_circle_button.dart';
+import '../widgets/horizontal_poster_carousel.dart';
+import '../widgets/section_header.dart';
+import '../widgets/community_metrics_card.dart';
+import '../widgets/cast_and_staff_view.dart';
+import '../widgets/theme_songs_view.dart';
+import '../widgets/watchlist_edit_modal.dart';
 import 'auth/login_screen.dart';
 
 class MediaDetailScreen extends ConsumerStatefulWidget {
@@ -39,10 +45,18 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_handleTabChange);
+  }
+
+  void _handleTabChange() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
     super.dispose();
   }
@@ -50,14 +64,13 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
   @override
   Widget build(BuildContext context) {
     final mediaAsync = ref.watch(mediaDetailProvider(widget.mediaId));
-    final watchOrderAsync = ref.watch(watchOrderProvider(widget.mediaId));
     final similarAsync = ref.watch(similarMediaProvider(widget.mediaId));
 
     return Scaffold(
       backgroundColor: context.bgPrimary,
       body: mediaAsync.when(
         loading: () => widget.initialItem != null
-            ? _buildDetailContent(widget.initialItem!, watchOrderAsync, similarAsync)
+            ? _buildDetailContent(widget.initialItem!, similarAsync)
             : Center(
                 child: CircularProgressIndicator(color: context.accentPrimary),
               ),
@@ -74,7 +87,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Eroare la încărcare',
+                  '${AppStrings.errorPrefix} loading title',
                   style: TextStyle(
                     color: context.textPrimary,
                     fontSize: 16,
@@ -95,7 +108,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
           if (item == null) {
             return Center(
               child: Text(
-                'Titlul nu a fost găsit',
+                'Title not found',
                 style: TextStyle(
                   color: context.textPrimary,
                   fontSize: 16,
@@ -104,7 +117,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
               ),
             );
           }
-          return _buildDetailContent(item, watchOrderAsync, similarAsync);
+          return _buildDetailContent(item, similarAsync);
         },
       ),
     );
@@ -112,7 +125,6 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
 
   Widget _buildDetailContent(
     MediaItem item,
-    AsyncValue<dynamic> watchOrderAsync,
     AsyncValue<List<MediaItem>> similarAsync,
   ) {
     final studios = item.studios.isNotEmpty
@@ -146,7 +158,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     // Metadate tehnice curate (fără formatul/canalul de difuzare TV)
     final technicalMetaList = <String>[];
     if (item.episodes != null && item.episodes! > 0) {
-      technicalMetaList.add('${item.episodes} Episoade');
+      technicalMetaList.add('${item.episodes} ${item.episodes == 1 ? "Episode" : "Episodes"}');
     }
     if (item.status != null && item.status!.isNotEmpty) {
       technicalMetaList.add(_formatStatusText(item.status!));
@@ -163,9 +175,20 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     );
     final bool isPlanToWatch = currentRecord?.status == 'PLAN_TO_WATCH';
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      slivers: [
+    return RefreshIndicator(
+      color: context.accentPrimary,
+      backgroundColor: context.bgSurface,
+      onRefresh: () async {
+        ref.invalidate(mediaDetailProvider(widget.mediaId));
+        ref.invalidate(watchOrderProvider(widget.mediaId));
+        ref.invalidate(similarMediaProvider(widget.mediaId));
+        try {
+          await ref.read(mediaDetailProvider(widget.mediaId).future);
+        } catch (_) {}
+      },
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
         // 1. Hero AppBar cu Poster Cinematic Extins, Deep Scrim & Quick Floating Trailer CTA
         SliverAppBar(
           expandedHeight: heroHeight,
@@ -207,7 +230,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Eliminat din 'De văzut'"),
+                          content: Text("Removed from 'Plan to Watch'"),
                           behavior: SnackBarBehavior.floating,
                           duration: Duration(seconds: 2),
                         ),
@@ -221,7 +244,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Adăugat la 'De văzut'!"),
+                          content: Text("Added to 'Plan to Watch'!"),
                           behavior: SnackBarBehavior.floating,
                           duration: Duration(seconds: 2),
                         ),
@@ -487,15 +510,14 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                 // 6. Sinopsis
                 if (cleanDescription.isNotEmpty) ...[
                   Text(
-                    'SINOPSIS',
+                    AppStrings.synopsis,
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: context.textSecondary,
-                      letterSpacing: 0.8,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: context.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   AnimatedSize(
                     duration: const Duration(milliseconds: 320),
                     curve: Curves.easeInOutCubic,
@@ -525,7 +547,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _isSynopsisExpanded ? 'Arată mai puțin' : 'Citește mai mult',
+                            _isSynopsisExpanded ? AppStrings.readLess : AppStrings.readMore,
                             style: TextStyle(
                               color: context.accentPrimary,
                               fontSize: 12.5,
@@ -550,17 +572,27 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   ),
                 ],
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 18),
 
-                // 7. Tab Bar & Semnătură Watch Order
+                // 7. Tab Bar Scrollabil (Pill Navigation)
                 Container(
-                  padding: const EdgeInsets.all(4),
+                  height: 42,
+                  padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                     color: context.bgSurface,
                     borderRadius: BorderRadius.circular(9999),
                   ),
                   child: TabBar(
                     controller: _tabController,
+                    isScrollable: false,
+                    padding: EdgeInsets.zero,
+                    splashFactory: NoSplash.splashFactory,
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                    enableFeedback: false,
+                    onTap: (index) {
+                      HapticFeedback.selectionClick();
+                      setState(() {});
+                    },
                     indicator: BoxDecoration(
                       color: context.accentPrimary,
                       borderRadius: BorderRadius.circular(9999),
@@ -578,9 +610,9 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                     ),
                     dividerColor: Colors.transparent,
                     tabs: const [
-                      Tab(text: 'Watch Order'),
-                      Tab(text: 'Similare'),
-                      Tab(text: 'Detalii'),
+                      Tab(text: 'Relations'),
+                      Tab(text: 'Characters'),
+                      Tab(text: 'Music'),
                     ],
                   ),
                 ),
@@ -592,128 +624,158 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
         // 3. Tab Views Content
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-            child: [
-              // Tab 1: Elementul Semnătură - Watch Order Tree
-              watchOrderAsync.when(
-                loading: () => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: CircularProgressIndicator(color: context.accentPrimary),
-                  ),
-                ),
-                error: (e, st) => Center(
-                  child: Text(
-                    'Ghidul de vizionare nu este disponibil.',
-                    style: TextStyle(color: context.textSecondary, fontSize: 13),
-                  ),
-                ),
-                data: (guide) {
-                  if (guide == null) {
-                    return Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: context.bgSurface,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Această serie este autonomă (fără franciză complexă).',
-                          style: TextStyle(color: context.textSecondary, fontSize: 13),
-                        ),
-                      ),
-                    );
-                  }
-                  return WatchOrderTreeView(
-                    guide: guide,
-                    parentCoverImage: item.coverImage.large,
-                  );
-                },
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              child: KeyedSubtree(
+                key: ValueKey<int>(_tabController.index),
+                child: [
+              // Tab 0: Relații Oficiale Franciză (Prequel, Sequel, Side Stories, etc.)
+              MediaRelationsView(
+                relations: item.relations,
+                currentMediaId: item.id,
               ),
 
-              // Tab 2: Similar Anime Cards
-              similarAsync.when(
-                loading: () => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: CircularProgressIndicator(color: context.accentPrimary),
-                  ),
-                ),
-                error: (e, st) => Center(
-                  child: Text(
-                    'Recomandările nu sunt disponibile.',
-                    style: TextStyle(color: context.textSecondary, fontSize: 13),
-                  ),
-                ),
-                data: (simList) {
-                  if (simList.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Nicio recomandare similară momentan.',
-                        style: TextStyle(color: context.textSecondary, fontSize: 13),
-                      ),
-                    );
-                  }
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.62,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    itemCount: simList.length,
-                    itemBuilder: (context, index) => MediaCard(
-                      item: simList[index],
-                      width: double.infinity,
-                    ),
-                  );
-                },
+              // Tab 1: Distribuție & Staff (Voice Actors as Character + Production Staff)
+              CastAndStaffView(
+                characters: item.characters,
+                staff: item.staff,
               ),
 
-              // Tab 3: Detailed Tech Info
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: context.bgSurface,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    _buildInfoRow(
-                      context,
-                      'Format',
-                      (item.format != null && item.format!.isNotEmpty)
-                          ? item.format!
-                          : (item.type.isNotEmpty ? item.type : 'Nespecificat'),
-                    ),
-                    _buildInfoRow(
-                      context,
-                      'Episoade',
-                      item.episodes != null && item.episodes! > 0 ? '${item.episodes}' : 'Necunoscut',
-                    ),
-                    _buildInfoRow(
-                      context,
-                      'Sezon / An',
-                      '${item.season ?? ""} ${item.year ?? ""}'.trim().isNotEmpty
-                          ? '${item.season ?? ""} ${item.year ?? ""}'.trim()
-                          : 'Nespecificat',
-                    ),
-                    _buildInfoRow(context, 'Status', _formatStatusText(item.status ?? 'Nespecificat')),
-                    _buildInfoRow(context, 'Studio', studios.isNotEmpty ? studios.join(', ') : 'Nespecificat'),
-                    if (item.demographic != null && item.demographic!.trim().isNotEmpty)
-                      _buildInfoRow(context, 'Demografie', item.demographic!.trim()),
-                  ],
-                ),
+              // Tab 2: Teme Muzicale (Piese Opening & Ending)
+              ThemeSongsView(
+                themes: item.themes,
               ),
             ][_tabController.index],
+          ),
+        ),
+      ),
+    ),
+
+        // 4. Secțiune Dedicată Recomandări Similare (Carusel Orizontal Fluid & Compact)
+        SliverToBoxAdapter(
+          child: similarAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (simList) {
+              if (simList.isEmpty) return const SizedBox.shrink();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SectionHeader(
+                    title: 'Similar Recommendations',
+                    icon: PhosphorIcons.sparkle(PhosphorIconsStyle.bold),
+                    trailing: Text(
+                      AppStrings.titlesCount(simList.length),
+                      style: TextStyle(
+                        color: context.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
+                    fontSize: 15,
+                    useZalandoFont: false,
+                  ),
+                  HorizontalPosterCarousel(
+                    items: simList,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+
+        // 4.5. Statistici & Comunitate (Mutat după secțiunea de recomandări)
+        if (item.communityMetrics != null)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+              child: CommunityMetricsCard(
+                metrics: item.communityMetrics!,
+                averageScore: score > 0 ? (score > 10 ? score / 10 : score) : null,
+              ),
+            ),
+          ),
+
+        // 5. Detalii (Secțiunea Finală a Paginii)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Details',
+                  style: TextStyle(
+                    color: context.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  context,
+                  'Format',
+                  (item.format != null && item.format!.isNotEmpty)
+                      ? item.format!
+                      : (item.type.isNotEmpty ? item.type : 'Unspecified'),
+                ),
+                _buildInfoRow(
+                  context,
+                  'Episodes',
+                  item.episodes != null && item.episodes! > 0 ? '${item.episodes}' : 'Unknown',
+                ),
+                _buildInfoRow(
+                  context,
+                  AppStrings.startDate,
+                  item.startDate != null && item.startDate!.isNotEmpty
+                      ? item.startDate!.formatDisplay()
+                      : 'Unspecified',
+                ),
+                _buildInfoRow(
+                  context,
+                  AppStrings.endDate,
+                  item.endDate != null && item.endDate!.isNotEmpty
+                      ? item.endDate!.formatDisplay()
+                      : (item.status == 'RELEASING' ? 'Airing' : 'Unspecified'),
+                ),
+                if (item.adaptationSource != null && item.adaptationSource!.isNotEmpty)
+                  _buildInfoRow(
+                    context,
+                    'Source',
+                    _formatSourceText(item.adaptationSource!),
+                  ),
+                _buildInfoRow(
+                  context,
+                  'Season / Year',
+                  '${item.season ?? ""} ${item.year ?? ""}'.trim().isNotEmpty
+                      ? '${item.season ?? ""} ${item.year ?? ""}'.trim()
+                      : 'Unspecified',
+                ),
+                _buildInfoRow(context, 'Status', _formatStatusText(item.status ?? 'Unspecified')),
+                _buildInfoRow(
+                  context,
+                  'Studio',
+                  studios.isNotEmpty ? studios.join(', ') : 'Unspecified',
+                  isLast: item.demographic == null || item.demographic!.trim().isEmpty,
+                ),
+                if (item.demographic != null && item.demographic!.trim().isNotEmpty)
+                  _buildInfoRow(context, 'Demographic', item.demographic!.trim(), isLast: true),
+              ],
+            ),
           ),
         ),
 
         // Bottom Safe Spacing
         const SliverToBoxAdapter(child: SizedBox(height: 70)),
       ],
+    ),
     );
   }
 
@@ -725,31 +787,30 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
       orElse: () => null,
     );
 
-    // 1. Cazul când seria NU este încă în listă -> Buton Full-Width "+ Adaugă în Watchlist"
+    // 1. Cazul când seria NU este încă în listă -> Buton Full-Width "Add to Watchlist" cu haptic & feedback vizual
     if (existingRecord == null) {
-      return SizedBox(
-        width: double.infinity,
-        height: 46,
-        child: ElevatedButton.icon(
-          onPressed: () => _showAddToWatchlistModal(context, item),
-          icon: Icon(
-            PhosphorIconsBold.bookmarkSimple,
-            size: 16,
-            color: context.onPrimary,
-          ),
-          label: Text(
-            '+ Adaugă în Watchlist',
-            style: TextStyle(
+      return _InteractiveActionButton(
+        onTap: () => _showAddToWatchlistModal(context, item),
+        backgroundColor: context.accentPrimary,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              PhosphorIcons.plus(PhosphorIconsStyle.bold),
+              size: 16,
               color: context.onPrimary,
-              fontSize: 13.5,
-              fontWeight: FontWeight.w800,
             ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: context.accentPrimary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
-            elevation: 0,
-          ),
+            const SizedBox(width: 8),
+            Text(
+              AppStrings.addToWatchlist,
+              style: TextStyle(
+                color: context.onPrimary,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.1,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -762,27 +823,20 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
       children: [
         // Buton Principal Status & Episoade (Expanded)
         Expanded(
-          child: SizedBox(
-            height: 46,
-            child: ElevatedButton(
-              onPressed: () => _showAddToWatchlistModal(context, item),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.bgSurface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9999),
-                  side: BorderSide(
-                    color: _getStatusColor(context, existingRecord.status).withValues(alpha: 0.5),
-                    width: 1.2,
-                  ),
-                ),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-              ),
+          child: _InteractiveActionButton(
+            onTap: () => _showAddToWatchlistModal(context, item),
+            backgroundColor: context.bgSurface,
+            border: BorderSide(
+              color: _getStatusColor(context, existingRecord.status).withValues(alpha: 0.5),
+              width: 1.2,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    PhosphorIconsFill.bookmarkSimple,
+                    _getStatusIcon(existingRecord.status),
                     size: 15,
                     color: _getStatusColor(context, existingRecord.status),
                   ),
@@ -807,28 +861,29 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
         const SizedBox(width: 8),
 
         // Buton Notare (Apare automat după ce seria e în listă)
-        SizedBox(
-          height: 46,
-          child: ElevatedButton.icon(
-            onPressed: () => _showAddToWatchlistModal(context, item),
-            icon: Icon(
-              hasPersonalScore ? PhosphorIconsFill.star : PhosphorIcons.star(PhosphorIconsStyle.bold),
-              size: 15,
-              color: hasPersonalScore ? context.scoreGold : context.textSecondary,
-            ),
-            label: Text(
-              hasPersonalScore ? '${existingRecord.score!.round()} / 10' : 'Notează',
-              style: TextStyle(
-                color: hasPersonalScore ? context.textPrimary : context.textSecondary,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.bgSurface,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999)),
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+        _InteractiveActionButton(
+          onTap: () => _showAddToWatchlistModal(context, item),
+          backgroundColor: context.bgSurface,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  hasPersonalScore ? PhosphorIconsFill.star : PhosphorIcons.star(PhosphorIconsStyle.bold),
+                  size: 15,
+                  color: hasPersonalScore ? context.scoreGold : context.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  hasPersonalScore ? '${existingRecord.score!.round()} / 10' : 'Score',
+                  style: TextStyle(
+                    color: hasPersonalScore ? context.textPrimary : context.textSecondary,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -836,915 +891,156 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(color: context.textSecondary, fontSize: 13)),
-          Text(
-            value,
-            style: TextStyle(
-              color: context.textPrimary,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
+
+  Widget _buildInfoRow(BuildContext context, String label, String value, {bool isLast = false}) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: context.textSecondary,
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: context.textPrimary,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        if (!isLast)
+          Container(
+            height: 1,
+            color: context.borderSubtle.withValues(alpha: 0.35),
+          ),
+      ],
     );
   }
 
   // --- MODAL UNIFICAT: STATUS, PROGRES EPISOADE & NOTĂ 1-10 ---
   void _showAddToWatchlistModal(BuildContext context, MediaItem item) {
-    final isLoggedIn = ref.read(isLoggedInProvider);
-    if (!isLoggedIn) {
-      LoginScreen.show(context);
-      return;
+    showWatchlistEditModal(context, ref, item: item);
+  }
+
+  String _formatSourceText(String raw) {
+    switch (raw.toUpperCase()) {
+      case 'MANGA':
+        return 'Manga';
+      case 'LIGHT_NOVEL':
+        return 'Light Novel';
+      case 'VISUAL_NOVEL':
+        return 'Visual Novel';
+      case 'VIDEO_GAME':
+        return 'Video Game';
+      case 'ORIGINAL':
+        return 'Original Work';
+      case 'NOVEL':
+        return 'Novel';
+      case 'DOUJINSHI':
+        return 'Doujinshi';
+      case 'ANIME':
+        return 'Anime';
+      case 'WEB_NOVEL':
+        return 'Web Novel';
+      case 'OTHER':
+        return 'Other Source';
+      default:
+        return raw;
     }
-
-    final existingRecord = ref.read(watchlistProvider).maybeWhen(
-          data: (list) => list.where((w) => w.mediaId == item.id).firstOrNull,
-          orElse: () => null,
-        );
-
-    String selectedStatus = existingRecord?.status ?? 'WATCHING';
-    int episodes = existingRecord?.progressEpisodes ?? 0;
-    final totalEpisodes = item.episodes;
-    String? startedAt = existingRecord?.startedAt;
-    String? completedAt = existingRecord?.completedAt;
-
-    // Scorul inițial al utilizatorului (rotunjit 1..10, sau 0 pentru Fără Notă)
-    int userScore = (existingRecord?.score != null && existingRecord!.score! > 0)
-        ? existingRecord.score!.round().clamp(1, 10)
-        : 0;
-
-    // Scorul implicit inteligent calculat din media seriei dacă utilizatorul apasă + de la 0
-    final animeAvg = (item.scores.weightedScore > 0 ? item.scores.weightedScore : item.scores.averageScore);
-    final defaultSmartScore = animeAvg > 0
-        ? (animeAvg > 10 ? (animeAvg / 10).round() : animeAvg.round()).clamp(1, 10)
-        : 8;
-
-    String formatDateShort(String? dateStr) {
-      if (dateStr == null || dateStr.isEmpty) return '--';
-      final dt = DateTime.tryParse(dateStr);
-      if (dt == null) return dateStr;
-      const months = ['Ian', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
-    }
-
-    Future<void> pickDate({
-      required BuildContext ctx,
-      required String? currentDateStr,
-      required Function(String?) onSelected,
-    }) async {
-      final now = DateTime.now();
-      final initial = (currentDateStr != null ? DateTime.tryParse(currentDateStr) : null) ?? now;
-      final picked = await showDatePicker(
-        context: ctx,
-        initialDate: initial,
-        firstDate: DateTime(1970),
-        lastDate: DateTime(now.year + 5),
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.dark(
-                primary: context.accentPrimary,
-                onPrimary: context.isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                surface: context.bgSurface,
-                onSurface: context.textPrimary,
-              ),
-            ),
-            child: child!,
-          );
-        },
-      );
-      if (picked != null) {
-        onSelected(picked.toIso8601String().split('T').first);
-      }
-    }
-
-    final statuses = [
-      {'key': 'WATCHING', 'label': 'Vizionare', 'color': context.signalLive},
-      {'key': 'COMPLETED', 'label': 'Finalizat', 'color': const Color(0xFF60A5FA)},
-      {'key': 'PLAN_TO_WATCH', 'label': 'De Văzut', 'color': const Color(0xFFA78BFA)},
-      {'key': 'ON_HOLD', 'label': 'În Pauză', 'color': const Color(0xFFFB923C)},
-      {'key': 'DROPPED', 'label': 'Abandonat', 'color': context.error},
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: context.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) {
-        bool autoCompletedEpisodes = false;
-        bool episodesIncreasing = true;
-        bool scoreIncreasing = true;
-        return StatefulBuilder(
-          builder: (modalCtx, setModalState) {
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20, 14, 20, 20 + MediaQuery.paddingOf(modalCtx).bottom),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Drag handle
-                    Center(
-                      child: Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: context.borderSubtle,
-                          borderRadius: BorderRadius.circular(9999),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-
-                    Text(
-                      existingRecord != null ? 'Editează Seria' : 'Adaugă în Watchlist',
-                      style: TextStyle(
-                        color: context.textPrimary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Status chips (Discrete semantic dot for unselected, solid fill for selected)
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: statuses.map((st) {
-                        final isSel = selectedStatus == st['key'];
-                        final color = st['color'] as Color;
-                        final bool isLightColor = color.computeLuminance() > 0.4;
-                        final Color isSelTextColor = isLightColor ? const Color(0xFF141414) : Colors.white;
-
-                        return GestureDetector(
-                          onTap: () => setModalState(() {
-                            selectedStatus = st['key'] as String;
-                            final todayStr = DateTime.now().toIso8601String().split('T').first;
-                            if (selectedStatus == 'WATCHING') {
-                              startedAt ??= todayStr;
-                            } else if (selectedStatus == 'COMPLETED') {
-                              startedAt ??= todayStr;
-                              completedAt ??= todayStr;
-                              int targetEp = episodes;
-                              if (totalEpisodes != null && totalEpisodes > 0) {
-                                targetEp = totalEpisodes;
-                              } else if (item.format?.toUpperCase() == 'MOVIE' || item.type.toUpperCase() == 'MOVIE') {
-                                targetEp = 1;
-                              }
-                              if (targetEp != episodes) {
-                                episodesIncreasing = targetEp >= episodes;
-                                episodes = targetEp;
-                                autoCompletedEpisodes = true;
-                                HapticFeedback.mediumImpact();
-                                Future.delayed(const Duration(milliseconds: 750), () {
-                                  if (modalCtx.mounted) {
-                                    setModalState(() => autoCompletedEpisodes = false);
-                                  }
-                                });
-                              }
-                            } else if (selectedStatus == 'PLAN_TO_WATCH' && totalEpisodes != null && episodes == totalEpisodes) {
-                              episodesIncreasing = false;
-                              episodes = 0;
-                            }
-                          }),
-                          behavior: HitTestBehavior.opaque,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: isSel ? color : context.bgSurfaceHover,
-                              borderRadius: BorderRadius.circular(9999),
-                              border: Border.all(
-                                color: isSel ? color : context.borderSubtle,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (isSel)
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 5),
-                                    child: Icon(
-                                      PhosphorIcons.check(PhosphorIconsStyle.bold),
-                                      size: 13,
-                                      color: isSelTextColor,
-                                    ),
-                                  )
-                                else
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 6),
-                                    child: Container(
-                                      width: 6.5,
-                                      height: 6.5,
-                                      decoration: BoxDecoration(
-                                        color: color,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                                Text(
-                                  st['label'] as String,
-                                  style: TextStyle(
-                                    color: isSel ? isSelTextColor : context.textSecondary,
-                                    fontSize: 12.5,
-                                    fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    // 1. Header & Stepper: Progres Episoade
-                    Text(
-                      'Progres Episoade',
-                      style: TextStyle(
-                        color: context.textSecondary,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      height: 52,
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      decoration: BoxDecoration(
-                        color: autoCompletedEpisodes
-                            ? const Color(0xFF60A5FA).withValues(alpha: 0.16)
-                            : context.bgSurfaceHover,
-                        borderRadius: BorderRadius.circular(9999),
-                        border: Border.all(
-                          color: autoCompletedEpisodes
-                              ? const Color(0xFF60A5FA).withValues(alpha: 0.65)
-                              : Colors.transparent,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Minus button (Left)
-                          GestureDetector(
-                            onTap: () {
-                              if (episodes > 0) {
-                                HapticFeedback.selectionClick();
-                                setModalState(() {
-                                  episodesIncreasing = false;
-                                  episodes--;
-                                  if (selectedStatus == 'COMPLETED' &&
-                                      totalEpisodes != null &&
-                                      totalEpisodes > 0 &&
-                                      episodes < totalEpisodes) {
-                                    selectedStatus = 'WATCHING';
-                                  }
-                                });
-                              }
-                            },
-                            child: Container(
-                              width: 42,
-                              height: 42,
-                              decoration: BoxDecoration(
-                                color: context.bgPrimary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  PhosphorIcons.minus(PhosphorIconsStyle.bold),
-                                  size: 16,
-                                  color: episodes > 0 ? context.textPrimary : context.textMuted,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // Center Value: Only the updating episodes digit animates vertically
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (autoCompletedEpisodes) ...[
-                                Icon(
-                                  PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
-                                  size: 14,
-                                  color: const Color(0xFF60A5FA),
-                                ),
-                                const SizedBox(width: 4),
-                              ],
-                              SizedBox(
-                                height: 36,
-                                child: Center(
-                                  child: ClipRect(
-                                    child: AnimatedSwitcher(
-                                      duration: const Duration(milliseconds: 250),
-                                      transitionBuilder: (child, animation) {
-                                        final key = child.key;
-                                        final bool isIncoming = key is ValueKey<int> && key.value == episodes;
-                                        final double beginY = episodesIncreasing
-                                            ? (isIncoming ? 1.0 : -1.0)
-                                            : (isIncoming ? -1.0 : 1.0);
-                                        return FadeTransition(
-                                          opacity: animation,
-                                          child: SlideTransition(
-                                            position: Tween<Offset>(
-                                              begin: Offset(0, beginY),
-                                              end: Offset.zero,
-                                            ).animate(CurvedAnimation(
-                                              parent: animation,
-                                              curve: Curves.easeOutCubic,
-                                            )),
-                                            child: child,
-                                          ),
-                                        );
-                                      },
-                                      child: Text(
-                                        '$episodes',
-                                        key: ValueKey<int>(episodes),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: autoCompletedEpisodes ? const Color(0xFF60A5FA) : context.textPrimary,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w700,
-                                          fontFeatures: const [FontFeature.tabularFigures()],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                ' / ${totalEpisodes != null && totalEpisodes > 0 ? totalEpisodes : "?"}',
-                                style: TextStyle(
-                                  color: autoCompletedEpisodes ? const Color(0xFF60A5FA) : context.textPrimary,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  fontFeatures: const [FontFeature.tabularFigures()],
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Plus button (Right)
-                          GestureDetector(
-                            onTap: () {
-                              if (totalEpisodes == null || totalEpisodes == 0 || episodes < totalEpisodes) {
-                                HapticFeedback.selectionClick();
-                                setModalState(() {
-                                  episodesIncreasing = true;
-                                  episodes++;
-                                  if (totalEpisodes != null && totalEpisodes > 0 && episodes >= totalEpisodes) {
-                                    selectedStatus = 'COMPLETED';
-                                  }
-                                });
-                              }
-                            },
-                          child: Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: context.bgPrimary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Icon(
-                                PhosphorIcons.plus(PhosphorIconsStyle.bold),
-                                size: 16,
-                                color: (totalEpisodes == null || totalEpisodes == 0 || episodes < totalEpisodes)
-                                    ? context.textPrimary
-                                    : context.textMuted,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // 2. Header & Stepper: Nota Ta (1 - 10)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        userScore > 0 ? PhosphorIconsFill.star : PhosphorIcons.star(PhosphorIconsStyle.bold),
-                        size: 14,
-                        color: userScore > 0 ? context.scoreGold : context.textSecondary,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Nota Ta',
-                        style: TextStyle(
-                          color: context.textSecondary,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 52,
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    decoration: BoxDecoration(
-                      color: context.bgSurfaceHover,
-                      borderRadius: BorderRadius.circular(9999),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Minus button (Left)
-                        GestureDetector(
-                          onTap: () {
-                            if (userScore > 0) {
-                              HapticFeedback.selectionClick();
-                              setModalState(() {
-                                scoreIncreasing = false;
-                                if (userScore > 1) {
-                                  userScore--;
-                                } else {
-                                  userScore = 0; // Revine la Fără notă
-                                }
-                              });
-                            }
-                          },
-                          child: Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: context.bgPrimary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Icon(
-                                PhosphorIcons.minus(PhosphorIconsStyle.bold),
-                                size: 16,
-                                color: userScore > 0 ? context.textPrimary : context.textMuted,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Center Value: Only the updating rating score animates vertically
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 36,
-                              child: Center(
-                                child: ClipRect(
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 250),
-                                    transitionBuilder: (child, animation) {
-                                      final key = child.key;
-                                      final bool isIncoming = key is ValueKey<int> && key.value == userScore;
-                                      final double beginY = scoreIncreasing
-                                          ? (isIncoming ? 1.0 : -1.0)
-                                          : (isIncoming ? -1.0 : 1.0);
-                                      return FadeTransition(
-                                        opacity: animation,
-                                        child: SlideTransition(
-                                          position: Tween<Offset>(
-                                            begin: Offset(0, beginY),
-                                            end: Offset.zero,
-                                          ).animate(CurvedAnimation(
-                                            parent: animation,
-                                            curve: Curves.easeOutCubic,
-                                          )),
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      userScore > 0 ? '$userScore' : 'Fără notă',
-                                      key: ValueKey<int>(userScore),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: userScore > 0 ? context.textPrimary : context.textMuted,
-                                        fontSize: userScore > 0 ? 15 : 14.5,
-                                        fontWeight: userScore > 0 ? FontWeight.w700 : FontWeight.w600,
-                                        fontFeatures: const [FontFeature.tabularFigures()],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            if (userScore > 0)
-                              Text(
-                                ' / 10',
-                                style: TextStyle(
-                                  color: context.textPrimary,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  fontFeatures: const [FontFeature.tabularFigures()],
-                                ),
-                              ),
-                          ],
-                        ),
-
-                        // Plus button (Right)
-                        GestureDetector(
-                          onTap: () {
-                            if (userScore < 10) {
-                              HapticFeedback.selectionClick();
-                              setModalState(() {
-                                scoreIncreasing = true;
-                                if (userScore == 0) {
-                                  userScore = defaultSmartScore;
-                                } else {
-                                  userScore++;
-                                }
-                              });
-                            }
-                          },
-                          child: Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: context.bgPrimary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Icon(
-                                PhosphorIcons.plus(PhosphorIconsStyle.bold),
-                                size: 16,
-                                color: userScore < 10 ? context.textPrimary : context.textMuted,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // 3. Headers & Buttons: Data Început & Data Sfârșit
-                  Row(
-                    children: [
-                      // Data Început Column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  PhosphorIcons.calendarBlank(PhosphorIconsStyle.bold),
-                                  size: 14,
-                                  color: startedAt != null ? context.signalLive : context.textSecondary,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Data Început',
-                                  style: TextStyle(
-                                    color: context.textSecondary,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: () async {
-                                HapticFeedback.selectionClick();
-                                await pickDate(
-                                  ctx: modalCtx,
-                                  currentDateStr: startedAt,
-                                  onSelected: (date) => setModalState(() => startedAt = date),
-                                );
-                              },
-                              child: Container(
-                                height: 52,
-                                padding: const EdgeInsets.symmetric(horizontal: 14),
-                                decoration: BoxDecoration(
-                                  color: context.bgSurfaceHover,
-                                  borderRadius: BorderRadius.circular(9999),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        formatDateShort(startedAt),
-                                        style: TextStyle(
-                                          color: startedAt != null ? context.textPrimary : context.textMuted,
-                                          fontSize: 13.5,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (startedAt != null)
-                                      GestureDetector(
-                                        onTap: () {
-                                          HapticFeedback.selectionClick();
-                                          setModalState(() => startedAt = null);
-                                        },
-                                        child: Container(
-                                          width: 30,
-                                          height: 30,
-                                          decoration: BoxDecoration(
-                                            color: context.bgPrimary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              PhosphorIcons.x(PhosphorIconsStyle.bold),
-                                              size: 13,
-                                              color: context.textMuted,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    else
-                                      Icon(
-                                        PhosphorIcons.caretDown(PhosphorIconsStyle.bold),
-                                        size: 14,
-                                        color: context.textMuted,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(width: 10),
-
-                      // Data Sfârșit Column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  PhosphorIcons.flagCheckered(PhosphorIconsStyle.bold),
-                                  size: 14,
-                                  color: completedAt != null ? context.scoreGold : context.textSecondary,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Data Sfârșit',
-                                  style: TextStyle(
-                                    color: context.textSecondary,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: () async {
-                                HapticFeedback.selectionClick();
-                                await pickDate(
-                                  ctx: modalCtx,
-                                  currentDateStr: completedAt,
-                                  onSelected: (date) => setModalState(() => completedAt = date),
-                                );
-                              },
-                              child: Container(
-                                height: 52,
-                                padding: const EdgeInsets.symmetric(horizontal: 14),
-                                decoration: BoxDecoration(
-                                  color: context.bgSurfaceHover,
-                                  borderRadius: BorderRadius.circular(9999),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        formatDateShort(completedAt),
-                                        style: TextStyle(
-                                          color: completedAt != null ? context.textPrimary : context.textMuted,
-                                          fontSize: 13.5,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (completedAt != null)
-                                      GestureDetector(
-                                        onTap: () {
-                                          HapticFeedback.selectionClick();
-                                          setModalState(() => completedAt = null);
-                                        },
-                                        child: Container(
-                                          width: 30,
-                                          height: 30,
-                                          decoration: BoxDecoration(
-                                            color: context.bgPrimary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              PhosphorIcons.x(PhosphorIconsStyle.bold),
-                                              size: 13,
-                                              color: context.textMuted,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    else
-                                      Icon(
-                                        PhosphorIcons.caretDown(PhosphorIconsStyle.bold),
-                                        size: 14,
-                                        color: context.textMuted,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Actions: Save & optional Remove
-                  Row(
-                    children: [
-                      if (existingRecord != null) ...[
-                        InkWell(
-                          borderRadius: BorderRadius.circular(9999),
-                          onTap: () async {
-                            Navigator.of(ctx).pop();
-                            HapticFeedback.mediumImpact();
-                            await ref.read(watchlistProvider.notifier).removeItem(item.id);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Eliminat din Watchlist'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                          child: Container(
-                            height: 48,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: context.error.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                PhosphorIcons.trash(PhosphorIconsStyle.bold),
-                                size: 18,
-                                color: context.error,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                      ],
-                      Expanded(
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(9999),
-                          onTap: () async {
-                            Navigator.of(ctx).pop();
-                            HapticFeedback.mediumImpact();
-
-                            final double finalScoreToSave = userScore > 0 ? userScore.toDouble() : 0.0;
-                            await ref.read(watchlistProvider.notifier).updateItem(
-                                  mediaId: item.id,
-                                  status: selectedStatus,
-                                  progressEpisodes: episodes,
-                                  score: finalScoreToSave,
-                                  startedAt: startedAt,
-                                  completedAt: completedAt,
-                                );
-
-                            // Sincronizare automată AniList dacă este conectat
-                            final anilistState = ref.read(anilistProvider);
-                            if (anilistState.isConnected) {
-                              final anilistId = item.anilistId ?? int.tryParse(item.id.replaceAll('anilist-', ''));
-                              if (anilistId != null) {
-                                await ref.read(anilistProvider.notifier).syncMedia(
-                                      anilistMediaId: anilistId,
-                                      status: selectedStatus,
-                                      score: userScore > 0 ? userScore.toDouble() : null,
-                                      progress: episodes,
-                                      startedAt: startedAt,
-                                      completedAt: completedAt,
-                                    );
-                              }
-                            }
-
-                            if (!context.mounted) return;
-                            final String syncSuffix = anilistState.isConnected ? ' & sincronizat pe AniList' : '';
-                            final String msg = userScore > 0
-                                ? 'Salvat în Watchlist (Nota $userScore/10)$syncSuffix!'
-                                : 'Salvat în Watchlist$syncSuffix!';
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(msg),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                          child: Container(
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: context.accentPrimary,
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Salvează în Listă',
-                              style: TextStyle(
-                                color: context.onPrimary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+  }
 
   String _formatStatusText(String status) {
     switch (status.toUpperCase()) {
       case 'FINISHED':
-        return 'Finalizat';
+        return 'Finished';
       case 'RELEASING':
-        return 'În Difuzare';
+        return 'Airing';
       case 'NOT_YET_RELEASED':
-        return 'Nelansat';
+        return 'Upcoming';
       case 'CANCELLED':
-        return 'Anulat';
+        return 'Cancelled';
       default:
         return status;
     }
   }
 
-  String _getStatusLabel(String status) {
-    switch (status) {
-      case 'WATCHING':
-        return 'Vizionare';
-      case 'COMPLETED':
-        return 'Finalizat';
-      case 'PLAN_TO_WATCH':
-        return 'De Văzut';
-      case 'ON_HOLD':
-        return 'În Pauză';
-      case 'DROPPED':
-        return 'Abandonat';
-      default:
-        return status;
-    }
-  }
+  String _getStatusLabel(String status) => MediaStatusHelper.getLabel(status);
 
-  Color _getStatusColor(BuildContext context, String status) {
-    switch (status) {
-      case 'WATCHING':
-        return context.signalLive;
-      case 'COMPLETED':
-        return const Color(0xFF60A5FA);
-      case 'PLAN_TO_WATCH':
-        return context.scoreGold;
-      case 'ON_HOLD':
-        return const Color(0xFFFB923C);
-      case 'DROPPED':
-        return context.error;
-      default:
-        return context.textMuted;
-    }
+  Color _getStatusColor(BuildContext context, String status) =>
+      MediaStatusHelper.getColor(context, status);
+
+  IconData _getStatusIcon(String status) => MediaStatusHelper.getIcon(status);
+}
+
+/// Buton de acțiune interactiv cu feedback haptic și micro-scale vizual tactil
+class _InteractiveActionButton extends StatefulWidget {
+  final VoidCallback onTap;
+  final Widget child;
+  final Color backgroundColor;
+  final BorderSide? border;
+
+  const _InteractiveActionButton({
+    required this.onTap,
+    required this.child,
+    required this.backgroundColor,
+    this.border,
+  });
+
+  @override
+  State<_InteractiveActionButton> createState() => _InteractiveActionButtonState();
+}
+
+class _InteractiveActionButtonState extends State<_InteractiveActionButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) {
+        HapticFeedback.lightImpact();
+        setState(() => _isPressed = true);
+      },
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOutCubic,
+          height: 46.0,
+          decoration: BoxDecoration(
+            color: _isPressed
+                ? widget.backgroundColor.withValues(alpha: 0.85)
+                : widget.backgroundColor,
+            borderRadius: BorderRadius.circular(9999),
+            border: widget.border != null ? Border.fromBorderSide(widget.border!) : null,
+          ),
+          alignment: Alignment.center,
+          child: widget.child,
+        ),
+      ),
+    );
   }
 }
+

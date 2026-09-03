@@ -1,0 +1,46 @@
+{
+  "presets": [
+    {
+      "id": "preset-1788382948765-8o3z4j",
+      "franchiseRoot": "shingekinokyojin",
+      "title": "Ordinea Narativă Fără Fillere (Test)",
+      "description": "Recomandat pentru o experiență cinematică cursivă.",
+      "submittedBy": "test-user-author-1",
+      "submitterUsername": "Utilizator",
+      "status": "pending_review",
+      "upvotes": 1,
+      "downvotes": 0,
+      "reportCount": 0,
+      "isSelectiveCurated": true,
+      "items": [
+        {
+          "id": "item-preset-1788382948765-8o3z4j-1",
+          "presetId": "preset-1788382948765-8o3z4j",
+          "mediaId": "anilist-16498",
+          "position": 1,
+          "isCanon": true,
+          "note": "Sezonul 1 (25 ep)"
+        },
+        {
+          "id": "item-preset-1788382948765-8o3z4j-2",
+          "presetId": "preset-1788382948765-8o3z4j",
+          "mediaId": "anilist-20958",
+          "position": 2,
+          "isCanon": true,
+          "note": "Sezonul 2 (12 ep)"
+        }
+      ],
+      "createdAt": "2026-09-02T21:02:28.765Z",
+      "updatedAt": "2026-09-02T21:08:02.760Z"
+    }
+  ],
+  "votes": [
+    {
+      "presetId": "preset-1788382948765-8o3z4j",
+      "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
+      "vote": 1,
+      "votedAt": "2026-09-02T21:08:02.760Z"
+    }
+  ],
+  "reports": []
+}

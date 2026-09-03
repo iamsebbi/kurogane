@@ -2,19 +2,21 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../providers/api_providers.dart';
 import '../models/homepage_data.dart';
-import '../models/news_article.dart';
 import '../widgets/airing_episode_card.dart';
+import '../widgets/floating_circle_button.dart';
 import '../widgets/hero_carousel.dart';
-import '../widgets/media_card.dart';
-import '../widgets/pill_badge.dart';
+import '../widgets/horizontal_poster_carousel.dart';
+import '../widgets/news_article_card.dart';
+import '../widgets/section_header.dart';
 import '../widgets/seasonal_anime_section.dart';
 import '../widgets/blur_fade_route.dart';
 import 'profile_screen.dart';
+import 'notifications_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -22,6 +24,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeDataAsync = ref.watch(homepageDataProvider);
+    final unreadNotificationsCount = ref.watch(unreadNotificationsCountProvider);
     final topInset = MediaQuery.paddingOf(context).top;
     final headerTotalHeight = topInset + 68.0;
 
@@ -54,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Nu s-au putut încărca datele',
+                  AppStrings.homeUnableToLoad,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
@@ -63,7 +66,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Verifică conexiunea la serverul Kurogane.',
+                  AppStrings.homeCheckConnection,
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
@@ -73,7 +76,7 @@ class HomeScreen extends ConsumerWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accentPrimary,
                   ),
-                  child: const Text('Reîncearcă', style: TextStyle(color: Colors.white)),
+                  child: const Text(AppStrings.retry, style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -117,9 +120,8 @@ class HomeScreen extends ConsumerWidget {
                 // Live Airing Section
                 if (data.recentlyAired.isNotEmpty) ...[
                   SliverToBoxAdapter(
-                    child: _buildSectionHeader(
-                      context: context,
-                      title: 'Episoade Noi',
+                    child: SectionHeader(
+                      title: AppStrings.homeNewEpisodes,
                       icon: PhosphorIcons.broadcast(PhosphorIconsStyle.bold),
                     ),
                   ),
@@ -151,31 +153,47 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
 
+                // Recommended For You Section (Personalizat / Guest)
+                if (data.recommendations.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: SectionHeader(
+                      title: AppStrings.homeRecommendedForYou,
+                      icon: PhosphorIcons.sparkle(PhosphorIconsStyle.bold),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: HorizontalPosterCarousel(
+                      items: data.recommendations.map((r) => r.media).toList(),
+                    ),
+                  ),
+                ],
+
                 // Trending This Season Section
                 if (data.trendingSeason.isNotEmpty) ...[
                   SliverToBoxAdapter(
-                    child: _buildSectionHeader(
-                      context: context,
-                      title: 'Trending în acest sezon',
+                    child: SectionHeader(
+                      title: AppStrings.homeTrendingSeason,
                       icon: PhosphorIcons.fire(PhosphorIconsStyle.bold),
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 260,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: data.trendingSeason.length,
-                        itemBuilder: (context, index) {
-                          final item = data.trendingSeason[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 14),
-                            child: MediaCard(item: item, width: 155),
-                          );
-                        },
-                      ),
+                    child: HorizontalPosterCarousel(
+                      items: data.trendingSeason,
+                    ),
+                  ),
+                ],
+
+                // Top Upcoming Section (Coming Soon)
+                if (data.topUpcoming.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: SectionHeader(
+                      title: AppStrings.homeUpcomingSeason,
+                      icon: PhosphorIcons.calendarPlus(PhosphorIconsStyle.bold),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: HorizontalPosterCarousel(
+                      items: data.topUpcoming,
                     ),
                   ),
                 ],
@@ -183,28 +201,14 @@ class HomeScreen extends ConsumerWidget {
                 // Top Rated of All Time (Top 100)
                 if (data.top100.isNotEmpty) ...[
                   SliverToBoxAdapter(
-                    child: _buildSectionHeader(
-                      context: context,
-                      title: 'Capodopere din Toate Timpurile',
+                    child: SectionHeader(
+                      title: AppStrings.homeAllTimeMasterpieces,
                       icon: PhosphorIcons.trophy(PhosphorIconsStyle.bold),
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 260,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: data.top100.length,
-                        itemBuilder: (context, index) {
-                          final item = data.top100[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 14),
-                            child: MediaCard(item: item, width: 155),
-                          );
-                        },
-                      ),
+                    child: HorizontalPosterCarousel(
+                      items: data.top100,
                     ),
                   ),
                 ],
@@ -212,9 +216,8 @@ class HomeScreen extends ConsumerWidget {
                 // News Section
                 if (data.news.isNotEmpty) ...[
                   SliverToBoxAdapter(
-                    child: _buildSectionHeader(
-                      context: context,
-                      title: 'Știri & Articole Recente',
+                    child: SectionHeader(
+                      title: AppStrings.homeRecentNews,
                       icon: PhosphorIcons.newspaper(PhosphorIconsStyle.bold),
                     ),
                   ),
@@ -223,8 +226,9 @@ class HomeScreen extends ConsumerWidget {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          final article = data.news[index];
-                          return _buildNewsCard(context, article);
+                          return NewsArticleCard(
+                            article: data.news[index],
+                          );
                         },
                         childCount: data.news.length.clamp(0, 5),
                       ),
@@ -274,14 +278,13 @@ class HomeScreen extends ConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               // 1. Notificări Circle Button (52px)
-                              _FloatingCircleButton(
+                              FloatingCircleButton(
                                 size: 52,
                                 onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Nu ai notificări noi în acest moment.'),
-                                      behavior: SnackBarBehavior.floating,
-                                      duration: Duration(seconds: 2),
+                                  HapticFeedback.lightImpact();
+                                  Navigator.of(context).push(
+                                    BlurFadePageRoute(
+                                      child: const NotificationsScreen(),
                                     ),
                                   );
                                 },
@@ -293,25 +296,26 @@ class HomeScreen extends ConsumerWidget {
                                       color: context.textPrimary,
                                       size: 22,
                                     ),
-                                    Positioned(
-                                      top: 11,
-                                      right: 11,
-                                      child: Container(
-                                        width: 8.5,
-                                        height: 8.5,
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.alertCoral,
-                                          shape: BoxShape.circle,
+                                    if (unreadNotificationsCount > 0)
+                                      Positioned(
+                                        top: 11,
+                                        right: 11,
+                                        child: Container(
+                                          width: 8.5,
+                                          height: 8.5,
+                                          decoration: BoxDecoration(
+                                            color: context.error,
+                                            shape: BoxShape.circle,
+                                          ),
                                         ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),
                               const SizedBox(width: 10),
 
                               // 2. Profil Circle Button (52px)
-                              _FloatingCircleButton(
+                              FloatingCircleButton(
                                 size: 52,
                                 onTap: () {
                                   Navigator.of(context).push(
@@ -337,187 +341,6 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader({
-    required BuildContext context,
-    required String title,
-    String? badge,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 18, color: context.accentPrimary),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  fontFamily: 'Zalando Sans Expanded',
-                  color: context.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          if (badge != null) PillBadge(label: badge),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNewsCard(BuildContext context, NewsArticle article) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: context.bgSurface,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            if (article.imageUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: article.imageUrl,
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Container(
-                    width: 70,
-                    height: 70,
-                    color: context.bgPrimary,
-                    child: Icon(
-                      PhosphorIcons.newspaper(PhosphorIconsStyle.bold),
-                      color: context.textMuted,
-                    ),
-                  ),
-                ),
-              ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    article.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Google Sans',
-                      color: context.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Text(
-                        article.source,
-                        style: TextStyle(
-                          color: context.accentPrimary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (article.date.isNotEmpty) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          '•  ${article.date}',
-                          style: TextStyle(
-                            color: context.textMuted,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Floating Circle Button in Liquid Glass Style (52px)
-class _FloatingCircleButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-  final double size;
-
-  const _FloatingCircleButton({
-    required this.child,
-    required this.onTap,
-    this.size = 52,
-  });
-
-  @override
-  State<_FloatingCircleButton> createState() => _FloatingCircleButtonState();
-}
-
-class _FloatingCircleButtonState extends State<_FloatingCircleButton> {
-  bool _isPressed = false;
-  static final _glassFilter = ImageFilter.blur(sigmaX: 18, sigmaY: 18);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        HapticFeedback.lightImpact();
-        setState(() => _isPressed = true);
-      },
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 1.12 : 1.0,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutBack,
-        child: ClipOval(
-          child: BackdropFilter(
-            filter: _glassFilter,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
-              width: widget.size,
-              height: widget.size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _isPressed
-                    ? context.bgSurfaceHover
-                    : context.bgSurface.withValues(alpha: context.isDarkMode ? 0.75 : 0.88),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: context.isDarkMode
-                          ? (_isPressed ? 0.45 : 0.28)
-                          : (_isPressed ? 0.12 : 0.06),
-                    ),
-                    blurRadius: _isPressed ? 12 : 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: widget.child,
-            ),
-          ),
-        ),
       ),
     );
   }

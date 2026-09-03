@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_strings.dart';
 import '../models/watchlist_item.dart';
 import '../providers/anilist_provider.dart';
 import '../providers/api_providers.dart';
@@ -13,10 +14,11 @@ import '../providers/auth_provider.dart';
 import '../providers/user_profile_provider.dart';
 import 'auth/login_screen.dart';
 import 'auth/register_screen.dart';
-import 'media_detail_screen.dart';
 import 'profile/edit_profile_screen.dart';
 import 'settings/settings_screen.dart';
 import '../widgets/floating_circle_button.dart';
+import '../widgets/recent_activity_horizontal_card.dart';
+import '../widgets/tactile_scale_button.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -38,12 +40,12 @@ class ProfileScreen extends ConsumerWidget {
         ? user.displayName!.trim()
         : (profileData.username != null && profileData.username!.trim().isNotEmpty)
             ? profileData.username!.trim()
-            : (user.email?.split('@')[0] ?? 'Membru Kurogane');
+            : (user.email?.split('@')[0] ?? AppStrings.kuroganeMember);
 
     // 2. Handle-ul unic (@handle): Identificatorul permanent din Kurogane API
     final username = (profileData.username != null && profileData.username!.trim().isNotEmpty)
         ? profileData.username!.trim().toLowerCase().replaceAll(' ', '_')
-        : (user.email?.split('@')[0] ?? 'membru');
+        : (user.email?.split('@')[0] ?? 'member');
 
     // Date Live din Watchlist
     final watchlistAsync = ref.watch(watchlistProvider);
@@ -275,7 +277,7 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 20),
 
                     Text(
-                      'Autentificare Necesară',
+                      AppStrings.authRequiredTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Zalando Sans Expanded',
@@ -289,7 +291,7 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
 
                     Text(
-                      'Conectează-te pentru a-ți accesa profilul și lista de anime-uri sincronizată.',
+                      AppStrings.authRequiredSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: context.textSecondary,
@@ -303,19 +305,19 @@ class ProfileScreen extends ConsumerWidget {
                     _buildSimplifiedFeatureItem(
                       context: context,
                       icon: PhosphorIcons.bookmarkSimple(PhosphorIconsStyle.bold),
-                      title: 'Watchlist Sincronizat Live',
+                      title: AppStrings.profileFeatureWatchlist,
                     ),
                     const SizedBox(height: 16),
                     _buildSimplifiedFeatureItem(
                       context: context,
                       icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.bold),
-                      title: 'Statistici & Episoade Urmărite',
+                      title: AppStrings.profileFeatureStats,
                     ),
                     const SizedBox(height: 16),
                     _buildSimplifiedFeatureItem(
                       context: context,
                       icon: PhosphorIcons.bellRinging(PhosphorIconsStyle.bold),
-                      title: 'Notificări Episoade Noi',
+                      title: AppStrings.profileFeatureNotifications,
                     ),
 
                     const SizedBox(height: 38),
@@ -333,7 +335,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Conectează-te la cont',
+                          AppStrings.watchlistSignIn,
                           style: TextStyle(
                             color: context.onPrimary,
                             fontSize: 14,
@@ -359,7 +361,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Creează un cont nou',
+                          AppStrings.watchlistCreateAccount,
                           style: TextStyle(
                             color: context.textPrimary,
                             fontSize: 14,
@@ -642,7 +644,7 @@ class ProfileScreen extends ConsumerWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            if (pronoun.isNotEmpty && pronoun != 'Fără preferință') ...[
+            if (pronoun.isNotEmpty && pronoun != 'Fără preferință' && pronoun != 'No preference') ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 7.0),
                 child: Text(
@@ -687,7 +689,7 @@ class ProfileScreen extends ConsumerWidget {
     required String currentPronoun,
     required String currentBio,
   }) {
-    return _TactileScaleButton(
+    return TactileScaleButton(
       onTap: () => EditProfileScreen.show(
         context,
         user: user,
@@ -714,7 +716,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'Editează Profilul',
+              AppStrings.editProfile,
               style: TextStyle(
                 color: context.textPrimary,
                 fontSize: 12.5,
@@ -741,13 +743,13 @@ class ProfileScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildInlineStatItem(context, '$completedCount', 'Completate'),
+          _buildInlineStatItem(context, '$completedCount', AppStrings.statusCompleted),
           _buildVerticalStatDivider(context),
-          _buildInlineStatItem(context, '$watchingCount', 'În Curs'),
+          _buildInlineStatItem(context, '$watchingCount', AppStrings.profileStatsWatching),
           _buildVerticalStatDivider(context),
-          _buildInlineStatItem(context, '$totalEpisodes', 'Episoade'),
+          _buildInlineStatItem(context, '$totalEpisodes', AppStrings.profileStatsEpisodes),
           _buildVerticalStatDivider(context),
-          _buildInlineStatItem(context, avgScore, 'Scor Mediu'),
+          _buildInlineStatItem(context, avgScore, AppStrings.profileStatsAvgScore),
         ],
       ),
     );
@@ -856,7 +858,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Adaugă un bio…',
+                    AppStrings.profileAddBio,
                     style: TextStyle(
                       color: context.textMuted,
                       fontSize: 12.5,
@@ -886,23 +888,9 @@ class ProfileScreen extends ConsumerWidget {
   String _formatMemberSince(DateTime? creationDate) {
     final now = DateTime.now();
     final date = creationDate ?? now;
-    const months = [
-      '',
-      'ianuarie',
-      'februarie',
-      'martie',
-      'aprilie',
-      'mai',
-      'iunie',
-      'iulie',
-      'august',
-      'septembrie',
-      'octombrie',
-      'noiembrie',
-      'decembrie'
-    ];
+    const months = AppStrings.fullMonths;
 
-    final monthName = (date.month >= 1 && date.month <= 12) ? months[date.month] : 'ianuarie';
+    final monthName = (date.month >= 1 && date.month <= 12) ? months[date.month] : 'January';
     final year = date.year;
 
     // Calcul precis durată
@@ -924,18 +912,18 @@ class ProfileScreen extends ConsumerWidget {
     if (years <= 0 && monthsDiff <= 0) {
       durationStr = 'recent';
     } else if (years <= 0) {
-      durationStr = monthsDiff == 1 ? '1 lună' : '$monthsDiff luni';
+      durationStr = monthsDiff == 1 ? '1 month' : '$monthsDiff months';
     } else {
-      final yStr = years == 1 ? '1 an' : '$years ani';
+      final yStr = years == 1 ? '1 year' : '$years years';
       if (monthsDiff == 0) {
         durationStr = yStr;
       } else {
-        final mStr = monthsDiff == 1 ? '1 lună' : '$monthsDiff luni';
-        durationStr = '$yStr și $mStr';
+        final mStr = monthsDiff == 1 ? '1 month' : '$monthsDiff months';
+        durationStr = '$yStr, $mStr';
       }
     }
 
-    return 'Membru din $monthName $year · $durationStr';
+    return 'Member since $monthName $year • $durationStr';
   }
 
   Widget _buildInterestTag(BuildContext context, String label) {
@@ -966,7 +954,7 @@ class ProfileScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Conturi Conectate',
+          AppStrings.connectedAccounts,
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
             fontSize: 18,
@@ -1033,8 +1021,8 @@ class ProfileScreen extends ConsumerWidget {
                         const SizedBox(height: 3),
                         Text(
                           anilistState.isConnected
-                              ? 'Sincronizare activă'
-                              : 'Sincronizează notele și progresul mondial',
+                              ? 'Active sync'
+                              : 'Sync scores and progress globally',
                           style: TextStyle(
                             color: anilistState.isConnected
                                 ? const Color(0xFF10B981)
@@ -1061,7 +1049,7 @@ class ProfileScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(9999),
                         ),
                         child: const Text(
-                          'Conectează',
+                          'Connect',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -1082,7 +1070,7 @@ class ProfileScreen extends ConsumerWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Te-ai deconectat de la AniList.'),
+                              content: Text('Disconnected from AniList.'),
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -1100,7 +1088,7 @@ class ProfileScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Importă anime-urile din AniList',
+                      'Import anime from AniList',
                       style: TextStyle(
                         color: context.textSecondary,
                         fontSize: 12,
@@ -1118,7 +1106,7 @@ class ProfileScreen extends ConsumerWidget {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Au fost importate $count anime-uri din AniList!'),
+                                    content: Text('Imported $count anime from AniList!'),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
@@ -1147,7 +1135,7 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                             const SizedBox(width: 6),
                             Text(
-                              anilistState.isSyncing ? 'Se importă...' : '1-Click Sync',
+                              anilistState.isSyncing ? 'Importing...' : '1-Click Sync',
                               style: const TextStyle(
                                 color: Color(0xFF3B82F6),
                                 fontWeight: FontWeight.w700,
@@ -1181,7 +1169,7 @@ class ProfileScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Activitate Recentă',
+              AppStrings.recentActivity,
               style: TextStyle(
                 fontFamily: 'Zalando Sans Expanded',
                 fontSize: 18,
@@ -1192,7 +1180,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             if (watchlist.isNotEmpty)
               Text(
-                '${watchlist.length} titluri',
+                AppStrings.titlesCount(watchlist.length),
                 style: TextStyle(
                   color: context.textSecondary,
                   fontSize: 12,
@@ -1227,7 +1215,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Niciun anime în listă încă',
+                  AppStrings.emptyProfileWatchlistTitle,
                   style: TextStyle(
                     fontFamily: 'Zalando Sans Expanded',
                     color: context.textPrimary,
@@ -1237,7 +1225,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Adaugă anime-uri în Watchlist din ecranul Explorează sau Acasă pentru a-ți urmări progresul aici.',
+                  AppStrings.emptyProfileWatchlistSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: context.textSecondary,
@@ -1247,207 +1235,42 @@ class ProfileScreen extends ConsumerWidget {
               ],
             ),
           )
-        else
-          // Single-column layout (horizontal cards)
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: watchlist.take(6).length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final item = watchlist[index];
-              return _buildActivitySingleRowCard(context, item);
+        else ...[
+          // Single-column layout cu noul RecentActivityHorizontalCard
+          Builder(
+            builder: (context) {
+              final sortedList = List<WatchlistItemRecord>.from(watchlist)
+                ..sort((a, b) {
+                  final aDate = DateTime.tryParse(a.updatedAt.isNotEmpty ? a.updatedAt : a.createdAt) ?? DateTime(1970);
+                  final bDate = DateTime.tryParse(b.updatedAt.isNotEmpty ? b.updatedAt : b.createdAt) ?? DateTime(1970);
+                  return bDate.compareTo(aDate);
+                });
+
+              final recentItems = sortedList.take(6).toList();
+
+              return ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: recentItems.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final item = recentItems[index];
+                  return RecentActivityHorizontalCard.fromWatchlistRecord(
+                    context: context,
+                    record: item,
+                  );
+                },
+              );
             },
           ),
+        ],
       ],
-    );
-  }
-
-  Widget _buildActivitySingleRowCard(BuildContext context, WatchlistItemRecord item) {
-    final media = item.mediaItem;
-    final title = media?.title.userPreferred ?? 'Anime #${item.mediaId}';
-    final imageUrl = media?.coverImage.large ?? media?.coverImage.medium ?? '';
-    final int progress = item.progressEpisodes;
-    final int? total = media?.episodes;
-
-    String statusLabel = 'În Curs';
-    Color statusColor = context.accentPrimary;
-    if (item.status == 'COMPLETED') {
-      statusLabel = 'Completat';
-      statusColor = const Color(0xFF10B981);
-    } else if (item.status == 'PLAN_TO_WATCH') {
-      statusLabel = 'Plănuit';
-      statusColor = const Color(0xFF6366F1);
-    } else if (item.status == 'ON_HOLD') {
-      statusLabel = 'În Așteptare';
-      statusColor = const Color(0xFFF59E0B);
-    }
-
-    final double progressPercent = (total != null && total > 0)
-        ? (progress / total).clamp(0.0, 1.0)
-        : (progress > 0 ? 0.5 : 0.0);
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => MediaDetailScreen(
-              mediaId: item.mediaId,
-              initialItem: item.mediaItem,
-            ),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: context.bgSurface,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            // Poster Imagine Rotunjită
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: 58,
-                height: 78,
-                child: imageUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => Container(
-                          color: context.bgSurfaceHover,
-                          child: Icon(
-                            PhosphorIcons.image(PhosphorIconsStyle.bold),
-                            color: context.textMuted,
-                            size: 20,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        color: context.bgSurfaceHover,
-                        child: Icon(
-                          PhosphorIcons.image(PhosphorIconsStyle.bold),
-                          color: context.textMuted,
-                          size: 20,
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(width: 14),
-
-            // Informații Titlu, Progres & Status
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Status Pill
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      statusLabel,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-
-                  // Titlu Serie
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Zalando Sans Expanded',
-                      color: context.textPrimary,
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-
-                  // Episoade + Bară subțire de progres
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(9999),
-                          child: LinearProgressIndicator(
-                            value: progressPercent,
-                            minHeight: 4,
-                            backgroundColor: context.bgSurfaceHover,
-                            valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Ep $progress${total != null ? "/$total" : ""}',
-                        style: TextStyle(
-                          color: context.textSecondary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Scor și Caret Navigare
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (item.score != null && item.score! > 0) ...[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        PhosphorIconsFill.star,
-                        size: 12,
-                        color: Color(0xFFFBBF24),
-                      ),
-                      const SizedBox(width: 3),
-                      Text(
-                        item.score!.toStringAsFixed(1),
-                        style: TextStyle(
-                          color: context.textPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                ],
-                Icon(
-                  PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
-                  size: 14,
-                  color: context.textMuted,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   // --- 8. BUTON DECONECTARE (PĂSTREAZĂ FEEDBACK TACTIL) ---
   Widget _buildSystemLogoutButton(BuildContext context, WidgetRef ref) {
-    return _TactileScaleButton(
+    return TactileScaleButton(
       onTap: () => _confirmSignOut(context, ref),
       child: Container(
         width: double.infinity,
@@ -1467,7 +1290,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'Deconectează-te',
+              AppStrings.logOut,
               style: TextStyle(
                 color: context.error,
                 fontWeight: FontWeight.w700,
@@ -1536,7 +1359,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Conectare Cont AniList',
+                      'Connect AniList Account',
                       style: TextStyle(
                         fontFamily: 'Zalando Sans Expanded',
                         fontSize: 17,
@@ -1548,7 +1371,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Conectează-ți contul AniList pentru a sincroniza automat notele (1–10), statusul și progresul episoadelor în baza de date mondială.',
+                  'Connect your AniList account to automatically sync your scores (1–10), status, and episode progress with the global database.',
                   style: TextStyle(
                     color: context.textSecondary,
                     fontSize: 13,
@@ -1581,7 +1404,7 @@ class ProfileScreen extends ConsumerWidget {
                         Icon(Icons.open_in_browser, color: Color(0xFF3B82F6), size: 18),
                         SizedBox(width: 8),
                         Text(
-                          '1. Deschide AniList pentru Token',
+                          '1. Open AniList for Token',
                           style: TextStyle(color: Color(0xFF3B82F6), fontSize: 12.5, fontWeight: FontWeight.w700),
                         ),
                       ],
@@ -1591,7 +1414,7 @@ class ProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
                 Text(
-                  '2. Lipește Token-ul de Acces',
+                  '2. Paste Access Token',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -1613,7 +1436,7 @@ class ProfileScreen extends ConsumerWidget {
                           style: TextStyle(color: context.textPrimary, fontSize: 13),
                           decoration: const InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Lipește token-ul AniList...',
+                            hintText: 'Paste AniList token...',
                           ),
                         ),
                       ),
@@ -1641,7 +1464,7 @@ class ProfileScreen extends ConsumerWidget {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Contul AniList a fost conectat cu succes!'),
+                              content: Text('AniList account connected successfully!'),
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -1649,7 +1472,7 @@ class ProfileScreen extends ConsumerWidget {
                       } else {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Eroare: Token-ul este invalid.')),
+                            const SnackBar(content: Text('${AppStrings.errorPrefix}: Invalid token.')),
                           );
                         }
                       }
@@ -1664,7 +1487,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: const Text(
-                      'Conectează Contul',
+                      'Connect Account',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -1691,7 +1514,7 @@ class ProfileScreen extends ConsumerWidget {
         backgroundColor: context.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Deconectare',
+          AppStrings.logOutConfirmTitle,
           style: TextStyle(
             fontFamily: 'Zalando Sans Expanded',
             fontWeight: FontWeight.w800,
@@ -1700,7 +1523,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
         content: Text(
-          'Sigur vrei să te deconectezi din contul Kurogane?',
+          AppStrings.logOutConfirmMessage,
           style: TextStyle(color: context.textSecondary, fontSize: 13.5),
         ),
         actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1711,7 +1534,7 @@ class ProfileScreen extends ConsumerWidget {
                 child: TextButton(
                   onPressed: () => Navigator.of(dialogCtx).pop(),
                   child: Text(
-                    'Anulează',
+                    AppStrings.cancel,
                     style: TextStyle(
                       color: context.textSecondary,
                       fontWeight: FontWeight.w600,
@@ -1721,14 +1544,14 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _TactileScaleButton(
+                child: TactileScaleButton(
                   onTap: () async {
                     Navigator.of(dialogCtx).pop();
                     await ref.read(authControllerProvider.notifier).signOut();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Te-ai deconectat cu succes.'),
+                          content: Text('You have been logged out successfully.'),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -1742,7 +1565,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'Deconectează',
+                      AppStrings.logOut,
                       style: TextStyle(
                         color: context.onError,
                         fontWeight: FontWeight.w700,
@@ -1755,48 +1578,6 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-
-
-/// Tactile Scale Button (Păstrat strict pentru Editează Profil, Setări și Deconectare)
-class _TactileScaleButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-
-  const _TactileScaleButton({
-    required this.child,
-    required this.onTap,
-  });
-
-  @override
-  State<_TactileScaleButton> createState() => _TactileScaleButtonState();
-}
-
-class _TactileScaleButtonState extends State<_TactileScaleButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        HapticFeedback.lightImpact();
-        setState(() => _isPressed = true);
-      },
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOutCubic,
-        child: widget.child,
       ),
     );
   }

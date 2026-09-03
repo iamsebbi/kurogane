@@ -444,6 +444,10 @@ class PersistentDatabaseService {
     return this.users.get(userId) || null;
   }
 
+  public getUserById(userId?: string): UserProfile | null {
+    return this.getUserProfile(userId);
+  }
+
   public getUserByUsername(username: string): UserProfile | null {
     const cleanUser = normalizeIdentifier(username);
     if (!cleanUser) return null;
@@ -558,7 +562,7 @@ class PersistentDatabaseService {
         });
       }
     }
-    return list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    return list.sort((a, b) => new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime());
   }
 
   public async upsertWatchlistItem(

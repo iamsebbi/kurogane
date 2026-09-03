@@ -85,8 +85,10 @@ async function startServer() {
     }
   }
 
-  app.listen(PORT, () => {
-    console.log(`[Kurogane API] Server running on http://localhost:${PORT}`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  app.listen(Number(PORT), HOST, () => {
+    console.log(`[Kurogane API] Server running on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
+    console.log(`[Kurogane API] Accessible on LAN / Emulator at http://0.0.0.0:${PORT}`);
   });
 }
 

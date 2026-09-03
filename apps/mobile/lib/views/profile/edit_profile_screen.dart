@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../widgets/blur_fade_route.dart';
@@ -69,13 +70,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   bool _isSaving = false;
 
   static const _predefinedPronouns = [
-    'el/lui',
-    'ea/ei',
-    'ei/lor',
     'they/them',
     'he/him',
     'she/her',
-    'Fără preferință',
+    'No preference',
   ];
 
   @override
@@ -90,7 +88,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _isCustomPronoun = !_predefinedPronouns.contains(widget.currentPronoun) && widget.currentPronoun.isNotEmpty;
     if (_isCustomPronoun) {
       _customPronounController.text = widget.currentPronoun;
-      _selectedPronoun = 'Personalizat...';
+      _selectedPronoun = 'Custom…';
     }
   }
 
@@ -122,7 +120,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       setState(() {
         _isCheckingHandle = false;
         _isHandleAvailable = false;
-        _handleError = 'Introdu un @handle.';
+        _handleError = 'Enter a @handle.';
       });
       return;
     }
@@ -131,7 +129,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       setState(() {
         _isCheckingHandle = false;
         _isHandleAvailable = false;
-        _handleError = '2-24 caractere (litere, cifre, _, -, .)';
+        _handleError = '2-24 characters (letters, numbers, _, -, .)';
       });
       return;
     }
@@ -152,7 +150,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         setState(() {
           _isCheckingHandle = false;
           _isHandleAvailable = res.available;
-          _handleError = res.available ? null : (res.error ?? 'Acest @handle este deja ocupat.');
+          _handleError = res.available ? null : (res.error ?? 'This @handle is already taken.');
         });
       } catch (_) {
         if (!mounted) return;
@@ -177,7 +175,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (newName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Numele afișat nu poate fi gol.'),
+          content: Text('Display name cannot be empty.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -192,7 +190,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (_isCheckingHandle) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Se verifică disponibilitatea @handle-ului...'),
+            content: Text('Checking @handle availability…'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -201,7 +199,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (_isHandleAvailable == false || _handleError != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_handleError ?? 'Numele de utilizator nu este valid sau este deja ocupat.'),
+            content: Text(_handleError ?? 'Username is invalid or already taken.'),
             backgroundColor: context.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -228,7 +226,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Profilul a fost actualizat cu succes!'),
+          content: Text('Profile updated successfully!'),
           backgroundColor: AppColors.signalLive,
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 3),
@@ -239,7 +237,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        String msg = 'Eroare la salvare: $e';
+        String msg = 'Error saving profile: $e';
         if (e is DioException && e.response?.data is Map) {
           final errStr = e.response!.data['error'];
           if (errStr != null) msg = errStr.toString();
@@ -289,7 +287,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       Row(
                         children: [
                           Text(
-                            'Nume de Utilizator (@handle)',
+                            'Username (@handle)',
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
@@ -315,7 +313,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'În $daysRemaining ${daysRemaining == 1 ? 'zi' : 'zile'}',
+                                    'In $daysRemaining ${daysRemaining == 1 ? 'day' : 'days'}',
                                     style: TextStyle(
                                       color: context.accentPrimary,
                                       fontSize: 10.5,
@@ -343,7 +341,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   const Text(
-                                    'Editabil acum',
+                                    'Editable now',
                                     style: TextStyle(
                                       color: AppColors.signalLive,
                                       fontSize: 10.5,
@@ -404,7 +402,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  'Ai modificat recent handle-ul. Îl vei putea schimba din nou peste $daysRemaining ${daysRemaining == 1 ? 'zi' : 'zile'}.',
+                                  'You recently changed your handle. You can change it again in $daysRemaining ${daysRemaining == 1 ? 'day' : 'days'}.',
                                   style: TextStyle(
                                     color: context.textMuted,
                                     fontSize: 11.5,
@@ -457,7 +455,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: 'introdu_noul_handle',
+                                    hintText: 'enter_new_handle',
                                     hintStyle: TextStyle(
                                       color: context.textMuted,
                                       fontSize: 14,
@@ -516,7 +514,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               Expanded(
                                 child: Text(
                                   _handleError ??
-                                      'Atenție: Îți poți schimba @handle-ul o singură dată la 14 zile.',
+                                      'Note: You can only change your @handle once every 14 days.',
                                   style: TextStyle(
                                     color: _handleError != null ? context.error : context.textMuted,
                                     fontSize: 11.5,
@@ -533,7 +531,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                       // 2. Nume Afișat
                       Text(
-                        'Nume Afișat',
+                        'Display Name',
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
@@ -559,7 +557,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Introdu numele tău…',
+                            hintText: 'Enter your name…',
                             hintStyle: TextStyle(
                               color: context.textMuted,
                               fontSize: 15,
@@ -573,7 +571,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                       // 3. Selector Pronume (Chips FULL ROUNDED)
                       Text(
-                        'Pronume',
+                        AppStrings.pronouns,
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
@@ -626,7 +624,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 : () {
                                     HapticFeedback.lightImpact();
                                     setState(() {
-                                      _selectedPronoun = 'Personalizat...';
+                                      _selectedPronoun = 'Custom…';
                                       _isCustomPronoun = true;
                                     });
                                   },
@@ -643,7 +641,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ),
                               ),
                               child: Text(
-                                'Personalizat…',
+                                'Custom…',
                                 style: TextStyle(
                                   color: _isCustomPronoun ? context.onPrimary : context.textPrimary,
                                   fontSize: 12.5,
@@ -674,7 +672,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             ),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'ex: el/lui, per/pers…',
+                              hintText: 'e.g. they/them, she/her…',
                               hintStyle: TextStyle(
                                 color: context.textMuted,
                                 fontSize: 14.5,
@@ -691,7 +689,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Despre Tine (Bio)',
+                            'About You (Bio)',
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
@@ -738,7 +736,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'O scurtă descriere a pasiunii tale pentru anime…',
+                            hintText: 'A brief description of your anime passion…',
                             hintStyle: TextStyle(
                               color: context.textMuted,
                               fontSize: 14.5,
@@ -774,7 +772,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 )
                               : Text(
-                                  'Salvează Modificările',
+                                  AppStrings.saveChanges,
                                   style: TextStyle(
                                     fontFamily: 'Google Sans',
                                     fontSize: 15.5,
@@ -828,7 +826,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           // Titlu Ecran
           Expanded(
             child: Text(
-              'Editează Profilul',
+              AppStrings.editProfile,
               style: TextStyle(
                 fontFamily: 'Zalando Sans Expanded',
                 fontSize: 18,

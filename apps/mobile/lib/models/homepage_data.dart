@@ -48,7 +48,7 @@ class RecommendedMediaItem {
   factory RecommendedMediaItem.fromJson(Map<String, dynamic> json) {
     return RecommendedMediaItem(
       media: MediaItem.fromJson(json['media'] as Map<String, dynamic>),
-      recommendationReason: json['recommendationReason'] as String? ?? 'Recomandat pentru tine',
+      recommendationReason: json['recommendationReason'] as String? ?? 'Recommended for you',
       matchPercentage: (json['matchPercentage'] as num?)?.toDouble(),
       isPersonalized: json['isPersonalized'] as bool? ?? false,
       badgeLabel: json['badgeLabel'] as String?,

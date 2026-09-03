@@ -89,11 +89,21 @@ class ApiClient {
         _workingBaseUrl = _dio.options.baseUrl;
         return response;
       }
+    } on DioException catch (e) {
+      // If the server responded with an HTTP status code (e.g. 404 Not Found),
+      // the server is reachable and active! Do NOT failover to other candidate URLs.
+      if (e.response != null) {
+        if (e.response!.statusCode == 404) {
+          return null;
+        }
+        return e.response;
+      }
+      debugPrint('[ApiClient] Network failure on ${_dio.options.baseUrl} ${requestTag ?? ""}: $e');
     } catch (e) {
       debugPrint('[ApiClient] Request failed on ${_dio.options.baseUrl} ${requestTag ?? ""}: $e');
     }
 
-    // 2. Try candidate fallback URLs
+    // 2. Try candidate fallback URLs only on true network connection failure
     final currentBase = _dio.options.baseUrl;
     final candidates = ApiConstants.candidateBaseUrls.where((u) => u != currentBase);
 
@@ -107,6 +117,12 @@ class ApiClient {
           debugPrint('[ApiClient] Switched working baseUrl to $candidateUrl for ${requestTag ?? ""}');
           return response;
         }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          if (e.response!.statusCode == 404) return null;
+          return e.response;
+        }
+        debugPrint('[ApiClient] Candidate $candidateUrl failed for ${requestTag ?? ""}: $e');
       } catch (e) {
         debugPrint('[ApiClient] Candidate $candidateUrl failed for ${requestTag ?? ""}: $e');
       }
@@ -216,6 +232,21 @@ class ApiClient {
     }
   }
 
+  Future<List<MediaRelation>> getMediaRelations(String id) async {
+    try {
+      final response = await _get('${ApiConstants.mediaDetail}/$id/relations');
+      if (response != null && response.data != null && response.data['relations'] is List) {
+        return (response.data['relations'] as List)
+            .map((e) => MediaRelation.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('[ApiClient] Error fetching relations for $id: $e');
+      return [];
+    }
+  }
+
   Future<WatchOrderGuide?> getWatchOrder(String id) async {
     try {
       final response = await _get('${ApiConstants.mediaDetail}/$id/watch-order');
@@ -226,6 +257,59 @@ class ApiClient {
     } catch (e) {
       debugPrint('[ApiClient] Watch order not available for $id: $e');
       return null;
+    }
+  }
+
+  Future<bool> voteWatchOrderPreset(String presetId, int vote) async {
+    try {
+      final response = await _post(
+        '/api/media/watch-order/presets/$presetId/vote',
+        data: {'vote': vote},
+      );
+      if (response != null && response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+        return true;
+      }
+      final errorMsg = response?.data?['error']?.toString();
+      if (errorMsg != null) {
+        throw Exception(errorMsg);
+      }
+      return false;
+    } catch (e) {
+      debugPrint('[ApiClient] Error voting preset $presetId: $e');
+      rethrow;
+    }
+  }
+
+  Future<bool> reportWatchOrderPreset(String presetId, String reason) async {
+    try {
+      final response = await _post(
+        '/api/media/watch-order/presets/$presetId/report',
+        data: {'reason': reason},
+      );
+      return response != null && response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300;
+    } catch (e) {
+      debugPrint('[ApiClient] Error reporting preset $presetId: $e');
+      return false;
+    }
+  }
+
+  Future<WatchOrderPreset?> createWatchOrderPreset(String mediaId, Map<String, dynamic> data) async {
+    try {
+      final response = await _post(
+        '${ApiConstants.mediaDetail}/$mediaId/watch-order/presets',
+        data: data,
+      );
+      if (response != null && response.data != null && response.statusCode == 201) {
+        return WatchOrderPreset.fromJson(response.data as Map<String, dynamic>);
+      }
+      final errorMsg = response?.data?['error']?.toString();
+      if (errorMsg != null) {
+        throw Exception(errorMsg);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[ApiClient] Error creating preset for media $mediaId: $e');
+      rethrow;
     }
   }
 

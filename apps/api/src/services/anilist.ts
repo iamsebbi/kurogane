@@ -1,11 +1,27 @@
-import { MediaItem, MediaType, ScoreMetrics, ReleaseStatus, MediaSeason, RecentlyAiredEpisode, SearchQueryOptions } from '@kurogane/shared';
+import {
+  MediaItem,
+  MediaType,
+  ScoreMetrics,
+  ReleaseStatus,
+  MediaSeason,
+  RecentlyAiredEpisode,
+  SearchQueryOptions,
+  MediaCharacter,
+  MediaStaff,
+  MediaThemeSong,
+  CommunityMetrics,
+  MediaRelation,
+  MediaRelationType,
+} from '@kurogane/shared';
 
 export const ANILIST_GRAPHQL_URL = 'https://graphql.anilist.co';
 
 export const ANILIST_REQUEST_HEADERS: Record<string, string> = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
-  'User-Agent': 'Kurogane/0.1.0 (https://kurogane.app; open-media-platform)',
+  Origin: 'https://anilist.co',
+  Referer: 'https://anilist.co/',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 };
 
 const SEARCH_MEDIA_QUERY = `
@@ -287,6 +303,7 @@ query ($perPage: Int) {
 
 interface AniListMedia {
   id: number;
+  idMal?: number;
   title: {
     romaji?: string;
     english?: string;
@@ -311,8 +328,16 @@ interface AniListMedia {
   };
   bannerImage?: string;
   startDate?: {
-    year?: number;
+    year?: number | null;
+    month?: number | null;
+    day?: number | null;
   };
+  endDate?: {
+    year?: number | null;
+    month?: number | null;
+    day?: number | null;
+  };
+  source?: string;
   studios?: {
     nodes?: {
       id: number;
@@ -322,8 +347,66 @@ interface AniListMedia {
   };
   averageScore?: number;
   meanScore?: number;
+  rankings?: {
+    rank: number;
+    type: string;
+    context: string;
+    allTime: boolean;
+  }[];
   stats?: {
     scoreDistribution?: { score: number; amount: number }[];
+    statusDistribution?: { status: string; amount: number }[];
+  };
+  characters?: {
+    edges?: {
+      role: string;
+      node: {
+        id: number;
+        name: { userPreferred: string };
+        image?: { medium?: string };
+      };
+      voiceActors?: {
+        id: number;
+        name: { userPreferred: string };
+        image?: { medium?: string };
+        languageV2?: string;
+      }[];
+    }[];
+  };
+  staff?: {
+    edges?: {
+      role: string;
+      node: {
+        id: number;
+        name: { userPreferred: string };
+        image?: { medium?: string };
+      };
+    }[];
+  };
+  relations?: {
+    edges?: {
+      relationType: string;
+      node: {
+        id: number;
+        type?: string;
+        format?: string;
+        status?: string;
+        episodes?: number;
+        title?: {
+          romaji?: string;
+          english?: string;
+          native?: string;
+          userPreferred?: string;
+        };
+        coverImage?: {
+          large?: string;
+          medium?: string;
+        };
+        startDate?: {
+          year?: number;
+        };
+      };
+    }[];
   };
 }
 
@@ -355,6 +438,44 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
     ?.map(s => s.name)
     .filter((n): n is string => Boolean(n)) || [];
 
+  const characters: MediaCharacter[] = (item.characters?.edges || []).map((edge) => {
+    const primaryVa = edge.voiceActors?.[0];
+    return {
+      id: edge.node.id,
+      name: edge.node.name.userPreferred,
+      image: edge.node.image?.medium,
+      role: edge.role,
+      voiceActor: primaryVa
+        ? {
+            id: primaryVa.id,
+            name: primaryVa.name.userPreferred,
+            image: primaryVa.image?.medium,
+            language: primaryVa.languageV2 || 'Japanese',
+          }
+        : undefined,
+    };
+  });
+
+  const staff: MediaStaff[] = (item.staff?.edges || []).map((edge) => ({
+    id: edge.node.id,
+    name: edge.node.name.userPreferred,
+    image: edge.node.image?.medium,
+    role: edge.role,
+  }));
+
+  const communityMetrics: CommunityMetrics | undefined = (item.rankings || item.stats?.statusDistribution || item.stats?.scoreDistribution)
+    ? {
+        rankings: (item.rankings || []).map((r) => ({
+          rank: r.rank,
+          type: r.type,
+          context: r.context,
+          allTime: Boolean(r.allTime),
+        })),
+        scoreDistribution: item.stats?.scoreDistribution || [],
+        statusDistribution: item.stats?.statusDistribution || [],
+      }
+    : undefined;
+
   return {
     id: `anilist-${item.id}`,
     anilistId: item.id,
@@ -384,6 +505,43 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
     year: item.startDate?.year,
     scores,
     source: 'ANILIST',
+    characters: characters.length > 0 ? characters : undefined,
+    staff: staff.length > 0 ? staff : undefined,
+    communityMetrics,
+    startDate: item.startDate ? {
+      year: item.startDate.year,
+      month: item.startDate.month,
+      day: item.startDate.day,
+    } : undefined,
+    endDate: item.endDate ? {
+      year: item.endDate.year,
+      month: item.endDate.month,
+      day: item.endDate.day,
+    } : undefined,
+    adaptationSource: item.source || undefined,
+    relations: (item.relations?.edges || []).length > 0
+      ? (item.relations!.edges || [])
+          .filter((e) => e && e.node && e.node.id)
+          .map((e) => {
+            const n = e.node;
+            const relType = (e.relationType || 'OTHER') as MediaRelationType;
+            const title = n.title?.userPreferred || n.title?.english || n.title?.romaji || 'Titlu Conex';
+            const cover = n.coverImage?.large || n.coverImage?.medium;
+            return {
+              id: `anilist-${n.id}`,
+              anilistId: n.id,
+              relationType: relType,
+              title,
+              format: n.format,
+              type: n.type,
+              status: n.status,
+              season: n.season,
+              episodes: n.episodes,
+              releaseYear: n.startDate?.year || n.seasonYear,
+              coverImage: cover,
+            };
+          })
+      : undefined,
   };
 }
 
@@ -655,24 +813,24 @@ function formatRelativeTime(airingAt: number): string {
 
   if (diffSeconds < 0) {
     const futureMin = Math.max(1, Math.floor(Math.abs(diffSeconds) / 60));
-    if (futureMin < 60) return `În ${futureMin} min`;
+    if (futureMin < 60) return `In ${futureMin}m`;
     const futureHours = Math.floor(futureMin / 60);
-    return `În ${futureHours} ore`;
+    return `In ${futureHours}h`;
   }
 
   const minutes = Math.floor(diffSeconds / 60);
   if (minutes < 60) {
-    return minutes <= 1 ? 'Acum 1 min' : `Acum ${minutes} min`;
+    return minutes <= 1 ? 'Just now' : `${minutes}m ago`;
   }
 
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return hours === 1 ? 'Acum 1 oră' : `Acum ${hours} ore`;
+    return `${hours}h ago`;
   }
 
   const days = Math.floor(hours / 24);
-  if (days === 1) return 'Ieri';
-  return `Acum ${days} zile`;
+  if (days === 1) return 'Yesterday';
+  return `${days}d ago`;
 }
 
 let recentlyAiredCache: { data: RecentlyAiredEpisode[]; timestamp: number } | null = null;
@@ -710,7 +868,7 @@ export async function fetchAniListRecentlyAired(limit: number = 12): Promise<Rec
       mapped.push({
         media: mediaItem,
         episodeNumber: sched.episode,
-        episodeTitle: `Episodul ${sched.episode}`,
+        episodeTitle: `Episode ${sched.episode}`,
         airDateRelative: formatRelativeTime(sched.airingAt),
         airDateExact: new Date(sched.airingAt * 1000).toISOString(),
         thumbnailUrl: mediaItem.coverImage.extraLarge || mediaItem.coverImage.large,
@@ -884,6 +1042,7 @@ const FETCH_MEDIA_BY_ID_QUERY = `
 query ($id: Int) {
   Media(id: $id) {
     id
+    idMal
     title {
       romaji
       english
@@ -909,7 +1068,15 @@ query ($id: Int) {
     bannerImage
     startDate {
       year
+      month
+      day
     }
+    endDate {
+      year
+      month
+      day
+    }
+    source
     studios {
       nodes {
         id
@@ -919,15 +1086,131 @@ query ($id: Int) {
     }
     averageScore
     meanScore
+    rankings {
+      rank
+      type
+      context
+      allTime
+    }
     stats {
       scoreDistribution {
         score
         amount
       }
+      statusDistribution {
+        status
+        amount
+      }
+    }
+    characters(sort: [ROLE, RELEVANCE], perPage: 12) {
+      edges {
+        role
+        node {
+          id
+          name {
+            userPreferred
+          }
+          image {
+            medium
+          }
+        }
+        voiceActors(language: JAPANESE, sort: [RELEVANCE]) {
+          id
+          name {
+            userPreferred
+          }
+          image {
+            medium
+          }
+          languageV2
+        }
+      }
+    }
+    staff(sort: [RELEVANCE], perPage: 12) {
+      edges {
+        role
+        node {
+          id
+          name {
+            userPreferred
+          }
+          image {
+            medium
+          }
+        }
+      }
+    }
+    relations {
+      edges {
+        relationType(version: 2)
+        node {
+          id
+          type
+          format
+          status
+          season
+          seasonYear
+          episodes
+          title {
+            userPreferred
+            romaji
+            english
+          }
+          coverImage {
+            large
+            medium
+          }
+          startDate {
+            year
+          }
+        }
+      }
     }
   }
 }
 `;
+
+const themesCache = new Map<number, MediaThemeSong[]>();
+
+export async function fetchThemeSongs(anilistId: number): Promise<MediaThemeSong[]> {
+  if (themesCache.has(anilistId)) {
+    return themesCache.get(anilistId)!;
+  }
+  try {
+    const url = `https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=AniList&filter[external_id]=${anilistId}&include=animethemes.song.artists`;
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Kurogane/1.0 (https://kurogane.app)',
+        'Accept': 'application/json',
+      },
+    });
+    if (!res.ok) {
+      themesCache.set(anilistId, []);
+      return [];
+    }
+    const data: any = await res.json();
+    const animethemes = data.anime?.[0]?.animethemes as any[] | undefined;
+    if (!animethemes || !Array.isArray(animethemes)) {
+      themesCache.set(anilistId, []);
+      return [];
+    }
+    const songs: MediaThemeSong[] = animethemes.map((theme) => {
+      const type: 'OP' | 'ED' = theme.type === 'ED' ? 'ED' : 'OP';
+      const artists = (theme.song?.artists || []).map((a: any) => a.name).filter(Boolean);
+      return {
+        type,
+        title: theme.song?.title || theme.slug || 'Theme',
+        artists: artists.length > 0 ? artists : ['Artist necunoscut'],
+        episodes: theme.slug,
+      };
+    });
+    themesCache.set(anilistId, songs);
+    return songs;
+  } catch (err) {
+    console.error(`[AnimeThemes Error for ${anilistId}]:`, err);
+    return [];
+  }
+}
 
 export async function fetchAniListMediaById(rawId: string | number): Promise<MediaItem | null> {
   const numericId = typeof rawId === 'number' ? rawId : parseInt(String(rawId).replace(/\D/g, ''), 10);
@@ -955,7 +1238,17 @@ export async function fetchAniListMediaById(rawId: string | number): Promise<Med
     const media: AniListMedia = json.data?.Media;
     if (!media) return null;
 
-    return mapAniListToMediaItem(media);
+    const mapped = mapAniListToMediaItem(media);
+    if (media.id && media.type !== 'MANGA') {
+      try {
+        const themes = await fetchThemeSongs(media.id);
+        if (themes.length > 0) {
+          mapped.themes = themes;
+        }
+      } catch (_) {}
+    }
+
+    return mapped;
   } catch (error) {
     console.error('[AniList API fetchById Error]:', error);
     return null;

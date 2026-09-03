@@ -4,6 +4,8 @@ import 'package:phosphor_icons/phosphor_icons.dart';
 // ignore: implementation_imports
 import 'package:sign_in_with_apple/src/widgets/apple_logo_painter.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_strings.dart';
+import '../../../widgets/tactile_scale_button.dart';
 
 class SocialAuthButtons extends StatelessWidget {
   final bool isLoading;
@@ -28,7 +30,7 @@ class SocialAuthButtons extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Text(
-                'sau continuă cu',
+                'or continue with',
                 style: TextStyle(
                   color: context.textMuted,
                   fontSize: 12,
@@ -42,7 +44,7 @@ class SocialAuthButtons extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Google Sign-In Button (Official Vector Google G Logo)
-        _SocialScaleButton(
+        TactileScaleButton(
           onTap: isLoading ? () {} : onGooglePressed,
           child: Container(
             width: double.infinity,
@@ -58,7 +60,7 @@ class SocialAuthButtons extends StatelessWidget {
                 GoogleLogoIcon(size: 20),
                 SizedBox(width: 12),
                 Text(
-                  'Continuă cu Google',
+                  AppStrings.continueWithGoogle,
                   style: TextStyle(
                     color: Color(0xFF1F1F1F),
                     fontWeight: FontWeight.w700,
@@ -73,7 +75,7 @@ class SocialAuthButtons extends StatelessWidget {
         const SizedBox(height: 12),
 
         // Apple Sign-In Button (Official AppleLogoPainter din sign_in_with_apple + Google Sans Font)
-        _SocialScaleButton(
+        TactileScaleButton(
           onTap: isLoading
               ? () {}
               : () {
@@ -93,7 +95,7 @@ class SocialAuthButtons extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Autentificarea cu Apple va fi disponibilă în curând.',
+                                'Apple sign-in will be available soon.',
                                 style: TextStyle(
                                   color: context.textPrimary,
                                   fontFamily: 'Google Sans',
@@ -134,7 +136,7 @@ class SocialAuthButtons extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  'Continuă cu Apple',
+                  'Continue with Apple',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -147,42 +149,6 @@ class SocialAuthButtons extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _SocialScaleButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-
-  const _SocialScaleButton({
-    required this.child,
-    required this.onTap,
-  });
-
-  @override
-  State<_SocialScaleButton> createState() => _SocialScaleButtonState();
-}
-
-class _SocialScaleButtonState extends State<_SocialScaleButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.96 : 1.0,
-        duration: const Duration(milliseconds: 130),
-        curve: Curves.easeOutCubic,
-        child: widget.child,
-      ),
     );
   }
 }

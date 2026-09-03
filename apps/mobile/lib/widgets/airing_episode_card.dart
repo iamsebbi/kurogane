@@ -181,7 +181,7 @@ class _AiringEpisodeCardState extends State<AiringEpisodeCard> {
                               const Padding(
                                 padding: EdgeInsets.only(left: 1),
                                 child: Text(
-                                  'NOU',
+                                  'NEW',
                                   style: TextStyle(
                                     color: Color(0xFF0F172A),
                                     fontSize: 10,

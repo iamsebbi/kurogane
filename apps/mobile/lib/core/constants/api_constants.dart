@@ -30,12 +30,13 @@ class ApiConstants {
       if (kIsWeb) return ['http://localhost:4000', cloudBaseUrl];
       if (defaultTargetPlatform == TargetPlatform.android) {
         return [
-          'http://127.0.0.1:4000', // Physical phone with adb reverse
-          'http://10.0.2.2:4000',   // Android Studio Emulator
-          cloudBaseUrl,             // Cloud fallback
+          'http://127.0.0.1:4000',    // Physical phone (with adb reverse) or local loopback
+          'http://10.0.2.2:4000',      // Android Studio Emulator standard host alias
+          'http://192.168.1.224:4000', // Physical phone over Wi-Fi (LAN IP)
+          cloudBaseUrl,                // Cloud fallback
         ];
       }
-      return ['http://localhost:4000', cloudBaseUrl];
+      return ['http://localhost:4000', 'http://192.168.1.224:4000', cloudBaseUrl];
     }
     return [cloudBaseUrl];
   }

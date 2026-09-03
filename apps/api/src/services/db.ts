@@ -270,7 +270,8 @@ class JSONDatabaseService {
   }
 
   public getAllOfflineMedia(): MediaItem[] {
-    return this.offlineItems;
+    if (this.offlineItems.length > 0) return this.offlineItems;
+    return Array.from(this.itemsById.values());
   }
 
   public getMediaById(id: string): MediaItem | undefined {
@@ -279,17 +280,39 @@ class JSONDatabaseService {
 
   public async getMediaByIdAsync(id: string): Promise<MediaItem | undefined> {
     const existing = this.itemsById.get(id);
-    if (existing && existing.studios && existing.studios.length > 0) {
+    if (
+      existing &&
+      existing.characters &&
+      existing.characters.length > 0 &&
+      existing.communityMetrics &&
+      existing.communityMetrics.statusDistribution &&
+      existing.communityMetrics.statusDistribution.length > 0 &&
+      existing.startDate?.day !== undefined
+    ) {
       return existing;
     }
-    const item = await fetchAniListMediaById(id);
+
+    const targetId = existing?.anilistId || id;
+    const item = await fetchAniListMediaById(targetId);
     if (item) {
-      this.itemsById.set(id, item);
-      this.itemsById.set(item.id, item);
-      if (item.anilistId) {
-        this.itemsByAnilistId.set(item.anilistId, item);
+      const merged: MediaItem = {
+        ...existing,
+        ...item,
+        title: {
+          ...existing?.title,
+          ...item.title,
+        },
+        coverImage: {
+          ...existing?.coverImage,
+          ...item.coverImage,
+        },
+      };
+      this.itemsById.set(id, merged);
+      this.itemsById.set(merged.id, merged);
+      if (merged.anilistId) {
+        this.itemsByAnilistId.set(merged.anilistId, merged);
       }
-      return item;
+      return merged;
     }
     return existing || undefined;
   }
@@ -956,14 +979,14 @@ class JSONDatabaseService {
       .sort((a, b) => (b.year || 0) - (a.year || 0) || b.scores.averageScore - a.scores.averageScore);
 
     const relativeTimeLabels = [
-      'Acum 45 min',
-      'Acum 2 ore',
-      'Acum 5 ore',
-      'Ieri la 21:00',
-      'Ieri la 18:30',
-      'Acum 2 zile',
-      'Acum 3 zile',
-      'Acum 4 zile',
+      '45m ago',
+      '2h ago',
+      '5h ago',
+      'Yesterday at 21:00',
+      'Yesterday at 18:30',
+      '2d ago',
+      '3d ago',
+      '4d ago',
     ];
 
     const fallbackRecentlyAired: RecentlyAiredEpisode[] = releasingCandidates
@@ -971,7 +994,7 @@ class JSONDatabaseService {
       .map((item, idx) => ({
         media: item,
         episodeNumber: item.episodes ? Math.min(idx + 1, item.episodes) : (idx + 1) * 2,
-        episodeTitle: `Episodul ${idx + 1}`,
+        episodeTitle: `Episode ${idx + 1}`,
         airDateRelative: relativeTimeLabels[idx % relativeTimeLabels.length],
         airDateExact: new Date(Date.now() - idx * 3600 * 1000 * 8).toISOString(),
         thumbnailUrl: item.coverImage.extraLarge || item.coverImage.large,
