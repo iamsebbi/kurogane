@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/network/api_client.dart';
 import '../models/homepage_data.dart';
@@ -24,8 +25,12 @@ final newsListProvider = FutureProvider<List<NewsArticle>>((ref) async {
   return await client.getNews();
 });
 
-// Media Detail Family Provider
+// Media Detail Family Provider (cu cache de 5 minute pentru deschidere instantă)
 final mediaDetailProvider = FutureProvider.autoDispose.family<MediaItem?, String>((ref, id) async {
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 5), () => link.close());
+  ref.onDispose(() => timer.cancel());
+
   final client = ref.watch(apiClientProvider);
   return await client.getMediaById(id);
 });

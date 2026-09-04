@@ -41,19 +41,18 @@ This document tracks planned features, architectural enhancements, and upcoming 
 
 ## 6. Mobile Profile Screen Enhancements & Zero Hardcoding (`apps/mobile`)
 
-- **Audit & De-hardcoding Plan:** Documentat în detaliu în [PROFILE_SCREEN_AUDIT.md](file:///d:/kurogane/PROFILE_SCREEN_AUDIT.md).
-- **Dynamic Verification Badge:** Condiționare `sealCheck` pe baza `userProfile.isVerified` din Supabase / API.
-- **Dynamic Profile Banner & Fallback:** Înlocuire URL Unsplash static cu gradient tematic nativ și suport pentru custom banner.
-- **Configurabilitate Client OAuth:** Externalizare `client_id` AniList în constante/configurații dinamice.
+- **Dynamic Verification Badge:** Condiționare `sealCheck` pe baza profilului din API / Supabase.
+- **Dynamic Profile Banner & Fallback:** Suport pentru custom banner și fallback tematic nativ.
+- **Cooldown Handle:** Restricție de schimbare a numelui de utilizator o dată la 14 zile, sincronizată cu backend-ul.
 - **Activitate Recentă Extinsă:** Paginare și acces către lista completă din profil.
 
 ---
 
 ## 7. Mobile Series Detail Screen Enhancements (`apps/mobile`)
 
-- **Audit & Component Refactor Plan:** Documentat în detaliu în [SERIES_DETAIL_SCREEN_AUDIT.md](file:///d:/kurogane/SERIES_DETAIL_SCREEN_AUDIT.md).
-- **Unificare Butoane Plutitoare:** Înlocuire clasă duplicată privată cu widget-ul global `FloatingCircleButton` (52px, blur 18).
-- **Calibrare Scor Inițial:** Înlocuire scor static 8.0 cu media reală a seriei în modalul de notare.
+- **Relații Native Dinamice:** Implementat prin widget-ul `MediaRelationsView` conectat la API (`/api/media/:id/relations`).
+- **Unificare Butoane Plutitoare:** Utilizare widget global `FloatingCircleButton` (52px, blur 18).
+- **Modal Notare & Watchlist:** Actualizări optimiste la adăugare/editare status și notă fără flicker pe ecran.
 - **Centralizare Culori & Tokens:** Aliniere culori hex de status și stea la `AppColors`.
 
 ---

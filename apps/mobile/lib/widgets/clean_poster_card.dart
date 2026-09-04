@@ -19,6 +19,7 @@ class CleanPosterCard extends StatefulWidget {
   final double posterAspectRatio;
   final VoidCallback? onTap;
   final MediaItem? mediaItem;
+  final int? rank;
 
   const CleanPosterCard({
     super.key,
@@ -30,6 +31,7 @@ class CleanPosterCard extends StatefulWidget {
     this.posterAspectRatio = 1 / 1.42,
     this.onTap,
     this.mediaItem,
+    this.rank,
   });
 
   /// Constructor comod și sigur pentru instanțiere din API / MediaItem
@@ -40,6 +42,7 @@ class CleanPosterCard extends StatefulWidget {
     this.height,
     this.posterAspectRatio = 1 / 1.42,
     this.onTap,
+    this.rank,
   })  : mediaItem = item,
         title = item.title.userPreferred,
         score = _resolveScore(item),
@@ -96,6 +99,48 @@ class _CleanPosterCardState extends State<CleanPosterCard> {
             ),
           ),
         ),
+        if (widget.rank != null) ...[
+          const Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 56,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0x8C000000),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 5,
+            left: 9,
+            child: Text(
+              '${widget.rank}',
+              style: const TextStyle(
+                fontFamily: 'Zalando Sans Expanded',
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: -1.0,
+                height: 1.0,
+                shadows: [
+                  Shadow(
+                    color: Color(0xCC000000),
+                    offset: Offset(0, 2),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
         if (widget.score != null && widget.score!.isNotEmpty)
           Positioned(
             top: 8,

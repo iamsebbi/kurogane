@@ -574,7 +574,7 @@ export class FranchiseService {
    */
   private async hydrateGuideCovers(guide: WatchOrderGuide): Promise<WatchOrderGuide> {
     const cloned: WatchOrderGuide = JSON.parse(JSON.stringify(guide));
-    for (const pathKey of Object.keys(cloned.paths)) {
+    for (const pathKey of Object.keys(cloned.paths) as (keyof typeof cloned.paths)[]) {
       for (const node of cloned.paths[pathKey]) {
         if (node.mediaId) {
           try {

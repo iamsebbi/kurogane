@@ -1,163 +1,175 @@
-# Kurogane
+# Kurogane 🌌
 
-> A modern, resilient, and open media tracking platform for Anime, Donghua, Manga, Manhwa, and Webtoons. Built with a monorepo architecture for fast searching, franchise watch order guides, anti-review bombing metrics, and pan-Asian media discovery.
+> **The Next-Generation Pan-Asian Media Discovery & Tracking Platform.**  
+> Built for Anime, Donghua, Aeni, Manga, Manhwa, Manhua, and Webtoons. Monorepo architecture featuring an Inverted-Index search engine, dynamic franchise relations, real-time AniList enrichment, Supabase cloud sync, and a high-performance Flutter mobile application.
 
 ---
 
-## Project Structure
+## 📑 Cuprins
 
-Kurogane is organized as a monorepo using **npm workspaces**:
+1. [Structură Monorepo](#-structură-monorepo)
+2. [Funcționalități Cheie](#-funcționalități-cheie)
+3. [Stack Tehnologic](#-stack-tehnologic)
+4. [Catalog de Endpoint-uri API](#-catalog-de-endpoint-uri-api)
+5. [Instalare & Pornire Rapidă](#-instalare--pornire-rapidă)
+6. [Variabile de Mediu](#-variabile-de-mediu)
+7. [Documentație Tehnică Aprofundată](#-documentație-tehnică-aprofundată)
+
+---
+
+## 📁 Structură Monorepo
+
+Kurogane este organizat ca un **npm workspaces monorepo**:
 
 ```text
 kurogane/
 ├── apps/
-│   ├── api/          # Express + TypeScript backend API & Inverted-Index search engine
-│   ├── mobile/       # Flutter (Android/iOS) cross-platform mobile client
-│   └── web/          # Next.js 14 + TailwindCSS modern frontend UI
+│   ├── api/          # Express + TypeScript backend, Inverted Index, Supabase & AniList
+│   ├── mobile/       # Flutter (Android/iOS) client cu Riverpod, Firebase & failover IP
+│   └── web/          # Next.js 14 + TailwindCSS interfață web modernă
 ├── packages/
-│   └── shared/       # Shared TypeScript types, data models, and version constants
-├── anime-offline-database-minified.json # Offline database seed (40,000+ media entries)
-├── package.json      # Root monorepo configuration & dev scripts
-└── tsconfig.base.json # Shared base TypeScript config
+│   └── shared/       # Interfețe de domeniu TypeScript, constante și tipuri partajate
+├── docs/
+│   └── ARCHITECTURE.md # Specificații de sistem și raportul de audit API-Mobile
+├── package.json      # Configurația rădăcină & scripturile unificate de dev/build
+└── tsconfig.base.json# Configurație de bază TypeScript
 ```
 
 ---
 
-## Key Features
+## ⚡ Funcționalități Cheie
 
-- **Pan-Asian Media Classification:** First-class support for Anime (Japan), Donghua (China), Aeni (Korea), Manga, Manhwa, Manhua, and Webtoons.
-- **Inverted-Index Search Engine:** Custom search engine in `apps/api` featuring:
-  - **Dynamic Acronym / Initialism Matching:** Direct resolution for common abbreviations (e.g. `aot` -> *Attack on Titan*, `jjk` -> *Jujutsu Kaisen*).
-  - **Fuzzy Matching:** Levenshtein distance token matching for typo tolerance.
-  - **LRU Search Caching:** Multi-tier caching with TTL for rapid response times.
-- **Franchise Watch Order Trees:** Visual timeline guides supporting Recommended, Chronological, and Release order paths (featuring interactive guides for *Naruto*, *Fate*, *Demon Slayer*, *Attack on Titan*, and more).
-- **Anti-Review Bombing & Score Metrics:** Weighted score calculation (`ScoreMetrics`) to counteract review bombing and troll ratings.
-- **Tag Taxonomy & Demographic Engine:** Rule-based classification mapping micro-tags (Isekai, Cyberpunk, Time Travel) and demographics (Shounen, Seinen, Shoujo, Josei, Kids).
-- **Content Similarity Recommendations:** Automated recommendation engine computing genre, format, and tag similarities.
-- **Hybrid Data Sources:** Offline database seed supplemented with real-time AniList GraphQL API enrichment.
+- **Clasificare Pan-Asiatică:** Suport de prim rang pentru Anime (Japonia), Donghua (China), Aeni (Coreea), Manga, Manhwa, Manhua și Webtoons.
+- **Motor de Căutare Inverted-Index:**
+  - **Rezolvare Acronime / Inițialisme:** Detectare automată a prescurtărilor uzuale (`aot` -> *Attack on Titan*, `jjk` -> *Jujutsu Kaisen*, `fmab` -> *Fullmetal Alchemist: Brotherhood*).
+  - **Fuzzy Matching Levenshtein:** Toleranță ridicată la greșeli de tipar cu dicționar indexat în memorie.
+  - **Multi-tier Caching:** Cache LRU cu expirare automată (TTL) pentru timpi de răspuns sub 5ms.
+- **Relații Dinamice de Franciză:** Arbore nativ de legături între serii (Prequel, Sequel, Side Story, Spin-off, Adaptare) îmbogățit direct din AniList GraphQL.
+- **Metrici Anti-Review Bombing:** Ponderare avansată a scorului (`ScoreMetrics`) pentru neutralizarea campaniilor de troll ratings.
+- **Motor de Taxonomie & Micro-Taguri:** Clasificare automată în 37 de micro-taguri semantice (*Overpowered MC, Isekai, Anti-Hero, Xianxia, Cyberpunk, Time Travel*).
+- **Persistență Hibridă & Offline Fallback:**
+  - Bază de date JSON locală (`apps/api/data/`) cu replicare asincronă în cluster Supabase PostgreSQL.
+  - Funcționare 100% autonomă în caz de deconectare de la cloud.
+- **Client Mobil Rezistent la Erori de Rețea:**
+  - `ApiClient` (Dio) cu auto-failover între gazde locale (`127.0.0.1`, `192.168.1.224`, `10.0.2.2`) și cloud Render.
+  - UI reactiv prin Riverpod cu actualizări optimiste (Zero screen flash / 0ms latency percepție).
+  - Autentificare nativă prin Android Credential Manager & Firebase Auth.
 
 ---
 
-## Tech Stack
-
-### Frontend (`apps/web`)
-- **Framework:** Next.js 14 (App Router) & React 18
-- **Styling:** TailwindCSS & Lucide Icons
-- **Language:** TypeScript
+## 🛠️ Stack Tehnologic
 
 ### Backend (`apps/api`)
-- **Runtime:** Node.js, Express
-- **Language:** TypeScript (`ts-node-dev` for development, `tsc` for production)
-- **Data & Caching:** In-memory Inverted Index, dynamic taxonomy rules (`tag-taxonomy.json`), LRU search cache
-- **External Integration:** AniList GraphQL API
+- **Runtime:** Node.js v18+ | Express.js 4 | TypeScript 5.3
+- **Securitate:** Helmet, CORS restrictiv cu whitelist și bypass autorizat pentru mobile, Rate Limiters, Bcrypt, JWT
+- **Bază de date:** JSON persistent local + Supabase PostgreSQL (Mirror Cloud) + Prisma ORM
+- **Integrări Externe:** AniList GraphQL API, Resend Email API, Feed-uri RSS (Anime News Network, Otaku USA)
 
-### Shared (`packages/shared`)
-- Common TypeScript interfaces (`MediaItem`, `WatchOrderGuide`, `SearchQueryOptions`, `ScoreMetrics`)
-- Global constants and utility labels
+### Mobil (`apps/mobile`)
+- **Framework:** Flutter 3 (Dart 3) — Android & iOS
+- **State Management:** Riverpod (`flutter_riverpod`)
+- **Networking:** Dio cu interceptori Bearer token și auto-failover multi-IP
+- **Autentificare:** Firebase Auth, Google Sign-In nativ (Android Credential Manager)
+- **UI/UX:** Cyberpunk Otaku Theme, Frosted Glass Blur, Border Beam, Haptic Feedback
+
+### Web (`apps/web`)
+- **Framework:** Next.js 14 (App Router) & React 18
+- **Styling:** TailwindCSS, Lucide Icons, GSAP Animations
+
+### Pachet Comun (`packages/shared`)
+- Interfețe TypeScript de domeniu (`MediaItem`, `ScoreMetrics`, `WatchOrderGuide`, `UserProfile`, `NewsArticle`)
 
 ---
 
-## API Documentation
+## 📡 Catalog de Endpoint-uri API
 
-The backend service (`apps/api`) runs by default on port `4000` and provides the following endpoints:
+Backend-ul rulează pe portul `4000` (configurabil prin `.env`):
 
-| Endpoint | Method | Description |
+| Endpoint | Metodă | Descriere |
 | :--- | :--- | :--- |
-| `/api/health` | `GET` | System health status, local dataset count, and version info |
-| `/api/search` | `GET` | Multi-criteria search across offline DB and AniList |
-| `/api/media/:id` | `GET` | Get detailed media information by ID |
-| `/api/categories` | `GET` | Curated category shelves (Popular, Top Rated, Donghua, Webtoons) |
-| `/api/media/:id/similar` | `GET` | Content-based recommendations for a specific title |
-| `/api/media/:id/watch-order` | `GET` | Interactive watch order guide for media franchises |
-
-### Search Parameters (`GET /api/search`)
-
-- `q` (string): Query string (supports full title, keywords, or initialisms like `aot`, `jjk`)
-- `type` (string): Media type filter (`ANIME`, `DONGHUA`, `AENI`, `MANGA`, `MANHWA`, `MANHUA`, `WEBTOON`, `ALL`)
-- `format` (string): Media format (`TV`, `TV_SHORT`, `MOVIE`, `OVA`, `ONA`, `SPECIAL`, `MANGA`, `NOVEL`, `ALL`)
-- `status` (string): Release status (`RELEASING`, `FINISHED`, `UPCOMING`, `CANCELLED`, `HIATUS`, `ALL`)
-- `demographic` (string): Demographic target (`Shounen`, `Seinen`, `Shoujo`, `Josei`, `Kids`, `ALL`)
-- `season` (string): Airing season (`WINTER`, `SPRING`, `SUMMER`, `FALL`, `ALL`)
-- `year` (number/string): Release year or `ALL`
-- `genres` (string / array): Single or comma-separated list of genres
-- `microTags` (string / array): Single or comma-separated list of micro-tags
-- `minScore` (number): Minimum score threshold (0-100)
-- `sortBy` (string): Sort order (`RELEVANCE`, `SCORE_DESC`, `POPULARITY_DESC`, `YEAR_DESC`, `YEAR_ASC`, `TITLE_ASC`)
-- `source` (string): Data source (`all`, `local`, `anilist`)
-- `page` (number): Page number for pagination (default: `1`)
-- `limit` (number): Items per page (default: `30`)
+| `/api/health` | `GET` | Verificare stare server, număr elemente locale și versiune |
+| `/api/homepage` | `GET` | Secțiuni agregate pentru ecranul principal (hero, seasonal, airing, recomandări) |
+| `/api/search` | `GET` | Căutare avansată (query, filtre, genuri, micro-taguri, sortare) |
+| `/api/media/:id` | `GET` | Detalii complete ale unei serii (meta, scoruri, personaje, staff) |
+| `/api/media/:id/relations` | `GET` | Relațiile dinamice ale francizei (prequel, sequel, side-story) |
+| `/api/media/:id/similar` | `GET` | Recomandări similare bazate pe afinitate de gen și format |
+| `/api/categories` | `GET` | Rafturi tematice de categorii (populare, top rated, donghua, webtoons) |
+| `/api/news` | `GET` | Feed agregat de știri anime & manga |
+| `/api/watchlist` | `GET, POST` | Gestiunea listei personale de urmărire (necesită Bearer token) |
+| `/api/watchlist/:mediaId` | `DELETE` | Eliminarea unei serii din lista personală |
+| `/api/user/profile` | `GET, PUT` | Vizualizarea și actualizarea profilului de utilizator |
+| `/api/auth/resolve-identifier` | `POST` | Rezolvare securizată username -> email (cu protecție timing-attack) |
+| `/api/auth/check-username` | `GET` | Verificare în timp real a disponibilității unui handle |
+| `/api/auth/register-user` | `POST` | Sincronizare profil la înregistrare |
 
 ---
 
-## Getting Started
+## 🚀 Instalare & Pornire Rapidă
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
-- [npm](https://www.npmjs.com/) (v9 or higher)
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/iamsebbi/kurogane.git
-   cd kurogane
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-### Running in Development
-
-To start both the API and Web applications concurrently:
-
+### 1. Clonare & Instalare Dependențe
 ```bash
-npm run dev
+git clone https://github.com/iamsebbi/kurogane.git
+cd kurogane
+npm install
 ```
 
-Alternatively, you can run individual applications:
+### 2. Rulare în Mod Dezvoltare
+```bash
+# Pornire concomitentă API (localhost:4000) și Web (localhost:3000):
+npm run dev
 
-- **Start API backend only** (http://localhost:4000):
-  ```bash
-  npm run dev:api
-  ```
+# Sau pornire individuală a componentelor:
+npm run dev:api     # Doar backend-ul API
+npm run dev:web     # Doar frontend-ul Next.js
+```
 
-- **Start Web frontend only** (http://localhost:3000):
-  ```bash
-  npm run dev:web
-  ```
+### 3. Rularea Aplicației Mobile Flutter
+```bash
+cd apps/mobile
+flutter pub get
 
-### Additional Commands
+# Pe emulator Android sau dispozitiv USB:
+flutter run
 
-- **Build all applications for production:**
-  ```bash
-  npm run build
-  ```
-- **Lint the codebase:**
-  ```bash
-  npm run lint
-  ```
-- **Run API search test benchmark:**
-  ```bash
-  npm run test:search --workspace=apps/api
-  ```
+# Pentru dispozitiv fizic conectat prin cablu USB (permite acces la localhost:4000):
+adb reverse tcp:4000 tcp:4000
+```
 
----
+### 4. Testare & Verificare
+```bash
+# Rulare teste unitare API:
+npm test --workspace=apps/api
 
-## Roadmap
-
-Upcoming features and planned improvements are tracked in [ROADMAP.md](file:///d:/kurogane/ROADMAP.md):
-
-- Persistent Database Layer (PostgreSQL / SQLite with user watchlists)
-- Automated Franchise Watch Order Tree Generator via AniList GraphQL
-- Extended Search Indexing (Studios, Authors & Voice Actors)
-- Universal User List Importer (MyAnimeList, AniList, Kitsu)
+# Analiză statică Flutter:
+cd apps/mobile && flutter analyze
+```
 
 ---
 
-## License
+## ⚙️ Variabile de Mediu
 
-This project is licensed under the [MIT License](LICENSE).
+Copiați fișierul `.env.example` în `apps/api/.env` și completați cheile necesare:
 
+```env
+PORT=4000
+NODE_ENV=development
+JWT_SECRET=kurogane_super_secure_jwt_secret_key_change_in_production
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+RESEND_API_KEY=re_your_resend_api_key
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
+
+---
+
+## 📖 Documentație Tehnică Aprofundată
+
+Pentru detalii complete de arhitectură, diagrame de flux, specificarea algoritmului Inverted-Index și rezultatele detaliate ale auditului de conformitate API <-> Mobile, consultați:
+
+👉 **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**
+
+---
+
+## 📄 Licență
+
+Acest proiect este licențiat sub termenii [MIT License](LICENSE).

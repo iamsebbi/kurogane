@@ -32,6 +32,72 @@
       ],
       "createdAt": "2026-09-02T21:02:28.765Z",
       "updatedAt": "2026-09-02T21:08:02.760Z"
+    },
+    {
+      "id": "preset-1788544807391-r06o74",
+      "franchiseRoot": "shingekinokyojin",
+      "title": "Ordinea Narativă Fără Fillere (Test)",
+      "description": "Recomandat pentru o experiență cinematică cursivă.",
+      "submittedBy": "test-user-author-1788544807390",
+      "submitterUsername": "Utilizator",
+      "status": "flagged",
+      "upvotes": 15,
+      "downvotes": 18,
+      "reportCount": 5,
+      "isSelectiveCurated": true,
+      "items": [
+        {
+          "id": "item-preset-1788544807391-r06o74-1",
+          "presetId": "preset-1788544807391-r06o74",
+          "mediaId": "anilist-16498",
+          "position": 1,
+          "isCanon": true,
+          "note": "Sezonul 1 (25 ep)"
+        },
+        {
+          "id": "item-preset-1788544807391-r06o74-2",
+          "presetId": "preset-1788544807391-r06o74",
+          "mediaId": "anilist-20958",
+          "position": 2,
+          "isCanon": true,
+          "note": "Sezonul 2 (12 ep)"
+        }
+      ],
+      "createdAt": "2026-09-04T18:00:07.391Z",
+      "updatedAt": "2026-09-04T18:00:13.194Z"
+    },
+    {
+      "id": "preset-1788551002933-jqkyk2",
+      "franchiseRoot": "shingekinokyojin",
+      "title": "Ordinea Narativă Fără Fillere (Test)",
+      "description": "Recomandat pentru o experiență cinematică cursivă.",
+      "submittedBy": "test-user-author-1788551002933",
+      "submitterUsername": "Utilizator",
+      "status": "flagged",
+      "upvotes": 15,
+      "downvotes": 18,
+      "reportCount": 5,
+      "isSelectiveCurated": true,
+      "items": [
+        {
+          "id": "item-preset-1788551002933-jqkyk2-1",
+          "presetId": "preset-1788551002933-jqkyk2",
+          "mediaId": "anilist-16498",
+          "position": 1,
+          "isCanon": true,
+          "note": "Sezonul 1 (25 ep)"
+        },
+        {
+          "id": "item-preset-1788551002933-jqkyk2-2",
+          "presetId": "preset-1788551002933-jqkyk2",
+          "mediaId": "anilist-20958",
+          "position": 2,
+          "isCanon": true,
+          "note": "Sezonul 2 (12 ep)"
+        }
+      ],
+      "createdAt": "2026-09-04T19:43:22.933Z",
+      "updatedAt": "2026-09-04T19:43:29.275Z"
     }
   ],
   "votes": [
@@ -40,7 +106,464 @@
       "userId": "28IcGsMlxKbs78HAWyWC0UDuwJz2",
       "vote": 1,
       "votedAt": "2026-09-02T21:08:02.760Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-1",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:08.826Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-2",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:08.939Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-3",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.049Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-4",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.162Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-5",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.273Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-6",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.382Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-7",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.498Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-8",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.608Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-9",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.717Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-10",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.829Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-11",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:09.937Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-12",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:10.053Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-13",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:10.162Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-14",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:10.271Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "voter-user-15",
+      "vote": 1,
+      "votedAt": "2026-09-04T18:00:10.379Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-1",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:10.606Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-2",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:10.723Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-3",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:10.830Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-4",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:10.941Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-5",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.050Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-6",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.164Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-7",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.280Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-8",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.392Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-9",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.501Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-10",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.612Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-11",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.721Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-12",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.833Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-13",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:11.948Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-14",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:12.060Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-15",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:12.173Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-16",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:12.280Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-17",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:12.396Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "downvoter-user-18",
+      "vote": -1,
+      "votedAt": "2026-09-04T18:00:12.507Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-1",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:23.631Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-2",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:23.743Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-3",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:23.941Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-4",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:24.145Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-5",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:24.259Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-6",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:24.570Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-7",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:24.759Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-8",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:24.874Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-9",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:25.067Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-10",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:25.271Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-11",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:25.383Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-12",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:25.579Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-13",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:25.690Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-14",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:25.805Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "voter-user-15",
+      "vote": 1,
+      "votedAt": "2026-09-04T19:43:25.918Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-1",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:26.154Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-2",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:26.265Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-3",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:26.385Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-4",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:26.498Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-5",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:26.619Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-6",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:26.807Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-7",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:26.921Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-8",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.032Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-9",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.146Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-10",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.258Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-11",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.371Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-12",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.484Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-13",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.593Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-14",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.727Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-15",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:27.934Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-16",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:28.044Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-17",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:28.241Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "downvoter-user-18",
+      "vote": -1,
+      "votedAt": "2026-09-04T19:43:28.351Z"
     }
   ],
-  "reports": []
+  "reports": [
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "reporter-user-1",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T18:00:12.734Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "reporter-user-2",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T18:00:12.848Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "reporter-user-3",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T18:00:12.963Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "reporter-user-4",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T18:00:13.075Z"
+    },
+    {
+      "presetId": "preset-1788544807391-r06o74",
+      "userId": "reporter-user-5",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T18:00:13.194Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "reporter-user-1",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T19:43:28.650Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "reporter-user-2",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T19:43:28.763Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "reporter-user-3",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T19:43:28.969Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "reporter-user-4",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T19:43:29.162Z"
+    },
+    {
+      "presetId": "preset-1788551002933-jqkyk2",
+      "userId": "reporter-user-5",
+      "reason": "Informatii incorecte",
+      "createdAt": "2026-09-04T19:43:29.275Z"
+    }
+  ]
 }

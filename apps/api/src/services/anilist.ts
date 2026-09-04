@@ -59,6 +59,11 @@ query ($search: String, $type: MediaType, $format: MediaFormat, $status: MediaSt
         color
       }
       bannerImage
+      trailer {
+        id
+        site
+        thumbnail
+      }
       startDate {
         year
       }
@@ -110,6 +115,11 @@ query ($type: MediaType, $sort: [MediaSort], $perPage: Int) {
         color
       }
       bannerImage
+      trailer {
+        id
+        site
+        thumbnail
+      }
       startDate {
         year
       }
@@ -161,6 +171,11 @@ query ($type: MediaType, $status: MediaStatus, $sort: [MediaSort], $perPage: Int
         color
       }
       bannerImage
+      trailer {
+        id
+        site
+        thumbnail
+      }
       startDate {
         year
       }
@@ -220,6 +235,11 @@ query ($season: MediaSeason, $seasonYear: Int, $sort: [MediaSort], $perPage: Int
         color
       }
       bannerImage
+      trailer {
+        id
+        site
+        thumbnail
+      }
       startDate {
         year
         month
@@ -277,6 +297,11 @@ query ($perPage: Int) {
           color
         }
         bannerImage
+        trailer {
+          id
+          site
+          thumbnail
+        }
         startDate {
           year
         }
@@ -327,6 +352,11 @@ interface AniListMedia {
     color?: string;
   };
   bannerImage?: string;
+  trailer?: {
+    id?: string | number | null;
+    site?: string | null;
+    thumbnail?: string | null;
+  } | null;
   startDate?: {
     year?: number | null;
     month?: number | null;
@@ -391,6 +421,8 @@ interface AniListMedia {
         type?: string;
         format?: string;
         status?: string;
+        season?: string;
+        seasonYear?: number;
         episodes?: number;
         title?: {
           romaji?: string;
@@ -433,6 +465,19 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
     reviewCount,
     weightedScore,
   };
+
+  let trailerUrl: string | undefined = undefined;
+  if (item.trailer?.id) {
+    const site = String(item.trailer.site || '').toLowerCase();
+    const trailerId = String(item.trailer.id);
+    if (trailerId.startsWith('http://') || trailerId.startsWith('https://')) {
+      trailerUrl = trailerId;
+    } else if (site === 'youtube') {
+      trailerUrl = `https://www.youtube.com/watch?v=${trailerId}`;
+    } else if (site === 'dailymotion') {
+      trailerUrl = `https://www.dailymotion.com/video/${trailerId}`;
+    }
+  }
 
   const studioNames: string[] = item.studios?.nodes
     ?.map(s => s.name)
@@ -502,7 +547,8 @@ export function mapAniListToMediaItem(item: AniListMedia): MediaItem {
       color: item.coverImage.color || '#3b82f6',
     },
     bannerImage: item.bannerImage,
-    year: item.startDate?.year,
+    trailerUrl,
+    year: item.startDate?.year ?? undefined,
     scores,
     source: 'ANILIST',
     characters: characters.length > 0 ? characters : undefined,
@@ -1066,6 +1112,11 @@ query ($id: Int) {
       color
     }
     bannerImage
+    trailer {
+      id
+      site
+      thumbnail
+    }
     startDate {
       year
       month

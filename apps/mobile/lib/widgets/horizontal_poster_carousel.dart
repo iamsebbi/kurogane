@@ -14,6 +14,7 @@ class HorizontalPosterCarousel extends StatelessWidget {
   final double itemSpacing;
   final EdgeInsetsGeometry padding;
   final void Function(MediaItem item)? onItemTap;
+  final bool showRank;
 
   const HorizontalPosterCarousel({
     super.key,
@@ -24,6 +25,7 @@ class HorizontalPosterCarousel extends StatelessWidget {
     this.itemSpacing = 14,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.onItemTap,
+    this.showRank = false,
   });
 
   @override
@@ -47,6 +49,7 @@ class HorizontalPosterCarousel extends StatelessWidget {
               item: item,
               width: width,
               height: height,
+              rank: showRank ? index + 1 : null,
               onTap: onItemTap != null ? () => onItemTap!(item) : null,
             ),
           );

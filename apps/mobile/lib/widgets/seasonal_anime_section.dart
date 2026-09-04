@@ -5,79 +5,38 @@ import '../core/constants/app_strings.dart';
 import '../models/media_item.dart';
 import 'seasonal_anime_card.dart';
 
-class SeasonalAnimeSection extends StatefulWidget {
+/// Secțiunea "Popular Anime Trailers" ce înlocuiește vechiul bloc sezonier.
+///
+/// Afișează un PageView cu carduri orizontale de trailere anime (16:9),
+/// oferind acces direct la vizionarea trailerului pe YouTube/browser și puncte scalate de paginare.
+class PopularTrailersSection extends StatefulWidget {
   final List<MediaItem> items;
+  final String title;
 
-  const SeasonalAnimeSection({
+  const PopularTrailersSection({
     super.key,
     required this.items,
+    this.title = AppStrings.homePopularTrailers,
   });
 
   @override
-  State<SeasonalAnimeSection> createState() => _SeasonalAnimeSectionState();
+  State<PopularTrailersSection> createState() => _PopularTrailersSectionState();
 }
 
-class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
+class _PopularTrailersSectionState extends State<PopularTrailersSection> {
   late final PageController _pageController;
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _pageController = PageController(viewportFraction: 0.90);
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
-  }
-
-  /// Calculates dynamic season name and icon in English
-  Map<String, dynamic> _getDynamicSeasonInfo(MediaItem? sampleItem) {
-    String seasonName = AppStrings.seasonSummer;
-    IconData seasonIcon = PhosphorIcons.sun(PhosphorIconsStyle.bold);
-    int year = DateTime.now().year;
-
-    if (sampleItem?.season != null && sampleItem!.season!.isNotEmpty) {
-      final s = sampleItem.season!.toUpperCase();
-      if (sampleItem.year != null && sampleItem.year! > 2000) {
-        year = sampleItem.year!;
-      }
-      if (s.contains('WINTER') || s.contains('IARN')) {
-        seasonName = AppStrings.seasonWinter;
-        seasonIcon = PhosphorIcons.snowflake(PhosphorIconsStyle.bold);
-      } else if (s.contains('SPRING') || s.contains('PRIM')) {
-        seasonName = AppStrings.seasonSpring;
-        seasonIcon = PhosphorIcons.flower(PhosphorIconsStyle.bold);
-      } else if (s.contains('SUMMER') || s.contains('VAR')) {
-        seasonName = AppStrings.seasonSummer;
-        seasonIcon = PhosphorIcons.sun(PhosphorIconsStyle.bold);
-      } else if (s.contains('FALL') || s.contains('AUTUMN') || s.contains('TOAM')) {
-        seasonName = AppStrings.seasonFall;
-        seasonIcon = PhosphorIcons.leaf(PhosphorIconsStyle.bold);
-      }
-    } else {
-      final month = DateTime.now().month;
-      if (month == 12 || month == 1 || month == 2) {
-        seasonName = AppStrings.seasonWinter;
-        seasonIcon = PhosphorIcons.snowflake(PhosphorIconsStyle.bold);
-      } else if (month >= 3 && month <= 5) {
-        seasonName = AppStrings.seasonSpring;
-        seasonIcon = PhosphorIcons.flower(PhosphorIconsStyle.bold);
-      } else if (month >= 6 && month <= 8) {
-        seasonName = AppStrings.seasonSummer;
-        seasonIcon = PhosphorIcons.sun(PhosphorIconsStyle.bold);
-      } else {
-        seasonName = AppStrings.seasonFall;
-        seasonIcon = PhosphorIcons.leaf(PhosphorIconsStyle.bold);
-      }
-    }
-
-    return {
-      'title': AppStrings.seasonTitle(seasonName, year),
-      'icon': seasonIcon,
-    };
   }
 
   /// Indicator dinamic cu puncte scalate (identic cu stilul din Hero)
@@ -99,23 +58,21 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
           dotSize = 5.0;
           opacity = 0.65;
         } else if (distance == 2) {
-          dotSize = 3.5;
-          opacity = 0.35;
+          dotSize = 4.0;
+          opacity = 0.40;
         } else {
-          dotSize = 0.0;
-          opacity = 0.0;
+          dotSize = 3.0;
+          opacity = 0.20;
         }
 
-        if (dotSize == 0.0) return const SizedBox.shrink();
-
-        final activeColor = context.textPrimary;
-        final inactiveColor = context.isDarkMode ? AppColors.textMuted : AppColors.lightTextMuted;
+        final activeColor = context.accentPrimary;
+        final inactiveColor = context.textSecondary;
 
         return GestureDetector(
           onTap: () {
             _pageController.animateToPage(
               index,
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 350),
               curve: Curves.easeOutCubic,
             );
           },
@@ -139,28 +96,28 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
   Widget build(BuildContext context) {
     if (widget.items.isEmpty) return const SizedBox.shrink();
 
-    final seasonInfo = _getDynamicSeasonInfo(widget.items.first);
-    final title = seasonInfo['title'] as String;
-    final icon = seasonInfo['icon'] as IconData;
-
-    const cardHeight = 195.0;
+    const cardHeight = 185.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 1. Header-ul Secțiunii (Fără cuvântul "Anime •" și fără butoane ‹ ›)
+        // 1. Header Secțiune "Popular Anime Trailers"
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 26, 16, 14),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(icon, size: 20, color: context.accentPrimary),
+              Icon(
+                PhosphorIcons.playCircle(PhosphorIconsStyle.bold),
+                size: 20,
+                color: context.accentPrimary,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  title,
-                  maxLines: 2,
+                  widget.title,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontFamily: 'Zalando Sans Expanded',
@@ -168,7 +125,27 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
                     fontSize: 16.5,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.2,
-                    height: 1.2,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: context.bgSurfaceHover,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: context.borderSubtle.withValues(alpha: 0.4),
+                    width: 0.5,
+                  ),
+                ),
+                child: Text(
+                  'HD',
+                  style: TextStyle(
+                    fontFamily: 'Google Sans',
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: context.textSecondary,
                   ),
                 ),
               ),
@@ -176,9 +153,9 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
           ),
         ),
 
-        // 2. PageView cu card full-width pe pagină
+        // 2. PageView cu carduri 16:9 (next card peeking at 90% viewport fraction)
         SizedBox(
-          height: cardHeight + 10,
+          height: cardHeight + 8,
           child: PageView.builder(
             controller: _pageController,
             physics: const BouncingScrollPhysics(),
@@ -189,8 +166,8 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
             itemBuilder: (context, index) {
               final item = widget.items[index];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SeasonalAnimeCard(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: AnimeTrailerCard(
                   item: item,
                   height: cardHeight,
                 ),
@@ -201,7 +178,7 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
 
         const SizedBox(height: 12),
 
-        // 3. Pager Dots Indicator (Sub carduri, centrat, ca în Hero)
+        // 3. Pager Dots Indicator (Sub carduri, centrat)
         Center(
           child: _buildScalingDotsIndicator(
             context,
@@ -213,3 +190,6 @@ class _SeasonalAnimeSectionState extends State<SeasonalAnimeSection> {
     );
   }
 }
+
+/// Alias retrocompatibil
+typedef SeasonalAnimeSection = PopularTrailersSection;

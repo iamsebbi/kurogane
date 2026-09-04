@@ -53,6 +53,7 @@ abstract class AppStrings {
 
   // --- HOME SCREEN ---
   static const String homeNewEpisodes = 'New Episodes';
+  static const String homePopularTrailers = 'Popular Anime Trailers';
   static const String homeTrendingSeason = 'Trending This Season';
   static const String homeAllTimeMasterpieces = 'All-Time Masterpieces';
   static const String homeRecentNews = 'Recent News & Articles';

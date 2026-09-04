@@ -50,6 +50,11 @@ query ($ids: [Int], $perPage: Int) {
         color
       }
       bannerImage
+      trailer {
+        id
+        site
+        thumbnail
+      }
       startDate {
         year
       }
@@ -107,6 +112,11 @@ query ($mediaIds: [Int], $perPage: Int) {
           color
         }
         bannerImage
+        trailer {
+          id
+          site
+          thumbnail
+        }
         startDate {
           year
         }
@@ -156,6 +166,11 @@ query ($perPage: Int) {
         color
       }
       bannerImage
+      trailer {
+        id
+        site
+        thumbnail
+      }
       startDate {
         year
       }
@@ -199,6 +214,11 @@ query ($perPage: Int) {
         color
       }
       bannerImage
+      trailer {
+        id
+        site
+        thumbnail
+      }
       startDate {
         year
       }

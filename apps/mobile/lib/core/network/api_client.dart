@@ -14,6 +14,10 @@ class ApiClient {
   late Dio _dio;
   static String? _workingBaseUrl;
 
+  static void setWorkingBaseUrl(String url) {
+    _workingBaseUrl = url;
+  }
+
   ApiClient({String? customBaseUrl}) {
     final initialBaseUrl = customBaseUrl ?? _workingBaseUrl ?? ApiConstants.baseUrl;
     _dio = _createConfiguredDio(initialBaseUrl);
@@ -51,11 +55,12 @@ class ApiClient {
   }
 
   static Dio _createConfiguredDio(String baseUrl) {
+    final isCloud = baseUrl.contains('onrender.com') || baseUrl.startsWith('https://');
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: const Duration(seconds: 4),
-        receiveTimeout: const Duration(seconds: 8),
+        connectTimeout: Duration(seconds: isCloud ? 25 : 5),
+        receiveTimeout: Duration(seconds: isCloud ? 30 : 10),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -115,6 +120,7 @@ class ApiClient {
           _workingBaseUrl = candidateUrl;
           _dio = fallbackDio;
           debugPrint('[ApiClient] Switched working baseUrl to $candidateUrl for ${requestTag ?? ""}');
+          SharedPreferences.getInstance().then((p) => p.setString('kurogane_working_api_url', candidateUrl));
           return response;
         }
       } on DioException catch (e) {

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -321,49 +320,39 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
                   ),
                 ),
 
-                // Quick CTA Trailer Button (Overlay direct peste banner în Hero)
+                // Quick CTA Trailer Button (Floating Glass Pill Button cu Play Triangle + Text)
                 if (item.trailerUrl != null && item.trailerUrl!.isNotEmpty)
                   Positioned(
                     right: 20,
-                    bottom: 16,
-                    child: GestureDetector(
+                    bottom: 22,
+                    child: FloatingPillButton(
+                      height: 46,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       onTap: () async {
                         final uri = Uri.parse(item.trailerUrl!);
                         if (await canLaunchUrl(uri)) {
                           await launchUrl(uri, mode: LaunchMode.externalApplication);
                         }
                       },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(9999),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.55),
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  PhosphorIconsFill.playCircle,
-                                  color: context.accentPrimary,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  'Trailer',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            PhosphorIconsFill.play,
+                            color: context.accentPrimary,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Trailer',
+                            style: TextStyle(
+                              color: context.textPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),

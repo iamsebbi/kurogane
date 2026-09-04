@@ -12,27 +12,38 @@ class ApiConstants {
     if (_configuredUrl.isNotEmpty) {
       return _configuredUrl;
     }
+    // In release builds on mobile device, default to Render cloud backend so it works everywhere
+    if (kReleaseMode) {
+      return cloudBaseUrl;
+    }
     if (kIsWeb) return 'http://localhost:4000';
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://127.0.0.1:4000';
+      return 'http://192.168.1.224:4000';
     }
     return 'http://localhost:4000';
   }
 
   static List<String> get candidateBaseUrls {
+    final list = <String>[];
     if (_configuredUrl.isNotEmpty) {
-      return [_configuredUrl];
+      list.add(_configuredUrl);
+      list.add(cloudBaseUrl);
+    } else if (kReleaseMode) {
+      list.add(cloudBaseUrl);
+      list.add('http://192.168.1.224:4000');
+    } else {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        list.add('http://192.168.1.224:4000');
+        list.add(cloudBaseUrl);
+        list.add('http://127.0.0.1:4000');
+        list.add('http://10.0.2.2:4000');
+      } else {
+        list.add('http://localhost:4000');
+        list.add(cloudBaseUrl);
+        list.add('http://192.168.1.224:4000');
+      }
     }
-    if (kIsWeb) return ['http://localhost:4000', cloudBaseUrl];
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return [
-        'http://127.0.0.1:4000',     // Physical phone (with adb reverse) or local loopback
-        'http://192.168.1.224:4000',  // Physical phone over Wi-Fi (LAN IP)
-        'http://10.0.2.2:4000',       // Android Studio Emulator standard host alias
-        cloudBaseUrl,                 // Cloud fallback
-      ];
-    }
-    return ['http://localhost:4000', 'http://192.168.1.224:4000', cloudBaseUrl];
+    return list.toSet().toList();
   }
 
   // Endpoints
