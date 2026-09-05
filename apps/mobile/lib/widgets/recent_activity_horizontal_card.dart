@@ -43,7 +43,9 @@ class RecentActivityHorizontalCard extends StatefulWidget {
   }) {
     final media = record.media;
     final title = media?.title.userPreferred ?? 'Anime #${record.mediaId}';
-    final coverUrl = media?.coverImage.extraLarge ?? media?.coverImage.large ?? '';
+    final coverUrl = (media?.coverImage.bestImageUrl.isNotEmpty == true)
+        ? media!.coverImage.bestImageUrl
+        : (media?.bannerImage ?? '');
 
     // Subtitlu: Formatare dinamică Sezon & Episod (ex: S3 E5, Movie, Ch. 12) fără hardcodare
     final String activityDetail = MediaProgressFormatter.formatSeasonEpisode(

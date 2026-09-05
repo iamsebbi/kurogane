@@ -312,13 +312,31 @@ export function formatMediaItem(raw: any): any {
     microTags: raw.microTags || raw.genres || [],
     studios: studios.length > 0 ? studios : ['Animation Studio'],
     description: raw.description ? raw.description.replace(/<[^>]*>?/gm, '') : '',
-    coverImage: {
-      extraLarge: raw.coverImage?.extraLarge || raw.coverImage?.large || '',
-      large: raw.coverImage?.large || raw.coverImage?.medium || '',
-      medium: raw.coverImage?.medium || '',
-      color: raw.coverImage?.color || '#3b82f6',
-    },
-    bannerImage: raw.bannerImage || null,
+    coverImage: (() => {
+      const rawCover = raw.coverImage;
+      let extra = '';
+      let lg = '';
+      let med = '';
+      let col = '#3b82f6';
+      if (typeof rawCover === 'string' && rawCover.trim().length > 0) {
+        const tr = rawCover.trim();
+        extra = tr;
+        lg = tr;
+        med = tr;
+      } else if (rawCover && typeof rawCover === 'object') {
+        extra = rawCover.extraLarge || rawCover.large || rawCover.medium || '';
+        lg = rawCover.large || rawCover.extraLarge || rawCover.medium || '';
+        med = rawCover.medium || rawCover.large || rawCover.extraLarge || '';
+        col = rawCover.color || '#3b82f6';
+      }
+      return {
+        extraLarge: extra || lg || med,
+        large: lg || extra || med,
+        medium: med || lg || extra,
+        color: col,
+      };
+    })(),
+    bannerImage: raw.bannerImage || (typeof raw.coverImage === 'string' ? raw.coverImage : raw.coverImage?.large) || null,
     trailerUrl: trailerUrl || null,
     year: raw.year || raw.startDate?.year || raw.seasonYear || null,
     scores: {

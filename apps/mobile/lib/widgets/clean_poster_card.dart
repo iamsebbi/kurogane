@@ -46,7 +46,9 @@ class CleanPosterCard extends StatefulWidget {
   })  : mediaItem = item,
         title = item.title.userPreferred,
         score = _resolveScore(item),
-        coverUrl = item.coverImage.extraLarge ?? item.coverImage.large;
+        coverUrl = item.coverImage.bestImageUrl.isNotEmpty
+            ? item.coverImage.bestImageUrl
+            : (item.bannerImage ?? '');
 
   static String? _resolveScore(MediaItem item) {
     final rawScore = item.scores.weightedScore > 0
@@ -82,23 +84,38 @@ class _CleanPosterCardState extends State<CleanPosterCard> {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveCoverUrl = widget.coverUrl.trim().isNotEmpty
+        ? widget.coverUrl.trim()
+        : (widget.mediaItem?.coverImage.bestImageUrl.isNotEmpty == true
+            ? widget.mediaItem!.coverImage.bestImageUrl
+            : (widget.mediaItem?.bannerImage?.trim() ?? ''));
+
     final posterContent = Stack(
       fit: StackFit.expand,
       children: [
-        CachedNetworkImage(
-          imageUrl: widget.coverUrl,
-          fit: BoxFit.cover,
-          alignment: Alignment.center,
-          fadeInDuration: const Duration(milliseconds: 140),
-          placeholder: (_, __) => Container(color: context.bgSurfaceHover),
-          errorWidget: (_, __, ___) => Container(
+        if (effectiveCoverUrl.isNotEmpty)
+          CachedNetworkImage(
+            imageUrl: effectiveCoverUrl,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+            fadeInDuration: const Duration(milliseconds: 140),
+            placeholder: (_, __) => Container(color: context.bgSurfaceHover),
+            errorWidget: (_, __, ___) => Container(
+              color: context.bgSurfaceHover,
+              child: Icon(
+                PhosphorIcons.imageBroken(PhosphorIconsStyle.bold),
+                color: context.textSecondary.withValues(alpha: 0.3),
+              ),
+            ),
+          )
+        else
+          Container(
             color: context.bgSurfaceHover,
             child: Icon(
-              PhosphorIcons.imageBroken(PhosphorIconsStyle.bold),
+              PhosphorIcons.television(PhosphorIconsStyle.bold),
               color: context.textSecondary.withValues(alpha: 0.3),
             ),
           ),
-        ),
         if (widget.rank != null) ...[
           const Positioned(
             top: 0,

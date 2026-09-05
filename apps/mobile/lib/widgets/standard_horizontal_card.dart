@@ -45,7 +45,9 @@ class StandardHorizontalCard extends StatefulWidget {
     this.onTap,
   })  : mediaItem = item,
         title = item.title.userPreferred,
-        coverUrl = item.coverImage.extraLarge ?? item.coverImage.large,
+        coverUrl = item.coverImage.bestImageUrl.isNotEmpty
+            ? item.coverImage.bestImageUrl
+            : (item.bannerImage ?? ''),
         score = _resolveScore(item),
         format = item.format,
         year = item.year,

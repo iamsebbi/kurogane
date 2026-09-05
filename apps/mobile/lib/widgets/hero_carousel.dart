@@ -327,7 +327,9 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> with SingleTickerPr
     final heroHeight = (screenHeight * 0.65).clamp(520.0, 620.0);
     final safeCurrentIndex = _currentPage.clamp(0, widget.items.length - 1);
     final item = widget.items[safeCurrentIndex];
-    final bannerUrl = item.bannerImage ?? item.coverImage.large;
+    final bannerUrl = (item.bannerImage != null && item.bannerImage!.trim().isNotEmpty)
+        ? item.bannerImage!.trim()
+        : item.coverImage.bestImageUrl;
 
     final watchlistAsync = ref.watch(watchlistProvider);
     final isInWatchlist = watchlistAsync.valueOrNull?.any((w) => w.mediaId == item.id) ?? false;

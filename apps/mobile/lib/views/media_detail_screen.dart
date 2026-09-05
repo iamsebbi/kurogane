@@ -129,9 +129,9 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
     final studios = item.studios.isNotEmpty
         ? item.studios
         : (widget.initialItem?.studios ?? const <String>[]);
-    final heroImageUrl = (item.coverImage.extraLarge != null && item.coverImage.extraLarge!.isNotEmpty)
-        ? item.coverImage.extraLarge!
-        : (item.coverImage.large.isNotEmpty ? item.coverImage.large : (item.bannerImage ?? ''));
+    final heroImageUrl = item.coverImage.bestImageUrl.isNotEmpty
+        ? item.coverImage.bestImageUrl
+        : (item.bannerImage ?? '');
     final score = item.scores.weightedScore > 0 ? item.scores.weightedScore : item.scores.averageScore;
     final scoreDisplay = score > 10 ? (score / 10).toStringAsFixed(1) : score.toStringAsFixed(1);
     final cleanDescription = item.description != null

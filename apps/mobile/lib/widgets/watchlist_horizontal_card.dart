@@ -62,7 +62,9 @@ class WatchlistHorizontalCard extends StatefulWidget {
     this.onStatusTap,
     this.onLongPress,
   })  : title = record.media?.title.userPreferred ?? 'Anime #${record.mediaId}',
-        coverUrl = record.media?.coverImage.extraLarge ?? record.media?.coverImage.large ?? '',
+        coverUrl = (record.media?.coverImage.bestImageUrl.isNotEmpty == true)
+            ? record.media!.coverImage.bestImageUrl
+            : (record.media?.bannerImage ?? ''),
         status = record.status,
         statusLabel = null,
         statusColor = null,

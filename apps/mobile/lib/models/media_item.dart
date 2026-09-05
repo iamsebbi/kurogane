@@ -39,16 +39,41 @@ class CoverImage {
     this.color,
   });
 
-  factory CoverImage.fromJson(Map<String, dynamic>? json) {
-    if (json == null) {
+  String get bestImageUrl {
+    if (extraLarge != null && extraLarge!.trim().isNotEmpty) return extraLarge!.trim();
+    if (large.trim().isNotEmpty) return large.trim();
+    if (medium != null && medium!.trim().isNotEmpty) return medium!.trim();
+    return '';
+  }
+
+  factory CoverImage.fromJson(dynamic raw) {
+    if (raw == null) {
       return CoverImage(large: '');
     }
-    return CoverImage(
-      extraLarge: json['extraLarge'] as String?,
-      large: json['large'] as String? ?? json['medium'] ?? '',
-      medium: json['medium'] as String?,
-      color: json['color'] as String?,
-    );
+    if (raw is String) {
+      final s = raw.trim();
+      return CoverImage(
+        extraLarge: s,
+        large: s,
+        medium: s,
+      );
+    }
+    if (raw is Map) {
+      final extra = raw['extraLarge'] as String?;
+      final lg = raw['large'] as String?;
+      final med = raw['medium'] as String?;
+      final resolvedLarge = (lg != null && lg.trim().isNotEmpty)
+          ? lg.trim()
+          : ((extra != null && extra.trim().isNotEmpty) ? extra.trim() : (med?.trim() ?? ''));
+
+      return CoverImage(
+        extraLarge: (extra != null && extra.trim().isNotEmpty) ? extra.trim() : resolvedLarge,
+        large: resolvedLarge,
+        medium: med?.trim(),
+        color: raw['color'] as String?,
+      );
+    }
+    return CoverImage(large: '');
   }
 }
 
@@ -171,7 +196,7 @@ class MediaItem {
       chapters: json['chapters'] as int?,
       genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       description: json['description'] as String?,
-      coverImage: CoverImage.fromJson(json['coverImage'] as Map<String, dynamic>?),
+      coverImage: CoverImage.fromJson(json['coverImage']),
       bannerImage: json['bannerImage'] as String?,
       year: json['year'] as int?,
       season: json['season'] as String?,
