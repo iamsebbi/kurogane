@@ -13,6 +13,9 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient();
 });
 
+// Main Bottom Navigation Tab Provider (0: Home, 1: Explore, 2: Watchlist)
+final mainNavTabProvider = StateProvider<int>((ref) => 0);
+
 // Homepage Data Provider
 final homepageDataProvider = FutureProvider<HomepageData>((ref) async {
   final client = ref.watch(apiClientProvider);

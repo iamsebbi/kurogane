@@ -25,12 +25,14 @@ export async function getUserWatchlist(
   const rawRows = (results || []).map(mapWatchlistRow);
 
   // Enrich with media objects (posters, titles, episodes, format)
+  // Return BOTH media and mediaItem for complete cross-client compatibility
   const enriched = await Promise.all(
     rawRows.map(async (row) => {
       const media = await getMediaById(env, row.mediaId);
       return {
         ...row,
         media: media || undefined,
+        mediaItem: media || undefined,
       };
     })
   );
@@ -46,25 +48,31 @@ export async function upsertWatchlistItem(
   status: WatchlistStatus,
   score?: number,
   progressEpisodes: number = 0,
-  notes?: string
+  notes?: string,
+  startedAt?: string,
+  completedAt?: string
 ): Promise<WatchlistItemRecord> {
   const existing = await db
-    .prepare('SELECT id, created_at FROM watchlist WHERE user_id = ? AND media_id = ?')
+    .prepare('SELECT id, created_at, started_at, completed_at FROM watchlist WHERE user_id = ? AND media_id = ?')
     .bind(userId, mediaId)
     .first<any>();
 
   const id = existing ? existing.id : `witem-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
   const now = new Date().toISOString();
   const createdAt = existing ? existing.created_at : now;
+  const resolvedStartedAt = startedAt !== undefined ? startedAt : (existing?.started_at || null);
+  const resolvedCompletedAt = completedAt !== undefined ? completedAt : (existing?.completed_at || null);
 
   await db.prepare(`
-    INSERT INTO watchlist (id, user_id, media_id, status, progress_episodes, score, notes, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO watchlist (id, user_id, media_id, status, progress_episodes, score, notes, started_at, completed_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(user_id, media_id) DO UPDATE SET
       status = excluded.status,
       progress_episodes = excluded.progress_episodes,
       score = excluded.score,
       notes = excluded.notes,
+      started_at = excluded.started_at,
+      completed_at = excluded.completed_at,
       updated_at = excluded.updated_at
   `).bind(
     id,
@@ -74,6 +82,8 @@ export async function upsertWatchlistItem(
     progressEpisodes,
     score !== undefined && score !== null ? score : null,
     notes || null,
+    resolvedStartedAt,
+    resolvedCompletedAt,
     createdAt,
     now
   ).run();
@@ -88,7 +98,10 @@ export async function upsertWatchlistItem(
     progressEpisodes,
     score,
     notes,
+    startedAt: resolvedStartedAt || undefined,
+    completedAt: resolvedCompletedAt || undefined,
     media: media || undefined,
+    mediaItem: media || undefined,
     createdAt,
     updatedAt: now,
   };
@@ -116,6 +129,8 @@ function mapWatchlistRow(row: any): WatchlistItemRecord {
     progressEpisodes: row.progress_episodes || 0,
     score: row.score !== null ? row.score : undefined,
     notes: row.notes || undefined,
+    startedAt: row.started_at || undefined,
+    completedAt: row.completed_at || undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

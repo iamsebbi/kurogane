@@ -3,11 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/main.dart';
 
 void main() {
-  testWidgets('Kurogane App smoke test', (WidgetTester tester) async {
+  testWidgets('Kurogane App welcome flow smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
-        child: KuroganeApp(hasSeenWelcome: true),
+        child: KuroganeApp(hasSeenWelcome: false),
       ),
     );
+    await tester.pump();
+    expect(find.byType(KuroganeApp), findsOneWidget);
   });
 }

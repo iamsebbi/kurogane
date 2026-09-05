@@ -187,7 +187,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       title: seasonTitle,
                       icon: PhosphorIcons.chartLineUp(PhosphorIconsStyle.bold),
                       trailing: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          ref.read(mainNavTabProvider.notifier).state = 1;
+                        },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           minimumSize: Size.zero,

@@ -80,7 +80,9 @@ class WatchlistItemRecord {
       notes: json['notes'] as String?,
       startedAt: json['startedAt'] as String?,
       completedAt: json['completedAt'] as String?,
-      mediaItem: json['mediaItem'] != null ? MediaItem.fromJson(json['mediaItem'] as Map<String, dynamic>) : null,
+      mediaItem: (json['mediaItem'] ?? json['media']) != null
+          ? MediaItem.fromJson((json['mediaItem'] ?? json['media']) as Map<String, dynamic>)
+          : null,
       createdAt: json['createdAt'] as String? ?? '',
       updatedAt: json['updatedAt'] as String? ?? '',
     );

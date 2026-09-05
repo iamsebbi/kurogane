@@ -323,8 +323,22 @@ class ApiClient {
     try {
       final response = await _get('${ApiConstants.mediaDetail}/$id/similar');
       if (response != null && response.data != null) {
-        final similarList = response.data['similarItems'] as List<dynamic>? ?? [];
-        return similarList.map((e) => MediaItem.fromJson(e['item'] as Map<String, dynamic>)).toList();
+        List<dynamic> rawList = [];
+        if (response.data is List) {
+          rawList = response.data as List<dynamic>;
+        } else if (response.data is Map) {
+          final map = response.data as Map<String, dynamic>;
+          rawList = (map['similarItems'] ?? map['items'] ?? map['results'] ?? []) as List<dynamic>;
+        }
+        return rawList.map((e) {
+          if (e is Map<String, dynamic>) {
+            if (e.containsKey('item') && e['item'] is Map<String, dynamic>) {
+              return MediaItem.fromJson(e['item'] as Map<String, dynamic>);
+            }
+            return MediaItem.fromJson(e);
+          }
+          return null;
+        }).whereType<MediaItem>().toList();
       }
       return [];
     } catch (e) {

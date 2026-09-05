@@ -65,9 +65,16 @@ class WatchOrderPresetItem {
   });
 
   factory WatchOrderPresetItem.fromJson(Map<String, dynamic> json) {
-    final mediaMap = json['mediaItem'] as Map<String, dynamic>?;
-    final titleMap = mediaMap?['title'] as Map<String, dynamic>?;
-    final coverMap = mediaMap?['coverImage'] as Map<String, dynamic>?;
+    final mediaMap = (json['mediaItem'] ?? json['media']) as Map<String, dynamic>?;
+    final rawTitle = mediaMap?['title'];
+    final title = rawTitle is Map
+        ? (rawTitle['userPreferred'] ?? rawTitle['romaji'] ?? rawTitle['english'])
+        : (rawTitle is String ? rawTitle : null);
+
+    final rawCover = mediaMap?['coverImage'];
+    final coverImage = rawCover is Map
+        ? (rawCover['large'] ?? rawCover['medium'] ?? rawCover['extraLarge'])
+        : (rawCover is String ? rawCover : null);
 
     return WatchOrderPresetItem(
       id: json['id']?.toString(),
@@ -76,8 +83,8 @@ class WatchOrderPresetItem {
       position: (json['position'] as num?)?.toInt() ?? 1,
       isCanon: json['isCanon'] as bool? ?? true,
       note: json['note'] as String?,
-      title: titleMap?['userPreferred'] ?? titleMap?['romaji'] ?? titleMap?['english'],
-      coverImage: coverMap?['large'] ?? coverMap?['medium'],
+      title: title,
+      coverImage: coverImage,
       format: mediaMap?['format'] as String?,
       year: mediaMap?['year'] as int?,
     );

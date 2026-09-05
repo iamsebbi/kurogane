@@ -95,6 +95,10 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
   Future<void> _onTabTapped(int index) async {
     if (_selectedTabIndex == index) return;
 
+    if (ref.read(mainNavTabProvider) != index) {
+      ref.read(mainNavTabProvider.notifier).state = index;
+    }
+
     final prevScreenIndex = _displayedScreenIndex;
 
     // 1. Schimbă instant index-ul bulei din bottom bar sincron pe cadrul de touch (fără delay async)
@@ -252,6 +256,12 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(mainNavTabProvider, (prev, next) {
+      if (next != _selectedTabIndex) {
+        _onTabTapped(next);
+      }
+    });
+
     final activeNavIndex = _selectedTabIndex.clamp(0, _navItems.length - 1);
     final displayedScreenIndex = _displayedScreenIndex.clamp(0, _screens.length - 1);
 

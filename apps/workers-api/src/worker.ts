@@ -111,7 +111,11 @@ app.get('/api/media/:id/similar', async (c) => {
     const genre = media.genres[0];
     const searchRes = await searchMedia(c.env, { genre, perPage: 7 });
     const similar = (searchRes.items || []).filter((m: any) => m.id !== media.id).slice(0, 6);
-    return c.json(similar);
+    return c.json({
+      similarItems: similar.map((m: any) => ({ item: m })),
+      items: similar,
+      results: similar,
+    });
   } catch (err: any) {
     return c.json({ error: 'Internal Server Error', message: err.message }, 500);
   }
@@ -209,7 +213,7 @@ app.post('/api/media/:id/watch-order/presets', async (c) => {
   }
 });
 
-app.post('/api/media/:id/watch-order/presets/:presetId/vote', async (c) => {
+async function handleVotePreset(c: any) {
   try {
     const user = await getAuthUser(c);
     if (!user) {
@@ -225,9 +229,9 @@ app.post('/api/media/:id/watch-order/presets/:presetId/vote', async (c) => {
   } catch (err: any) {
     return c.json({ error: 'Internal Server Error', message: err.message }, 500);
   }
-});
+}
 
-app.post('/api/media/:id/watch-order/presets/:presetId/report', async (c) => {
+async function handleReportPreset(c: any) {
   try {
     const user = await getAuthUser(c);
     if (!user) {
@@ -243,7 +247,13 @@ app.post('/api/media/:id/watch-order/presets/:presetId/report', async (c) => {
   } catch (err: any) {
     return c.json({ error: 'Internal Server Error', message: err.message }, 500);
   }
-});
+}
+
+app.post('/api/media/:id/watch-order/presets/:presetId/vote', handleVotePreset);
+app.post('/api/media/watch-order/presets/:presetId/vote', handleVotePreset);
+
+app.post('/api/media/:id/watch-order/presets/:presetId/report', handleReportPreset);
+app.post('/api/media/watch-order/presets/:presetId/report', handleReportPreset);
 
 // -------------------------------------------------------------
 // 3. SEARCH ROUTES
@@ -318,7 +328,7 @@ app.post('/api/watchlist', async (c) => {
       return c.json({ error: 'Sesiune utilizator invalidă.' }, 401);
     }
     const body = await c.req.json();
-    const { mediaId, status, score, progressEpisodes, notes } = body;
+    const { mediaId, status, score, progressEpisodes, notes, startedAt, completedAt } = body;
 
     if (!mediaId || !status) {
       return c.json({ error: 'mediaId și status sunt obligatorii.' }, 400);
@@ -344,7 +354,9 @@ app.post('/api/watchlist', async (c) => {
       normalizeWatchlistStatus(status),
       parsedScore,
       parsedProgress,
-      typeof notes === 'string' ? notes.trim() : undefined
+      typeof notes === 'string' ? notes.trim() : undefined,
+      typeof startedAt === 'string' ? startedAt.trim() : undefined,
+      typeof completedAt === 'string' ? completedAt.trim() : undefined
     );
 
     return c.json({ success: true, item });

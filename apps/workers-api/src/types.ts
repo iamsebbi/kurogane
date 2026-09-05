@@ -41,6 +41,7 @@ export interface WatchlistItemRecord {
   startedAt?: string;
   completedAt?: string;
   media?: any;
+  mediaItem?: any;
   createdAt: string;
   updatedAt: string;
 }
