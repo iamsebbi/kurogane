@@ -1,18 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import '../core/constants/app_colors.dart';
 import '../models/media_item.dart';
+import '../providers/api_providers.dart';
 
-class CastAndStaffView extends StatelessWidget {
+class CastAndStaffView extends ConsumerStatefulWidget {
   final List<MediaCharacter> characters;
   final List<MediaStaff> staff;
+  final String? currentMediaId;
 
   const CastAndStaffView({
     super.key,
     required this.characters,
     required this.staff,
+    this.currentMediaId,
   });
+
+  @override
+  ConsumerState<CastAndStaffView> createState() => _CastAndStaffViewState();
+}
+
+class _CastAndStaffViewState extends ConsumerState<CastAndStaffView> {
+  List<MediaCharacter>? _loadedCharacters;
+  List<MediaStaff>? _loadedStaff;
+  bool _isLoading = false;
+
+  bool _isPlaceholder(List<MediaCharacter> list) {
+    if (list.isEmpty) return true;
+    if (list.length == 1 && (list.first.name == 'Main Character' || list.first.name.isEmpty)) {
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_isPlaceholder(widget.characters) || widget.staff.isNotEmpty) {
+      _loadedCharacters = widget.characters;
+      _loadedStaff = widget.staff;
+    } else if (widget.currentMediaId != null) {
+      _fetchCharacters();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CastAndStaffView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isPlaceholder(widget.characters) && widget.characters != oldWidget.characters) {
+      setState(() {
+        _loadedCharacters = widget.characters;
+        _loadedStaff = widget.staff;
+      });
+    } else if ((_loadedCharacters == null || _isPlaceholder(_loadedCharacters!)) &&
+        widget.currentMediaId != null &&
+        widget.currentMediaId != oldWidget.currentMediaId) {
+      _fetchCharacters();
+    }
+  }
+
+  Future<void> _fetchCharacters() async {
+    if (widget.currentMediaId == null) return;
+    setState(() => _isLoading = true);
+    try {
+      final client = ref.read(apiClientProvider);
+      final res = await client.getMediaCharactersAndStaff(widget.currentMediaId!);
+      final chars = res['characters'] as List<MediaCharacter>? ?? [];
+      final stf = res['staff'] as List<MediaStaff>? ?? [];
+      if (mounted) {
+        setState(() {
+          _loadedCharacters = chars;
+          _loadedStaff = stf;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   String _formatRole(String raw) {
     switch (raw.toUpperCase()) {
@@ -69,18 +136,63 @@ class CastAndStaffView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          child: CircularProgressIndicator(color: context.accentPrimary),
+        ),
+      );
+    }
+
+    final characters = _loadedCharacters ?? widget.characters;
+    final staff = _loadedStaff ?? widget.staff;
+
     if (characters.isEmpty && staff.isEmpty) {
       return Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: context.bgSurface,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Center(
-          child: Text(
-            'Cast and staff information is not available.',
-            style: TextStyle(color: context.textSecondary, fontSize: 13),
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Cast and staff information is not available.',
+              style: TextStyle(color: context.textSecondary, fontSize: 13),
+            ),
+            if (widget.currentMediaId != null) ...[
+              const SizedBox(height: 14),
+              InkWell(
+                borderRadius: BorderRadius.circular(9999),
+                onTap: _fetchCharacters,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: context.bgSurfaceHover,
+                    borderRadius: BorderRadius.circular(9999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold), size: 14, color: context.accentPrimary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Re-check Database',
+                        style: TextStyle(
+                          color: context.accentPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       );
     }

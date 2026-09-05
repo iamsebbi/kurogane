@@ -631,6 +631,7 @@ class _MediaDetailScreenState extends ConsumerState<MediaDetailScreen> with Sing
               CastAndStaffView(
                 characters: item.characters,
                 staff: item.staff,
+                currentMediaId: item.id,
               ),
 
               // Tab 2: Teme Muzicale (Piese Opening & Ending)

@@ -507,6 +507,126 @@ async function searchKitsuApi(
   }
 }
 
+export async function fetchKitsuRelationsForAnime(titleOrId: string | number): Promise<any[]> {
+  try {
+    let kitsuId: number | null = typeof titleOrId === 'number' ? titleOrId : null;
+    if (typeof titleOrId === 'string') {
+      const clean = titleOrId.replace('anilist-', '').trim();
+      const n = parseInt(clean, 10);
+      if (!isNaN(n) && n >= 500000) {
+        kitsuId = n - 500000;
+      }
+    }
+
+    if (!kitsuId) {
+      const searchRes = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(String(titleOrId))}&page[limit]=1`, {
+        headers: { 'Accept': 'application/vnd.api+json', 'User-Agent': 'KuroganeApp/1.0' }
+      });
+      if (searchRes.ok) {
+        const sJson: any = await searchRes.json();
+        if (sJson.data?.[0]?.id) {
+          kitsuId = parseInt(sJson.data[0].id, 10);
+        }
+      }
+    }
+
+    if (!kitsuId) return [];
+
+    const relRes = await fetch(`https://kitsu.io/api/edge/media-relationships?filter[sourceId]=${kitsuId}&filter[sourceType]=Anime&include=destination&page[limit]=12`, {
+      headers: { 'Accept': 'application/vnd.api+json', 'User-Agent': 'KuroganeApp/1.0' }
+    });
+    if (!relRes.ok) return [];
+    const relJson: any = await relRes.json();
+    const list: any[] = [];
+    if (relJson.data && relJson.included) {
+      for (const r of relJson.data) {
+        const dest = relJson.included.find((inc: any) => inc.id === r.relationships?.destination?.data?.id && inc.type === r.relationships?.destination?.data?.type);
+        if (dest) {
+          const a = dest.attributes || {};
+          const destYear = a.startDate ? parseInt(a.startDate.split('-')[0], 10) : null;
+          const destAnilistId = dest.type === 'anime' ? 500000 + parseInt(dest.id, 10) : 600000 + parseInt(dest.id, 10);
+          const rawRole = (r.attributes?.role || 'OTHER').toUpperCase();
+          let relType = 'OTHER';
+          if (rawRole.includes('SEQUEL')) relType = 'SEQUEL';
+          else if (rawRole.includes('PREQUEL')) relType = 'PREQUEL';
+          else if (rawRole.includes('ADAPTATION') || rawRole.includes('SOURCE')) relType = 'ADAPTATION';
+          else if (rawRole.includes('SIDE')) relType = 'SIDE_STORY';
+          else if (rawRole.includes('SPIN')) relType = 'SPIN_OFF';
+          else if (rawRole.includes('SUMMARY')) relType = 'SUMMARY';
+          else if (rawRole.includes('ALT')) relType = 'ALTERNATIVE';
+          else if (rawRole.includes('PARENT')) relType = 'PARENT';
+
+          list.push({
+            id: `anilist-${destAnilistId}`,
+            anilistId: destAnilistId,
+            relationType: relType,
+            title: a.canonicalTitle || a.titles?.en || a.titles?.en_jp || 'Titlu Conex',
+            format: (a.subtype || 'TV').toUpperCase(),
+            type: (dest.type || 'ANIME').toUpperCase(),
+            status: (a.status || 'FINISHED').toUpperCase(),
+            releaseYear: destYear,
+            coverImage: a.posterImage?.large || a.posterImage?.medium || '',
+          });
+        }
+      }
+    }
+    return list;
+  } catch (err) {
+    console.error('[Kitsu Relations Error]', err);
+    return [];
+  }
+}
+
+export async function fetchKitsuCharactersForAnime(titleOrId: string | number): Promise<{ characters: any[]; staff: any[] }> {
+  try {
+    let kitsuId: number | null = typeof titleOrId === 'number' ? titleOrId : null;
+    if (typeof titleOrId === 'string') {
+      const clean = titleOrId.replace('anilist-', '').trim();
+      const n = parseInt(clean, 10);
+      if (!isNaN(n) && n >= 500000) {
+        kitsuId = n - 500000;
+      }
+    }
+
+    if (!kitsuId) {
+      const searchRes = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(String(titleOrId))}&page[limit]=1`, {
+        headers: { 'Accept': 'application/vnd.api+json', 'User-Agent': 'KuroganeApp/1.0' }
+      });
+      if (searchRes.ok) {
+        const sJson: any = await searchRes.json();
+        if (sJson.data?.[0]?.id) {
+          kitsuId = parseInt(sJson.data[0].id, 10);
+        }
+      }
+    }
+
+    if (!kitsuId) return { characters: [], staff: [] };
+
+    const castRes = await fetch(`https://kitsu.io/api/edge/castings?filter[mediaId]=${kitsuId}&filter[mediaType]=Anime&filter[isCharacter]=true&include=character&page[limit]=12`, {
+      headers: { 'Accept': 'application/vnd.api+json', 'User-Agent': 'KuroganeApp/1.0' }
+    });
+    if (!castRes.ok) return { characters: [], staff: [] };
+    const castJson: any = await castRes.json();
+    const characters: any[] = [];
+    if (castJson.included) {
+      const chars = castJson.included.filter((x: any) => x.type === 'characters');
+      for (const c of chars) {
+        const a = c.attributes || {};
+        characters.push({
+          id: parseInt(c.id, 10) || Math.floor(Math.random() * 100000),
+          name: a.names?.en || a.canonicalName || a.name || 'Character',
+          image: a.image?.original || a.image?.large || a.image?.medium || '',
+          role: 'MAIN',
+        });
+      }
+    }
+    return { characters, staff: [] };
+  } catch (err) {
+    console.error('[Kitsu Characters Error]', err);
+    return { characters: [], staff: [] };
+  }
+}
+
 export async function getMediaById(env: Bindings, mediaId: string): Promise<any | null> {
   const cleanId = String(mediaId).replace('anilist-', '').trim();
   const numId = parseInt(cleanId, 10);
@@ -514,8 +634,15 @@ export async function getMediaById(env: Bindings, mediaId: string): Promise<any 
 
   // 1. Check KV cache
   const cacheKey = `anilist:media:${numId}`;
-  const cached = await env.CACHE_KV.get(cacheKey, 'json');
+  const cached: any = await env.CACHE_KV.get(cacheKey, 'json');
   if (cached) {
+    // If cached item has empty relations or characters, but STATIC_SEED has rich data, refresh from STATIC_SEED!
+    const seedMatch = STATIC_SEED[cleanId] || STATIC_SEED[numId];
+    if (seedMatch && (!cached.relations || cached.relations.length === 0 || !cached.characters || cached.characters.length <= 1)) {
+      const refreshed = formatMediaItem(seedMatch);
+      await env.CACHE_KV.put(cacheKey, JSON.stringify(refreshed), { expirationTtl: 86400 * 7 });
+      return refreshed;
+    }
     return cached;
   }
 
@@ -540,7 +667,16 @@ export async function getMediaById(env: Bindings, mediaId: string): Promise<any 
     const recs = seedCache.entries.guest_recommendations_v2.data;
     const found = recs.find((r: any) => r.media.id === `anilist-${numId}` || r.media.anilistId === numId);
     if (found) {
-      const item = formatMediaItem(found.media);
+      let item = formatMediaItem(found.media);
+      // If found in seedCache but has empty relations/characters, enrich via Kitsu
+      if (!item.relations || item.relations.length === 0) {
+        const kRels = await fetchKitsuRelationsForAnime(item.title?.userPreferred || item.title?.romaji || numId);
+        if (kRels.length > 0) item.relations = kRels;
+      }
+      if (!item.characters || item.characters.length === 0) {
+        const kCast = await fetchKitsuCharactersForAnime(item.title?.userPreferred || item.title?.romaji || numId);
+        if (kCast.characters.length > 0) item.characters = kCast.characters;
+      }
       await env.CACHE_KV.put(cacheKey, JSON.stringify(item), { expirationTtl: 86400 * 7 });
       return item;
     }
@@ -633,6 +769,12 @@ export async function getMediaById(env: Bindings, mediaId: string): Promise<any 
           if (a.status === 'current') status = 'RELEASING';
           if (a.status === 'unreleased') status = 'UPCOMING';
 
+          // Fetch relations and characters dynamically from Kitsu
+          const [kitsuRels, kitsuCast] = await Promise.all([
+            fetchKitsuRelationsForAnime(kitsuId),
+            fetchKitsuCharactersForAnime(kitsuId),
+          ]);
+
           const kitsuItem = formatMediaItem({
             id: numId,
             anilistId: numId,
@@ -662,10 +804,10 @@ export async function getMediaById(env: Bindings, mediaId: string): Promise<any 
               reviewCount: a.userCount || 10000,
               weightedScore: avgScore,
             },
-            characters: [],
-            staff: [],
+            characters: kitsuCast.characters || [],
+            staff: kitsuCast.staff || [],
             themes: [],
-            relations: [],
+            relations: kitsuRels || [],
           });
 
           await env.CACHE_KV.put(cacheKey, JSON.stringify(kitsuItem), { expirationTtl: 86400 * 7 });
@@ -690,6 +832,56 @@ export async function getMediaById(env: Bindings, mediaId: string): Promise<any 
     await env.CACHE_KV.put(cacheKey, JSON.stringify(formatted), { expirationTtl: 86400 * 7 });
     return formatted;
   }
+
+  // 8. Final Fallback: Fetch from Kitsu by title search if AniList was blocked
+  try {
+    const kitsuSearchRes = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${numId}&page[limit]=1`, {
+      headers: { 'Accept': 'application/vnd.api+json', 'User-Agent': 'KuroganeApp/1.0' }
+    });
+    if (kitsuSearchRes.ok) {
+      const ksJson: any = await kitsuSearchRes.json();
+      const ka = ksJson?.data?.[0]?.attributes;
+      const kId = ksJson?.data?.[0]?.id;
+      if (ka && kId) {
+        const [kitsuRels, kitsuCast] = await Promise.all([
+          fetchKitsuRelationsForAnime(kId),
+          fetchKitsuCharactersForAnime(kId),
+        ]);
+        const fallbackItem = formatMediaItem({
+          id: numId,
+          anilistId: numId,
+          title: {
+            romaji: ka.titles?.en_jp || ka.canonicalTitle,
+            english: ka.titles?.en || ka.canonicalTitle,
+            native: ka.titles?.ja_jp || ka.canonicalTitle,
+            userPreferred: ka.canonicalTitle || ka.titles?.en || 'Anime',
+          },
+          type: 'ANIME',
+          format: (ka.subtype || 'TV').toUpperCase(),
+          status: ka.status === 'current' ? 'RELEASING' : 'FINISHED',
+          episodes: ka.episodeCount || 12,
+          genres: ['Action', 'Fantasy'],
+          studios: ['Animation Studio'],
+          description: (ka.synopsis || ka.description || '').replace(/<[^>]*>?/gm, ''),
+          coverImage: {
+            extraLarge: ka.posterImage?.large || ka.posterImage?.original || '',
+            large: ka.posterImage?.medium || ka.posterImage?.large || '',
+            medium: ka.posterImage?.small || '',
+            color: '#3b82f6',
+          },
+          bannerImage: ka.coverImage?.large || ka.posterImage?.large || null,
+          year: ka.startDate ? parseInt(ka.startDate.split('-')[0], 10) : 2024,
+          scores: { averageScore: 8.0, reviewCount: 10000, weightedScore: 8.0 },
+          characters: kitsuCast.characters || [],
+          staff: kitsuCast.staff || [],
+          themes: [],
+          relations: kitsuRels || [],
+        });
+        await env.CACHE_KV.put(cacheKey, JSON.stringify(fallbackItem), { expirationTtl: 86400 * 7 });
+        return fallbackItem;
+      }
+    }
+  } catch (_) {}
 
   return null;
 }

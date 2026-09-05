@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/models/watchlist_item.dart';
 import 'package:mobile/models/watch_order.dart';
+import 'package:mobile/models/media_item.dart';
 
 void main() {
   group('WatchlistItemRecord.fromJson Tests', () {
@@ -153,6 +154,56 @@ void main() {
 
       expect(item.title, 'Direct String Title');
       expect(item.coverImage, 'https://example.com/direct.jpg');
+    });
+  });
+
+  group('MediaRelation and MediaCharacter Tests', () {
+    test('parses MediaRelation with all fields correctly', () {
+      final json = {
+        'id': 'anilist-145064',
+        'anilistId': 145064,
+        'relationType': 'SEQUEL',
+        'title': 'Jujutsu Kaisen Season 2',
+        'format': 'TV',
+        'type': 'ANIME',
+        'status': 'FINISHED',
+        'releaseYear': 2023,
+        'coverImage': 'https://media.kitsu.app/anime/poster_images/45532/medium.jpg',
+      };
+
+      final rel = MediaRelation.fromJson(json);
+
+      expect(rel.id, 'anilist-145064');
+      expect(rel.anilistId, 145064);
+      expect(rel.relationType, 'SEQUEL');
+      expect(rel.title, 'Jujutsu Kaisen Season 2');
+      expect(rel.format, 'TV');
+      expect(rel.releaseYear, 2023);
+      expect(rel.coverImage, 'https://media.kitsu.app/anime/poster_images/45532/medium.jpg');
+    });
+
+    test('parses MediaCharacter with voiceActor correctly', () {
+      final json = {
+        'id': 105898,
+        'name': 'Satoru Gojou',
+        'image': 'https://media.kitsu.app/character/105898/image.jpg',
+        'role': 'MAIN',
+        'voiceActor': {
+          'id': 72,
+          'name': 'Yuuichi Nakamura',
+          'image': 'https://media.kitsu.app/people/images/72.jpg',
+          'language': 'Japanese',
+        },
+      };
+
+      final char = MediaCharacter.fromJson(json);
+
+      expect(char.id, 105898);
+      expect(char.name, 'Satoru Gojou');
+      expect(char.role, 'MAIN');
+      expect(char.voiceActor, isNotNull);
+      expect(char.voiceActor?.name, 'Yuuichi Nakamura');
+      expect(char.voiceActor?.language, 'Japanese');
     });
   });
 }

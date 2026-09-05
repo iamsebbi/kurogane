@@ -253,6 +253,24 @@ class ApiClient {
     }
   }
 
+  Future<Map<String, dynamic>> getMediaCharactersAndStaff(String id) async {
+    try {
+      final response = await _get('${ApiConstants.mediaDetail}/$id/characters');
+      if (response != null && response.data != null) {
+        final charsRaw = response.data['characters'] as List<dynamic>? ?? [];
+        final staffRaw = response.data['staff'] as List<dynamic>? ?? [];
+        return {
+          'characters': charsRaw.map((e) => MediaCharacter.fromJson(e as Map<String, dynamic>)).toList(),
+          'staff': staffRaw.map((e) => MediaStaff.fromJson(e as Map<String, dynamic>)).toList(),
+        };
+      }
+      return {'characters': <MediaCharacter>[], 'staff': <MediaStaff>[]};
+    } catch (e) {
+      debugPrint('[ApiClient] Error fetching characters for $id: $e');
+      return {'characters': <MediaCharacter>[], 'staff': <MediaStaff>[]};
+    }
+  }
+
   Future<WatchOrderGuide?> getWatchOrder(String id) async {
     try {
       final response = await _get('${ApiConstants.mediaDetail}/$id/watch-order');

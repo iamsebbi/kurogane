@@ -162,6 +162,29 @@ async function main() {
     assert.strictEqual(res.status, 401, 'Should require authentication (401)');
   });
 
+  // 12. Media Relations Endpoint Test
+  await runTest('Media Relations endpoint returns rich relations for series', async () => {
+    const res = await fetch(`${API_BASE}/api/media/113415/relations`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.ok(Array.isArray(data.relations), 'Response should have relations array');
+    assert.ok(data.relations.length >= 2, `Expected >= 2 relations for JJK, got ${data.relations.length}`);
+    const hasSequel = data.relations.some(r => r.relationType === 'SEQUEL' || r.relationType === 'PREQUEL');
+    assert.ok(hasSequel, 'Should contain prequel or sequel');
+  });
+
+  // 13. Media Characters Endpoint Test
+  await runTest('Media Characters endpoint returns rich character roster', async () => {
+    const res = await fetch(`${API_BASE}/api/media/113415/characters`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.ok(Array.isArray(data.characters), 'Response should have characters array');
+    assert.ok(data.characters.length >= 4, `Expected >= 4 characters for JJK, got ${data.characters.length}`);
+    const firstChar = data.characters[0];
+    assert.ok(firstChar.name && firstChar.name !== 'Main Character', 'Character should have authentic name');
+    assert.ok(firstChar.image, 'Character should have image url');
+  });
+
   console.log(`\n========================================`);
   console.log(`TEST SUMMARY: ${passed} passed, ${failed} failed`);
   console.log(`========================================\n`);

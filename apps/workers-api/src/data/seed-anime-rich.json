@@ -138,7 +138,30 @@
       }
     ],
     "source": "ANILIST",
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-1735",
+        "anilistId": 1735,
+        "relationType": "SEQUEL",
+        "title": "Naruto: Shippuuden",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2007,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/1555/medium.jpg"
+      },
+      {
+        "id": "anilist-30011",
+        "anilistId": 30011,
+        "relationType": "ADAPTATION",
+        "title": "Naruto Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 1999,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/11/medium.jpg"
+      }
+    ]
   },
   "21": {
     "id": "anilist-21",
@@ -275,7 +298,41 @@
       }
     ],
     "source": "ANILIST",
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-141391",
+        "anilistId": 141391,
+        "relationType": "SIDE_STORY",
+        "title": "One Piece Film: Red",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2022,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/45283/medium.jpg"
+      },
+      {
+        "id": "anilist-105333",
+        "anilistId": 105333,
+        "relationType": "SIDE_STORY",
+        "title": "One Piece: Stampede",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2019,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/41804/medium.jpg"
+      },
+      {
+        "id": "anilist-30013",
+        "anilistId": 30013,
+        "relationType": "ADAPTATION",
+        "title": "One Piece Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 1997,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/13/medium.jpg"
+      }
+    ]
   },
   "269": {
     "id": "anilist-269",
@@ -411,7 +468,41 @@
       }
     ],
     "source": "ANILIST",
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-144411",
+        "anilistId": 144411,
+        "relationType": "SEQUEL",
+        "title": "BLEACH: Sennen Kessen-hen (Thousand-Year Blood War)",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2022,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/43078/medium.jpg"
+      },
+      {
+        "id": "anilist-185874",
+        "anilistId": 185874,
+        "relationType": "SEQUEL",
+        "title": "BLEACH: Sennen Kessen-hen - Kashin-tan (Part 3)",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "RELEASING",
+        "releaseYear": 2024,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/48332/medium.jpg"
+      },
+      {
+        "id": "anilist-30012",
+        "anilistId": 30012,
+        "relationType": "ADAPTATION",
+        "title": "BLEACH Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2001,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/12/medium.jpg"
+      }
+    ]
   },
   "1535": {
     "id": "anilist-1535",
@@ -458,10 +549,52 @@
     ],
     "characters": [
       {
-        "id": 1635,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/poster_images/1376/medium.jpg",
-        "role": "MAIN"
+        "id": 6001,
+        "name": "Light Yagami",
+        "image": "https://media.kitsu.app/characters/images/30/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 50,
+          "name": "Mamoru Miyano",
+          "image": "https://media.kitsu.app/people/images/50/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 6002,
+        "name": "L Lawliet",
+        "image": "https://media.kitsu.app/characters/images/31/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 51,
+          "name": "Kappei Yamaguchi",
+          "image": "https://media.kitsu.app/people/images/51/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 6003,
+        "name": "Ryuk",
+        "image": "https://media.kitsu.app/characters/images/32/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 52,
+          "name": "Shidou Nakamura",
+          "image": "https://media.kitsu.app/people/images/52/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 6004,
+        "name": "Misa Amane",
+        "image": "https://media.kitsu.app/characters/images/33/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 53,
+          "name": "Aya Hirano",
+          "image": "https://media.kitsu.app/people/images/53/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -490,7 +623,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-2994",
+        "anilistId": 2994,
+        "relationType": "SUMMARY",
+        "title": "Death Note: Relight - Visions of a God",
+        "format": "SPECIAL",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2007,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/2689/medium.jpg"
+      },
+      {
+        "id": "anilist-30021",
+        "anilistId": 30021,
+        "relationType": "ADAPTATION",
+        "title": "Death Note Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2003,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/21/medium.jpg"
+      }
+    ]
   },
   "1735": {
     "id": "anilist-1735",
@@ -631,7 +787,41 @@
       }
     ],
     "source": "ANILIST",
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-20",
+        "anilistId": 20,
+        "relationType": "PREQUEL",
+        "title": "Naruto",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2002,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/11/medium.jpg"
+      },
+      {
+        "id": "anilist-20596",
+        "anilistId": 20596,
+        "relationType": "SEQUEL",
+        "title": "The Last: Naruto the Movie",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2014,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/8193/medium.jpg"
+      },
+      {
+        "id": "anilist-97938",
+        "anilistId": 97938,
+        "relationType": "SEQUEL",
+        "title": "Boruto: Naruto Next Generations",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2017,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/13212/medium.jpg"
+      }
+    ]
   },
   "5114": {
     "id": "anilist-5114",
@@ -680,10 +870,52 @@
     ],
     "characters": [
       {
-        "id": 5214,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/poster_images/3936/medium.jpg",
-        "role": "MAIN"
+        "id": 5001,
+        "name": "Edward Elric",
+        "image": "https://media.kitsu.app/characters/images/11/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 15,
+          "name": "Romi Park",
+          "image": "https://media.kitsu.app/people/images/15/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 5002,
+        "name": "Alphonse Elric",
+        "image": "https://media.kitsu.app/characters/images/12/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 16,
+          "name": "Rie Kugimiya",
+          "image": "https://media.kitsu.app/people/images/16/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 5003,
+        "name": "Roy Mustang",
+        "image": "https://media.kitsu.app/characters/images/13/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 17,
+          "name": "Shinichiro Miki",
+          "image": "https://media.kitsu.app/people/images/17/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 5004,
+        "name": "Winry Rockbell",
+        "image": "https://media.kitsu.app/characters/images/14/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 18,
+          "name": "Megumi Takamoto",
+          "image": "https://media.kitsu.app/people/images/18/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -712,7 +944,41 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-121",
+        "anilistId": 121,
+        "relationType": "ALTERNATIVE",
+        "title": "Fullmetal Alchemist (2003)",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2003,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/107/medium.jpg"
+      },
+      {
+        "id": "anilist-9135",
+        "anilistId": 9135,
+        "relationType": "SIDE_STORY",
+        "title": "Fullmetal Alchemist: The Sacred Star of Milos",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2011,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/5903/medium.jpg"
+      },
+      {
+        "id": "anilist-30025",
+        "anilistId": 30025,
+        "relationType": "ADAPTATION",
+        "title": "Fullmetal Alchemist Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2001,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/25/medium.jpg"
+      }
+    ]
   },
   "9253": {
     "id": "anilist-9253",
@@ -759,10 +1025,52 @@
     ],
     "characters": [
       {
-        "id": 9353,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/5646/medium.jpg",
-        "role": "MAIN"
+        "id": 7001,
+        "name": "Rintaro Okabe",
+        "image": "https://media.kitsu.app/characters/images/223/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 50,
+          "name": "Mamoru Miyano",
+          "image": "https://media.kitsu.app/people/images/50/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 7002,
+        "name": "Kurisu Makise",
+        "image": "https://media.kitsu.app/characters/images/224/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 60,
+          "name": "Asami Imai",
+          "image": "https://media.kitsu.app/people/images/60/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 7003,
+        "name": "Mayuri Shiina",
+        "image": "https://media.kitsu.app/characters/images/225/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 61,
+          "name": "Kana Hanazawa",
+          "image": "https://media.kitsu.app/people/images/61/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 7004,
+        "name": "Itaru Hashida (Daru)",
+        "image": "https://media.kitsu.app/characters/images/226/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 62,
+          "name": "Tomokazu Seki",
+          "image": "https://media.kitsu.app/people/images/62/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -791,7 +1099,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-21127",
+        "anilistId": 21127,
+        "relationType": "SEQUEL",
+        "title": "Steins;Gate 0",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2018,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/10777/medium.jpg"
+      },
+      {
+        "id": "anilist-11577",
+        "anilistId": 11577,
+        "relationType": "SIDE_STORY",
+        "title": "Steins;Gate: The Movie − Load Region of Déjà Vu",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2013,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/6513/medium.jpg"
+      }
+    ]
   },
   "10087": {
     "id": "anilist-10087",
@@ -838,10 +1169,52 @@
     ],
     "characters": [
       {
-        "id": 10187,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/6028/poster_image/medium-edd1c8af6e5c64750fcbc9f58389ed0c.jpeg",
-        "role": "MAIN"
+        "id": 15001,
+        "name": "Kiritsugu Emiya",
+        "image": "https://media.kitsu.app/characters/images/15001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 701,
+          "name": "Rikiya Koyama",
+          "image": "https://media.kitsu.app/people/images/701/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 15002,
+        "name": "Saber (Artoria Pendragon)",
+        "image": "https://media.kitsu.app/characters/images/15002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 702,
+          "name": "Ayako Kawasumi",
+          "image": "https://media.kitsu.app/people/images/702/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 15003,
+        "name": "Kirei Kotomine",
+        "image": "https://media.kitsu.app/characters/images/15003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 703,
+          "name": "Jouji Nakata",
+          "image": "https://media.kitsu.app/people/images/703/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 15004,
+        "name": "Irisviel von Einzbern",
+        "image": "https://media.kitsu.app/characters/images/15004/original.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 704,
+          "name": "Sayaka Ohara",
+          "image": "https://media.kitsu.app/people/images/704/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -870,7 +1243,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-11741",
+        "anilistId": 11741,
+        "relationType": "SEQUEL",
+        "title": "Fate/Zero Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2012,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/6575/medium.jpg"
+      },
+      {
+        "id": "anilist-19603",
+        "anilistId": 19603,
+        "relationType": "SEQUEL",
+        "title": "Fate/stay night: Unlimited Blade Works",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2014,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/8089/medium.jpg"
+      }
+    ]
   },
   "16498": {
     "id": "anilist-16498",
@@ -1121,10 +1517,28 @@
     ],
     "characters": [
       {
-        "id": 20564,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/8133/medium.jpg",
-        "role": "MAIN"
+        "id": 11001,
+        "name": "Shoyo Hinata",
+        "image": "https://media.kitsu.app/characters/images/18001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 301,
+          "name": "Ayumu Murase",
+          "image": "https://media.kitsu.app/people/images/301/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 11002,
+        "name": "Tobio Kageyama",
+        "image": "https://media.kitsu.app/characters/images/18002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 302,
+          "name": "Kaito Ishikawa",
+          "image": "https://media.kitsu.app/people/images/302/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1153,7 +1567,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-20992",
+        "anilistId": 20992,
+        "relationType": "SEQUEL",
+        "title": "Haikyuu!! Second Season",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2015,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/10048/medium.jpg"
+      },
+      {
+        "id": "anilist-151807",
+        "anilistId": 151807,
+        "relationType": "SEQUEL",
+        "title": "Haikyuu!! The Dumpster Battle (Movie)",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2024,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/46219/medium.jpg"
+      }
+    ]
   },
   "20954": {
     "id": "anilist-20954",
@@ -1200,10 +1637,40 @@
     ],
     "characters": [
       {
-        "id": 21054,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/10028/medium.jpg",
-        "role": "MAIN"
+        "id": 16001,
+        "name": "Shouya Ishida",
+        "image": "https://media.kitsu.app/characters/images/16001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 801,
+          "name": "Miyu Irino",
+          "image": "https://media.kitsu.app/people/images/801/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 16002,
+        "name": "Shouko Nishimiya",
+        "image": "https://media.kitsu.app/characters/images/16002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 802,
+          "name": "Saori Hayami",
+          "image": "https://media.kitsu.app/people/images/802/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 16003,
+        "name": "Yuzuru Nishimiya",
+        "image": "https://media.kitsu.app/characters/images/16003/original.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 803,
+          "name": "Aoi Yuuki",
+          "image": "https://media.kitsu.app/people/images/803/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1232,7 +1699,19 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-85135",
+        "anilistId": 85135,
+        "relationType": "ADAPTATION",
+        "title": "Koe no Katachi Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2013,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/20954/medium.jpg"
+      }
+    ]
   },
   "21355": {
     "id": "anilist-21355",
@@ -1281,10 +1760,52 @@
     ],
     "characters": [
       {
-        "id": 21455,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/11209/medium.jpg",
-        "role": "MAIN"
+        "id": 8001,
+        "name": "Subaru Natsuki",
+        "image": "https://media.kitsu.app/characters/images/15001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 91,
+          "name": "Yuusuke Kobayashi",
+          "image": "https://media.kitsu.app/people/images/91/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 8002,
+        "name": "Emilia",
+        "image": "https://media.kitsu.app/characters/images/15002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 92,
+          "name": "Rie Takahashi",
+          "image": "https://media.kitsu.app/people/images/92/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 8003,
+        "name": "Rem",
+        "image": "https://media.kitsu.app/characters/images/15003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 93,
+          "name": "Inori Minase",
+          "image": "https://media.kitsu.app/people/images/93/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 8004,
+        "name": "Ram",
+        "image": "https://media.kitsu.app/characters/images/15004/original.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 94,
+          "name": "Rie Murakawa",
+          "image": "https://media.kitsu.app/people/images/94/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1313,7 +1834,41 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-108632",
+        "anilistId": 108632,
+        "relationType": "SEQUEL",
+        "title": "Re:Zero Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2020,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/42247/medium.jpg"
+      },
+      {
+        "id": "anilist-189046",
+        "anilistId": 189046,
+        "relationType": "SEQUEL",
+        "title": "Re:Zero Season 3 / 4",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "RELEASING",
+        "releaseYear": 2024,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/46820/medium.jpg"
+      },
+      {
+        "id": "anilist-100049",
+        "anilistId": 100049,
+        "relationType": "SIDE_STORY",
+        "title": "Re:Zero - Memory Snow (OVA)",
+        "format": "OVA",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2018,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/13812/medium.jpg"
+      }
+    ]
   },
   "21519": {
     "id": "anilist-21519",
@@ -1360,10 +1915,40 @@
     ],
     "characters": [
       {
-        "id": 21619,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/11614/medium.jpg",
-        "role": "MAIN"
+        "id": 17001,
+        "name": "Taki Tachibana",
+        "image": "https://media.kitsu.app/characters/images/17001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 901,
+          "name": "Ryunosuke Kamiki",
+          "image": "https://media.kitsu.app/people/images/901/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 17002,
+        "name": "Mitsuha Miyamizu",
+        "image": "https://media.kitsu.app/characters/images/17002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 902,
+          "name": "Mone Kamishiraishi",
+          "image": "https://media.kitsu.app/people/images/902/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 17003,
+        "name": "Miki Okudera",
+        "image": "https://media.kitsu.app/characters/images/17003/original.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 903,
+          "name": "Masami Nagasawa",
+          "image": "https://media.kitsu.app/people/images/903/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1392,7 +1977,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-106286",
+        "anilistId": 106286,
+        "relationType": "OTHER",
+        "title": "Tenki no Ko (Weathering With You)",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2019,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/41992/medium.jpg"
+      },
+      {
+        "id": "anilist-87399",
+        "anilistId": 87399,
+        "relationType": "ADAPTATION",
+        "title": "Kimi no Na wa. Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2016,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/21519/medium.jpg"
+      }
+    ]
   },
   "98436": {
     "id": "anilist-98436",
@@ -1439,10 +2047,40 @@
     ],
     "characters": [
       {
-        "id": 98536,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/41084/medium.jpg",
-        "role": "MAIN"
+        "id": 10001,
+        "name": "Thorfinn",
+        "image": "https://media.kitsu.app/characters/images/22001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 201,
+          "name": "Yuuto Uemura",
+          "image": "https://media.kitsu.app/people/images/201/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 10002,
+        "name": "Askeladd",
+        "image": "https://media.kitsu.app/characters/images/22002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 202,
+          "name": "Naoya Uchida",
+          "image": "https://media.kitsu.app/people/images/202/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 10003,
+        "name": "Canute",
+        "image": "https://media.kitsu.app/characters/images/22003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 203,
+          "name": "Kensho Ono",
+          "image": "https://media.kitsu.app/people/images/203/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1471,7 +2109,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-136430",
+        "anilistId": 136430,
+        "relationType": "SEQUEL",
+        "title": "Vinland Saga Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/44520/medium.jpg"
+      },
+      {
+        "id": "anilist-30642",
+        "anilistId": 30642,
+        "relationType": "ADAPTATION",
+        "title": "Vinland Saga Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2005,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/642/medium.jpg"
+      }
+    ]
   },
   "101921": {
     "id": "anilist-101921",
@@ -1518,10 +2179,52 @@
     ],
     "characters": [
       {
-        "id": 102021,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/41373/medium.jpg",
-        "role": "MAIN"
+        "id": 18001,
+        "name": "Kaguya Shinomiya",
+        "image": "https://media.kitsu.app/characters/images/18001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 951,
+          "name": "Aoi Koga",
+          "image": "https://media.kitsu.app/people/images/951/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 18002,
+        "name": "Miyuki Shirogane",
+        "image": "https://media.kitsu.app/characters/images/18002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 952,
+          "name": "Makoto Furukawa",
+          "image": "https://media.kitsu.app/people/images/952/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 18003,
+        "name": "Chika Fujiwara",
+        "image": "https://media.kitsu.app/characters/images/18003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 953,
+          "name": "Konomi Kohara",
+          "image": "https://media.kitsu.app/people/images/953/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 18004,
+        "name": "Yuu Ishigami",
+        "image": "https://media.kitsu.app/characters/images/18004/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 954,
+          "name": "Ryouta Suzuki",
+          "image": "https://media.kitsu.app/people/images/954/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1550,7 +2253,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-112641",
+        "anilistId": 112641,
+        "relationType": "SEQUEL",
+        "title": "Kaguya-sama: Love is War? (Season 2)",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2020,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/42598/medium.jpg"
+      },
+      {
+        "id": "anilist-125367",
+        "anilistId": 125367,
+        "relationType": "SEQUEL",
+        "title": "Kaguya-sama: Love is War - Ultra Romantic - (Season 3)",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2022,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/43860/medium.jpg"
+      }
+    ]
   },
   "101922": {
     "id": "anilist-101922",
@@ -1799,10 +2525,76 @@
     ],
     "characters": [
       {
-        "id": 113515,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/42765/poster_image/medium-d34c203fcd7c3a03a29645f1e44ce747.jpeg",
-        "role": "MAIN"
+        "id": 105898,
+        "name": "Satoru Gojou",
+        "image": "https://media.kitsu.app/character/105898/image/8a8a441392fe5191c2449460e7338ce6.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 72,
+          "name": "Yuuichi Nakamura",
+          "image": "https://media.kitsu.app/people/images/72/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 105902,
+        "name": "Yuji Itadori",
+        "image": "https://media.kitsu.app/character/105902/image/7fddba940feccb98fbc613fce4fe2a8e.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 853,
+          "name": "Junya Enoki",
+          "image": "https://media.kitsu.app/people/images/853/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 105901,
+        "name": "Megumi Fushiguro",
+        "image": "https://media.kitsu.app/character/105901/image/762b0293d9cd5de95289ea8a9b072b9e.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 854,
+          "name": "Yuuma Uchida",
+          "image": "https://media.kitsu.app/people/images/854/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 105903,
+        "name": "Nobara Kugisaki",
+        "image": "https://media.kitsu.app/character/105903/image/293753a40af0f34df05532a4f413724d.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 855,
+          "name": "Asami Seto",
+          "image": "https://media.kitsu.app/people/images/855/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 105906,
+        "name": "Ryomen Sukuna",
+        "image": "https://media.kitsu.app/character/105906/image/de1a29b96b9a8d7eddb6940249d71cd8.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 180,
+          "name": "Junichi Suwabe",
+          "image": "https://media.kitsu.app/people/images/180/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 105910,
+        "name": "Kento Nanami",
+        "image": "https://media.kitsu.app/character/105910/image/f41a11d9bd5ec962b1db4ae8927f38db.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 622,
+          "name": "Kenjiro Tsuda",
+          "image": "https://media.kitsu.app/people/images/622/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1831,7 +2623,41 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-131573",
+        "anilistId": 131573,
+        "relationType": "PREQUEL",
+        "title": "Jujutsu Kaisen 0 (Movie)",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2021,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/44429/medium.jpg"
+      },
+      {
+        "id": "anilist-145064",
+        "anilistId": 145064,
+        "relationType": "SEQUEL",
+        "title": "Jujutsu Kaisen Season 2 (Shibuya Incident)",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/45532/medium.jpg"
+      },
+      {
+        "id": "anilist-101517",
+        "anilistId": 101517,
+        "relationType": "ADAPTATION",
+        "title": "Jujutsu Kaisen Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2018,
+        "coverImage": "https://media.kitsu.app/manga/40815/poster_image/medium-767e86e8803c5b52e16892601b448ece.jpeg"
+      }
+    ]
   },
   "117718": {
     "id": "anilist-117718",
@@ -1876,10 +2702,40 @@
     ],
     "characters": [
       {
-        "id": 117818,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/43248/poster_image/medium-b6579dda46b596b2d2c3fa6d4618dc69.jpeg",
-        "role": "MAIN"
+        "id": 19001,
+        "name": "David Martinez",
+        "image": "https://media.kitsu.app/characters/images/19001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 971,
+          "name": "KENN",
+          "image": "https://media.kitsu.app/people/images/971/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 19002,
+        "name": "Lucy",
+        "image": "https://media.kitsu.app/characters/images/19002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 972,
+          "name": "Aoi Yuuki",
+          "image": "https://media.kitsu.app/people/images/972/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 19003,
+        "name": "Rebecca",
+        "image": "https://media.kitsu.app/characters/images/19003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 973,
+          "name": "Tomoyo Kurosawa",
+          "image": "https://media.kitsu.app/people/images/973/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1908,7 +2764,19 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-117719",
+        "anilistId": 117719,
+        "relationType": "OTHER",
+        "title": "Cyberpunk 2077 (Original Video Game)",
+        "format": "SPECIAL",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2020,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/43316/medium.jpg"
+      }
+    ]
   },
   "124080": {
     "id": "anilist-124080",
@@ -1955,10 +2823,28 @@
     ],
     "characters": [
       {
-        "id": 124180,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/poster_images/43545/medium.jpg",
-        "role": "MAIN"
+        "id": 20001,
+        "name": "Kyouko Hori",
+        "image": "https://media.kitsu.app/characters/images/20001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 981,
+          "name": "Haruka Tomatsu",
+          "image": "https://media.kitsu.app/people/images/981/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 20002,
+        "name": "Izumi Miyamura",
+        "image": "https://media.kitsu.app/characters/images/20002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 982,
+          "name": "Kouki Uchiyama",
+          "image": "https://media.kitsu.app/people/images/982/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -1987,7 +2873,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-163132",
+        "anilistId": 163132,
+        "relationType": "ALTERNATIVE",
+        "title": "Horimiya: Piece",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/47266/medium.jpg"
+      },
+      {
+        "id": "anilist-44701",
+        "anilistId": 44701,
+        "relationType": "ADAPTATION",
+        "title": "Horimiya Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2011,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/14701/medium.jpg"
+      }
+    ]
   },
   "136430": {
     "id": "anilist-136430",
@@ -2034,10 +2943,52 @@
     ],
     "characters": [
       {
-        "id": 136530,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/44196/poster_image/medium-a7b52a1e9cea5a04b29ee6878fbff923.jpeg",
-        "role": "MAIN"
+        "id": 12001,
+        "name": "Hitori Gotoh (Bocchi)",
+        "image": "https://media.kitsu.app/characters/images/12001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 401,
+          "name": "Yoshino Aoyama",
+          "image": "https://media.kitsu.app/people/images/401/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 12002,
+        "name": "Nijika Ijichi",
+        "image": "https://media.kitsu.app/characters/images/12002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 402,
+          "name": "Sayumi Suzushiro",
+          "image": "https://media.kitsu.app/people/images/402/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 12003,
+        "name": "Ryo Yamada",
+        "image": "https://media.kitsu.app/characters/images/12003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 403,
+          "name": "Saku Mizuno",
+          "image": "https://media.kitsu.app/people/images/403/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 12004,
+        "name": "Ikuyo Kita",
+        "image": "https://media.kitsu.app/characters/images/12004/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 404,
+          "name": "Ikumi Hasegawa",
+          "image": "https://media.kitsu.app/people/images/404/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -2066,7 +3017,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-166216",
+        "anilistId": 166216,
+        "relationType": "SUMMARY",
+        "title": "Bocchi the Rock! Movie: Re: / Re:Re:",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2024,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/47413/medium.jpg"
+      },
+      {
+        "id": "anilist-107662",
+        "anilistId": 107662,
+        "relationType": "ADAPTATION",
+        "title": "Bocchi the Rock! Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2017,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/42220/medium.jpg"
+      }
+    ]
   },
   "140960": {
     "id": "anilist-140960",
@@ -2113,10 +3087,40 @@
     ],
     "characters": [
       {
-        "id": 141060,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/45398/poster_image/medium-f2f30d957a12e8269655c6036b460c90.jpeg",
-        "role": "MAIN"
+        "id": 9001,
+        "name": "Loid Forger (Twilight)",
+        "image": "https://media.kitsu.app/characters/images/9001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 101,
+          "name": "Takuya Eguchi",
+          "image": "https://media.kitsu.app/people/images/101/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 9002,
+        "name": "Anya Forger",
+        "image": "https://media.kitsu.app/characters/images/9002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 102,
+          "name": "Atsumi Tanezaki",
+          "image": "https://media.kitsu.app/people/images/102/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 9003,
+        "name": "Yor Forger",
+        "image": "https://media.kitsu.app/characters/images/9003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 103,
+          "name": "Saori Hayami",
+          "image": "https://media.kitsu.app/people/images/103/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -2145,7 +3149,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-158870",
+        "anilistId": 158870,
+        "relationType": "SEQUEL",
+        "title": "SPY×FAMILY Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/46429/medium.jpg"
+      },
+      {
+        "id": "anilist-158871",
+        "anilistId": 158871,
+        "relationType": "SIDE_STORY",
+        "title": "SPY×FAMILY CODE: White (Movie)",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/46430/medium.jpg"
+      }
+    ]
   },
   "142838": {
     "id": "anilist-142838",
@@ -2192,10 +3219,64 @@
     ],
     "characters": [
       {
-        "id": 142938,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/43806/poster_image/medium-9bf5b331db48e9087ad34f88c2ad4fb3.jpeg",
-        "role": "MAIN"
+        "id": 112001,
+        "name": "Denji",
+        "image": "https://media.kitsu.app/character/112001/image/large.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 1021,
+          "name": "Kikunosuke Toya",
+          "image": "https://media.kitsu.app/people/images/1021/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 112002,
+        "name": "Makima",
+        "image": "https://media.kitsu.app/character/112002/image/large.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 1022,
+          "name": "Tomori Kusunoki",
+          "image": "https://media.kitsu.app/people/images/1022/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 112003,
+        "name": "Power",
+        "image": "https://media.kitsu.app/character/112003/image/large.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 1023,
+          "name": "Fairouz Ai",
+          "image": "https://media.kitsu.app/people/images/1023/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 112004,
+        "name": "Aki Hayakawa",
+        "image": "https://media.kitsu.app/character/112004/image/large.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 1024,
+          "name": "Shogo Sakata",
+          "image": "https://media.kitsu.app/people/images/1024/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 112005,
+        "name": "Pochita",
+        "image": "https://media.kitsu.app/character/112005/image/large.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 1025,
+          "name": "Shiori Izawa",
+          "image": "https://media.kitsu.app/people/images/1025/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -2224,7 +3305,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-171018",
+        "anilistId": 171018,
+        "relationType": "SEQUEL",
+        "title": "Chainsaw Man Movie: Reze Arc",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "releaseYear": 2026,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/47855/medium.jpg"
+      },
+      {
+        "id": "anilist-105778",
+        "anilistId": 105778,
+        "relationType": "ADAPTATION",
+        "title": "Chainsaw Man Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2018,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/43806/medium.jpg"
+      }
+    ]
   },
   "145064": {
     "id": "anilist-145064",
@@ -2271,10 +3375,40 @@
     ],
     "characters": [
       {
-        "id": 145164,
-        "name": "Main Protagonist",
-        "image": "https://media.kitsu.app/anime/44012/poster_image/medium-b7adf5b796a614ae3630153229fe4469.jpeg",
-        "role": "MAIN"
+        "id": 21001,
+        "name": "Gabimaru",
+        "image": "https://media.kitsu.app/characters/images/21001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 991,
+          "name": "Chiaki Kobayashi",
+          "image": "https://media.kitsu.app/people/images/991/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 21002,
+        "name": "Sagiri Yamada Asaemon",
+        "image": "https://media.kitsu.app/characters/images/21002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 992,
+          "name": "Yumiri Hanamori",
+          "image": "https://media.kitsu.app/people/images/992/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 21003,
+        "name": "Yuzuriha",
+        "image": "https://media.kitsu.app/characters/images/21003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 993,
+          "name": "Rie Takahashi",
+          "image": "https://media.kitsu.app/people/images/993/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -2303,7 +3437,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-166240",
+        "anilistId": 166240,
+        "relationType": "SEQUEL",
+        "title": "Jigokuraku (Hell's Paradise) Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "releaseYear": 2026,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/47416/medium.jpg"
+      },
+      {
+        "id": "anilist-100994",
+        "anilistId": 100994,
+        "relationType": "ADAPTATION",
+        "title": "Jigokuraku Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2018,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/39994/medium.jpg"
+      }
+    ]
   },
   "151807": {
     "id": "anilist-151807",
@@ -2348,10 +3505,40 @@
     ],
     "characters": [
       {
-        "id": 151907,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/46300/poster_image/medium-c1c025bbee42bed048e628b1eae278c0.jpeg",
-        "role": "MAIN"
+        "id": 14001,
+        "name": "Kafka Hibino",
+        "image": "https://media.kitsu.app/characters/images/14001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 601,
+          "name": "Masaya Fukunishi",
+          "image": "https://media.kitsu.app/people/images/601/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 14002,
+        "name": "Reno Ichikawa",
+        "image": "https://media.kitsu.app/characters/images/14002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 602,
+          "name": "Wataru Katou",
+          "image": "https://media.kitsu.app/people/images/602/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 14003,
+        "name": "Kikoru Shinomiya",
+        "image": "https://media.kitsu.app/characters/images/14003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 603,
+          "name": "Fairouz Ai",
+          "image": "https://media.kitsu.app/people/images/603/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -2380,7 +3567,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-178652",
+        "anilistId": 178652,
+        "relationType": "SEQUEL",
+        "title": "Kaiju No. 8 Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "releaseYear": 2026,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/48620/medium.jpg"
+      },
+      {
+        "id": "anilist-120760",
+        "anilistId": 120760,
+        "relationType": "ADAPTATION",
+        "title": "Kaiju No. 8 Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2020,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/44500/medium.jpg"
+      }
+    ]
   },
   "154587": {
     "id": "anilist-154587",
@@ -2772,10 +3982,28 @@
     ],
     "characters": [
       {
-        "id": 163246,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/47083/poster_image/medium-1ba1a4603c851776031d439eba948633.jpeg",
-        "role": "MAIN"
+        "id": 13001,
+        "name": "Maomao",
+        "image": "https://media.kitsu.app/characters/images/13001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 501,
+          "name": "Aoi Yuuki",
+          "image": "https://media.kitsu.app/people/images/501/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 13002,
+        "name": "Jinshi",
+        "image": "https://media.kitsu.app/characters/images/13002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 502,
+          "name": "Takeo Ootsuka",
+          "image": "https://media.kitsu.app/people/images/502/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -2804,7 +4032,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-176846",
+        "anilistId": 176846,
+        "relationType": "SEQUEL",
+        "title": "The Apothecary Diaries Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "releaseYear": 2025,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/48312/medium.jpg"
+      },
+      {
+        "id": "anilist-99022",
+        "anilistId": 99022,
+        "relationType": "ADAPTATION",
+        "title": "The Apothecary Diaries Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2017,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/37120/medium.jpg"
+      }
+    ]
   },
   "178789": {
     "id": "anilist-178789",
@@ -2853,10 +4104,52 @@
     ],
     "characters": [
       {
-        "id": 178889,
-        "name": "Main Character",
-        "image": "https://media.kitsu.app/anime/48269/poster_image/medium-9feb265c75b7016c63b21e122f69a84b.jpeg",
-        "role": "MAIN"
+        "id": 120001,
+        "name": "Momo Ayase",
+        "image": "https://media.kitsu.app/characters/images/120001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 1101,
+          "name": "Shion Wakayama",
+          "image": "https://media.kitsu.app/people/images/1101/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 120002,
+        "name": "Ken Takakura (Okarun)",
+        "image": "https://media.kitsu.app/characters/images/120002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 1102,
+          "name": "Natsuki Hanae",
+          "image": "https://media.kitsu.app/people/images/1102/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 120003,
+        "name": "Turbo Granny",
+        "image": "https://media.kitsu.app/characters/images/120003/original.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 1103,
+          "name": "Mayumi Tanaka",
+          "image": "https://media.kitsu.app/people/images/1103/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 120004,
+        "name": "Seiko Ayase",
+        "image": "https://media.kitsu.app/characters/images/120004/original.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 1104,
+          "name": "Nana Mizuki",
+          "image": "https://media.kitsu.app/people/images/1104/original.jpg",
+          "language": "Japanese"
+        }
       }
     ],
     "staff": [
@@ -2885,7 +4178,30 @@
         "episodes": "Eps 1-12"
       }
     ],
-    "relations": []
+    "relations": [
+      {
+        "id": "anilist-182618",
+        "anilistId": 182618,
+        "relationType": "SEQUEL",
+        "title": "Dandadan Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "releaseYear": 2026,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/48142/medium.jpg"
+      },
+      {
+        "id": "anilist-132029",
+        "anilistId": 132029,
+        "relationType": "ADAPTATION",
+        "title": "Dandadan Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2021,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/48000/medium.jpg"
+      }
+    ]
   },
   "182255": {
     "id": "anilist-182255",
@@ -3021,6 +4337,156 @@
         "status": "FINISHED",
         "releaseYear": 2018,
         "coverImage": "https://media.kitsu.app/manga/poster_images/54124/medium.jpg"
+      }
+    ]
+  },
+  "185874": {
+    "id": "anilist-185874",
+    "anilistId": 185874,
+    "title": {
+      "romaji": "BLEACH: Sennen Kessen-hen - Kashin-tan",
+      "english": "Bleach: Thousand-Year Blood War - The Conflict",
+      "native": "BLEACH 千年血戦篇-相剋譚-",
+      "userPreferred": "BLEACH: Sennen Kessen-hen - Kashin-tan"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "RELEASING",
+    "season": "FALL",
+    "episodes": 13,
+    "year": 2024,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Supernatural"
+    ],
+    "studios": [
+      "Studio Pierrot"
+    ],
+    "description": "Al treilea curs al adaptării canonice finale a francizei Bleach. Bătălia dintre Shinigami și Quincy atinge apogeul la Palatul Regelui Sufletelor.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/48332/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/48332/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/48332/small.jpg",
+      "color": "#0e7490"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/48332/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=78WIYJyXv_A",
+    "scores": {
+      "averageScore": 9.1,
+      "reviewCount": 160000,
+      "weightedScore": 9.1
+    },
+    "franchiseId": "bleach",
+    "microTags": [
+      "Swordplay",
+      "Shinigami",
+      "Quincy",
+      "War",
+      "Super Power"
+    ],
+    "characters": [
+      {
+        "id": 11001,
+        "name": "Ichigo Kurosaki",
+        "image": "https://media.kitsu.app/characters/images/5449/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 31,
+          "name": "Masakazu Morita",
+          "image": "https://media.kitsu.app/people/images/31/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 11002,
+        "name": "Yhwach",
+        "image": "https://media.kitsu.app/characters/images/78519/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 45,
+          "name": "Takayuki Sugo",
+          "image": "https://media.kitsu.app/people/images/45/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 11003,
+        "name": "Uryuu Ishida",
+        "image": "https://media.kitsu.app/characters/images/5451/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 33,
+          "name": "Noriaki Sugiyama",
+          "image": "https://media.kitsu.app/people/images/33/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 11004,
+        "name": "Rukia Kuchiki",
+        "image": "https://media.kitsu.app/characters/images/5450/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 32,
+          "name": "Fumiko Orikasa",
+          "image": "https://media.kitsu.app/people/images/32/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 201,
+        "name": "Tomohisa Taguchi",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 202,
+        "name": "Tite Kubo",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Kotoba ni Dekinai",
+        "artists": [
+          "SIX LOUNGE"
+        ]
+      },
+      {
+        "type": "ED",
+        "title": "MONOCHROME",
+        "artists": [
+          "suisoh"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-159322",
+        "anilistId": 159322,
+        "relationType": "PREQUEL",
+        "title": "BLEACH: Sennen Kessen-hen - Ketsubetsu-tan (Part 2)",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/46487/medium.jpg"
+      },
+      {
+        "id": "anilist-269",
+        "anilistId": 269,
+        "relationType": "PARENT",
+        "title": "BLEACH",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "releaseYear": 2004,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/244/medium.jpg"
       }
     ]
   },

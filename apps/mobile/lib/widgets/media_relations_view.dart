@@ -45,6 +45,11 @@ class _MediaRelationsViewState extends ConsumerState<MediaRelationsView> {
       });
     } else if (widget.currentMediaId != oldWidget.currentMediaId && widget.currentMediaId != null) {
       _fetchRelations();
+    } else if ((_loadedRelations == null || _loadedRelations!.isEmpty) &&
+        widget.relations.isEmpty &&
+        widget.currentMediaId != null &&
+        !_isLoading) {
+      _fetchRelations();
     }
   }
 
@@ -128,6 +133,35 @@ class _MediaRelationsViewState extends ConsumerState<MediaRelationsView> {
                 height: 1.4,
               ),
             ),
+            if (widget.currentMediaId != null) ...[
+              const SizedBox(height: 16),
+              InkWell(
+                borderRadius: BorderRadius.circular(9999),
+                onTap: _fetchRelations,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: context.bgSurfaceHover,
+                    borderRadius: BorderRadius.circular(9999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold), size: 14, color: context.accentPrimary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Re-check Database',
+                        style: TextStyle(
+                          color: context.accentPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       );

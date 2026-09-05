@@ -13,6 +13,8 @@ import {
   getMediaById,
   searchMedia,
   getHomepageData,
+  fetchKitsuRelationsForAnime,
+  fetchKitsuCharactersForAnime,
 } from './services/anilist';
 import {
   getUserWatchlist,
@@ -128,7 +130,47 @@ app.get('/api/media/:id/relations', async (c) => {
     if (!media) {
       return c.json({ error: 'Media item not found' }, 404);
     }
-    return c.json({ relations: media.relations || [] });
+    let relations = media.relations || [];
+    if (relations.length === 0) {
+      const kitsuRels = await fetchKitsuRelationsForAnime(media.title?.userPreferred || media.title?.romaji || id);
+      if (kitsuRels.length > 0) {
+        relations = kitsuRels;
+        media.relations = kitsuRels;
+        const cleanId = String(id).replace('anilist-', '').trim();
+        const numId = parseInt(cleanId, 10);
+        if (!isNaN(numId)) {
+          await c.env.CACHE_KV.put(`anilist:media:${numId}`, JSON.stringify(media), { expirationTtl: 86400 * 7 });
+        }
+      }
+    }
+    return c.json({ relations });
+  } catch (err: any) {
+    return c.json({ error: 'Internal Server Error', message: err.message }, 500);
+  }
+});
+
+app.get('/api/media/:id/characters', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const media = await getMediaById(c.env, id);
+    if (!media) {
+      return c.json({ error: 'Media item not found' }, 404);
+    }
+    let characters = media.characters || [];
+    let staff = media.staff || [];
+    if (characters.length === 0 || (characters.length === 1 && characters[0].name === 'Main Character')) {
+      const kitsuCast = await fetchKitsuCharactersForAnime(media.title?.userPreferred || media.title?.romaji || id);
+      if (kitsuCast.characters.length > 0) {
+        characters = kitsuCast.characters;
+        media.characters = kitsuCast.characters;
+        const cleanId = String(id).replace('anilist-', '').trim();
+        const numId = parseInt(cleanId, 10);
+        if (!isNaN(numId)) {
+          await c.env.CACHE_KV.put(`anilist:media:${numId}`, JSON.stringify(media), { expirationTtl: 86400 * 7 });
+        }
+      }
+    }
+    return c.json({ characters, staff });
   } catch (err: any) {
     return c.json({ error: 'Internal Server Error', message: err.message }, 500);
   }
