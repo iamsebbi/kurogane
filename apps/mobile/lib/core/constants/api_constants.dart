@@ -6,32 +6,36 @@ class ApiConstants {
     defaultValue: '',
   );
 
+  static const String workersBaseUrl = 'https://kurogane-api.kurogane-workers-api.workers.dev';
   static const String cloudBaseUrl = 'https://kurogane.onrender.com';
 
   static String get baseUrl {
     if (_configuredUrl.isNotEmpty) {
       return _configuredUrl;
     }
-    // In release builds on mobile device, default to Render cloud backend so it works everywhere
+    // Default to Cloudflare Workers edge backend
     if (kReleaseMode) {
-      return cloudBaseUrl;
+      return workersBaseUrl;
     }
-    if (kIsWeb) return 'http://localhost:4000';
+    if (kIsWeb) return workersBaseUrl;
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://192.168.1.224:4000';
+      return workersBaseUrl;
     }
-    return 'http://localhost:4000';
+    return workersBaseUrl;
   }
 
   static List<String> get candidateBaseUrls {
     final list = <String>[];
     if (_configuredUrl.isNotEmpty) {
       list.add(_configuredUrl);
+      list.add(workersBaseUrl);
       list.add(cloudBaseUrl);
     } else if (kReleaseMode) {
+      list.add(workersBaseUrl);
       list.add(cloudBaseUrl);
       list.add('http://192.168.1.224:4000');
     } else {
+      list.add(workersBaseUrl);
       if (defaultTargetPlatform == TargetPlatform.android) {
         list.add('http://192.168.1.224:4000');
         list.add(cloudBaseUrl);

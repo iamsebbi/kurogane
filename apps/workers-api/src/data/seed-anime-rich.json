@@ -1,0 +1,3307 @@
+{
+  "20": {
+    "id": "anilist-20",
+    "anilistId": 20,
+    "title": {
+      "romaji": "Naruto: Shippuuden",
+      "english": "Naruto: Shippuden",
+      "native": "ナルト- 疾風伝",
+      "userPreferred": "Naruto: Shippuuden"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 500,
+    "genres": [
+      "Comedy",
+      "Martial Arts",
+      "Super Power",
+      "Action",
+      "Adventure"
+    ],
+    "studios": [
+      "Animation Studio"
+    ],
+    "description": "It has been two and a half years since Naruto Uzumaki left Konohagakure, the Hidden Leaf Village, for intense training following events which fueled his desire to be stronger. Now Akatsuki, the mysterious organization of elite rogue ninja, is closing in on their grand plan which may threaten the safety of the entire shinobi world.\n\nAlthough Naruto is older and sinister events loom on the horizon, he has changed little in personality—still rambunctious and childish—though he is now far more confident and possesses an even greater determination to protect his friends and home. Come whatever may, Naruto will carry on with the fight for what is important to him, even at the expense of his own body, in the continuation of the saga about the boy who wishes to become Hokage.\n\n(Source: MAL Rewrite)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/1555/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/1555/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/1555/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/1555/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=1dy2zPPrKD0",
+    "year": 2007,
+    "scores": {
+      "averageScore": 8.4,
+      "reviewCount": 215106,
+      "weightedScore": 8.4
+    },
+    "franchiseId": "naruto-series",
+    "characters": [
+      {
+        "id": 219,
+        "name": "Kakashi Hatake",
+        "image": "https://media.kitsu.app/characters/images/219/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 220,
+        "name": "Sasuke Uchiha",
+        "image": "https://media.kitsu.app/characters/images/220/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 221,
+        "name": "Naruto Uzumaki",
+        "image": "https://media.kitsu.app/characters/images/221/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17782,
+        "name": "A",
+        "image": "https://media.kitsu.app/characters/images/17782/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 41249,
+        "name": "A (First Raikage)",
+        "image": "https://media.kitsu.app/characters/images/41249/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 41246,
+        "name": "A (Second Raikage)",
+        "image": "https://media.kitsu.app/characters/images/41246/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17907,
+        "name": "A (Third Raikage)",
+        "image": "https://media.kitsu.app/characters/images/17907/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 334,
+        "name": "Shino Aburame",
+        "image": "https://media.kitsu.app/characters/images/334/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17926,
+        "name": "Muta Aburame",
+        "image": "https://media.kitsu.app/characters/images/17926/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 335,
+        "name": "Shibi Aburame",
+        "image": "https://media.kitsu.app/characters/images/335/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17925,
+        "name": "Torune Aburame",
+        "image": "https://media.kitsu.app/characters/images/17925/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 94694,
+        "name": "Ajisai",
+        "image": "https://media.kitsu.app/characters/images/94694/original.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 1,
+        "name": "Director",
+        "role": "Director"
+      },
+      {
+        "id": 2,
+        "name": "Music Composer",
+        "role": "Music"
+      }
+    ],
+    "themes": [
+      {
+        "title": "Rocks",
+        "type": "OPENING",
+        "artist": "Hound Dog"
+      },
+      {
+        "title": "Wind",
+        "type": "ENDING",
+        "artist": "Akeboshi"
+      }
+    ],
+    "source": "ANILIST",
+    "relations": []
+  },
+  "21": {
+    "id": "anilist-21",
+    "anilistId": 21,
+    "title": {
+      "romaji": "One Piece",
+      "english": "One Piece",
+      "native": "ONE PIECE",
+      "userPreferred": "One Piece"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "RELEASING",
+    "season": "SPRING",
+    "episodes": 12,
+    "genres": [
+      "Comedy",
+      "Super Power",
+      "Fantasy",
+      "Drama",
+      "Action",
+      "Friendship",
+      "Adventure"
+    ],
+    "studios": [
+      "Animation Studio"
+    ],
+    "description": "Gol D. Roger was known as the \"Pirate King,\" the strongest and most infamous being to have sailed the Grand Line. The capture and death of Roger by the World Government brought a change throughout the world. His last words before his death revealed the existence of the greatest treasure in the world, One Piece. It was this revelation that brought about the Grand Age of Pirates, men who dreamed of finding One Piece—which promises an unlimited amount of riches and fame—and quite possibly the pinnacle of glory and the title of the Pirate King.\nEnter Monkey D. Luffy, a 17-year-old boy who defies your standard definition of a pirate. Rather than the popular persona of a wicked, hardened, toothless pirate ransacking villages for fun, Luffy’s reason for being a pirate is one of pure wonder: the thought of an exciting adventure that leads him to intriguing people and ultimately, the promised treasure. Following in the footsteps of his childhood hero, Luffy and his crew travel across the Grand Line, experiencing crazy adventures, unveiling dark mysteries and battling strong enemies, all in order to reach the most coveted of all fortunes—One Piece.\n[Written by MAL Rewrite]",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/12/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/12/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/12/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/12/cover_image/large-3e72f400a87b5241780c5082f0582611.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=CmTeYj2FmRc",
+    "year": 1999,
+    "scores": {
+      "averageScore": 8.4,
+      "reviewCount": 324133,
+      "weightedScore": 8.4
+    },
+    "characters": [
+      {
+        "id": 105957,
+        "name": "Yamato",
+        "image": "https://media.kitsu.app/character/105957/image/92913954cfa3753b1c255d5fcc9d7f1d.png",
+        "role": "MAIN"
+      },
+      {
+        "id": 105946,
+        "name": "Batman",
+        "image": "https://media.kitsu.app/character/105946/image/1bff1a08e2f5c9d15835278d0efc75d2.webp",
+        "role": "MAIN"
+      },
+      {
+        "id": 406,
+        "name": "Franky",
+        "image": "https://media.kitsu.app/characters/images/406/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 411,
+        "name": "Luffy Monkey D.",
+        "image": "https://media.kitsu.app/characters/images/411/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 408,
+        "name": "Nami",
+        "image": "https://media.kitsu.app/characters/images/408/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 412,
+        "name": "Robin Nico",
+        "image": "https://media.kitsu.app/characters/images/412/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 413,
+        "name": "Zoro Roronoa",
+        "image": "https://media.kitsu.app/characters/images/413/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 407,
+        "name": "Sanji",
+        "image": "https://media.kitsu.app/characters/images/407/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 414,
+        "name": "Chopper Tony Tony",
+        "image": "https://media.kitsu.app/characters/images/414/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 409,
+        "name": "Usopp",
+        "image": "https://media.kitsu.app/characters/images/409/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 41336,
+        "name": "Abdullah",
+        "image": "https://media.kitsu.app/characters/images/41336/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 78519,
+        "name": "Abellon",
+        "image": "https://media.kitsu.app/characters/images/78519/original.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 1,
+        "name": "Director",
+        "role": "Director"
+      },
+      {
+        "id": 2,
+        "name": "Music Composer",
+        "role": "Music"
+      }
+    ],
+    "themes": [
+      {
+        "title": "We Are!",
+        "type": "OPENING",
+        "artist": "Hiroshi Kitadani"
+      }
+    ],
+    "source": "ANILIST",
+    "relations": []
+  },
+  "269": {
+    "id": "anilist-269",
+    "anilistId": 269,
+    "title": {
+      "romaji": "BLEACH",
+      "english": "Bleach",
+      "native": "BLEACH - ブリーチ -",
+      "userPreferred": "BLEACH"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 366,
+    "genres": [
+      "Comedy",
+      "Supernatural",
+      "Super Power",
+      "Action",
+      "Friendship",
+      "Adventure"
+    ],
+    "studios": [
+      "Animation Studio"
+    ],
+    "description": "Ichigo Kurosaki is an ordinary high schooler—until his family is attacked by a Hollow, a corrupt spirit that seeks to devour human souls. It is then that he meets a Soul Reaper named Rukia Kuchiki, who gets injured while protecting Ichigo's family from the assailant. To save his family, Ichigo accepts Rukia's offer of taking her powers and becomes a Soul Reaper as a result.\nHowever, as Rukia is unable to regain her powers, Ichigo is given the daunting task of hunting down the Hollows that plague their town. However, he is not alone in his fight, as he is later joined by his friends—classmates Orihime Inoue, Yasutora Sado, and Uryuu Ishida—who each have their own unique abilities. As Ichigo and his comrades get used to their new duties and support each other on and off the battlefield, the young Soul Reaper soon learns that the Hollows are not the only real threat to the human world.\n[Written by MAL Rewrite]",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/244/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/244/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/244/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/244/cover_image/large-b9e0a3066197f1115c773ff866a60873.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=WhyJBof3kXw",
+    "year": 2004,
+    "scores": {
+      "averageScore": 7.7,
+      "reviewCount": 105161,
+      "weightedScore": 7.7
+    },
+    "characters": [
+      {
+        "id": 5449,
+        "name": "Uryuu Ishida",
+        "image": "https://media.kitsu.app/characters/images/5449/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5450,
+        "name": "Rukia Kuchiki",
+        "image": "https://media.kitsu.app/characters/images/5450/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5451,
+        "name": "Ichigo Kurosaki",
+        "image": "https://media.kitsu.app/characters/images/5451/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5452,
+        "name": "Yasutora Sado",
+        "image": "https://media.kitsu.app/character/5452/image/8756db6ee52d261864c91f70237c8dac.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5537,
+        "name": "Renji Abarai",
+        "image": "https://media.kitsu.app/characters/images/5537/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5510,
+        "name": "Aida",
+        "image": "https://media.kitsu.app/characters/images/5510/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5538,
+        "name": "Love Aikawa",
+        "image": "https://media.kitsu.app/characters/images/5538/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5539,
+        "name": "Loly Aivirrne",
+        "image": "https://media.kitsu.app/characters/images/5539/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5540,
+        "name": "Sousuke Aizen",
+        "image": "https://media.kitsu.app/characters/images/5540/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5478,
+        "name": "Akon",
+        "image": "https://media.kitsu.app/characters/images/5478/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5486,
+        "name": "Aldegor",
+        "image": "https://media.kitsu.app/characters/images/5486/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 5541,
+        "name": "Shuusuke Amagai",
+        "image": "https://media.kitsu.app/characters/images/5541/original.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 1,
+        "name": "Director",
+        "role": "Director"
+      },
+      {
+        "id": 2,
+        "name": "Music Composer",
+        "role": "Music"
+      }
+    ],
+    "themes": [
+      {
+        "title": "Asterisk",
+        "type": "OPENING",
+        "artist": "Orange Range"
+      }
+    ],
+    "source": "ANILIST",
+    "relations": []
+  },
+  "1535": {
+    "id": "anilist-1535",
+    "anilistId": 1535,
+    "title": {
+      "romaji": "Death Note",
+      "english": "Death Note",
+      "native": "デスノート",
+      "userPreferred": "Death Note"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 37,
+    "year": 2006,
+    "genres": [
+      "Mystery",
+      "Psychological",
+      "Supernatural"
+    ],
+    "studios": [
+      "Madhouse"
+    ],
+    "description": "A shinigami, as a god of death, can kill any person—provided they see their victim's face and write their victim's name in a notebook called a Death Note. One day, Ryuk, bored by the shinigami lifestyle and interested in seeing how a human would use a Death Note, drops one into the human realm.\n\nHigh school student and prodigy Light Yagami stumbles upon the Death Note and—since he deplores the state of the world—tests the deadly notebook by writing a criminal's name in it. When the criminal dies immediately following his experiment with the Death Note, Light is greatly surprised and quickly recognizes how devastating the power that has fallen into his hands could be.\n\nWith this divine capability, Light decides to extinguish all criminals in order to build a new world where crime does not exist and people worship him as a god. Police, however, quickly discover that a serial killer is targeting criminals and, consequently, try to apprehend the culprit. To do this, the Japanese investigators count on the assistance of the best detective in the world: a young and eccentric man known only by the name of L.\n\n(Source: MAL Rewrite)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/1376/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/1376/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/1376/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/1376/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=NlJZ-YgAt-c",
+    "scores": {
+      "averageScore": 8.3,
+      "reviewCount": 496037,
+      "weightedScore": 8.3
+    },
+    "franchiseId": "death-note",
+    "microTags": [
+      "Mystery",
+      "Psychological",
+      "Supernatural"
+    ],
+    "characters": [
+      {
+        "id": 1635,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/poster_images/1376/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 1735,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "the WORLD",
+        "artists": [
+          "Madhouse"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Alumina",
+        "artists": [
+          "Madhouse"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "1735": {
+    "id": "anilist-1735",
+    "anilistId": 1735,
+    "title": {
+      "romaji": "Naruto: Shippuuden",
+      "english": "Naruto: Shippuden",
+      "native": "ナルト- 疾風伝",
+      "userPreferred": "Naruto: Shippuuden"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 500,
+    "genres": [
+      "Comedy",
+      "Martial Arts",
+      "Super Power",
+      "Action",
+      "Adventure"
+    ],
+    "studios": [
+      "Animation Studio"
+    ],
+    "description": "It has been two and a half years since Naruto Uzumaki left Konohagakure, the Hidden Leaf Village, for intense training following events which fueled his desire to be stronger. Now Akatsuki, the mysterious organization of elite rogue ninja, is closing in on their grand plan which may threaten the safety of the entire shinobi world.\n\nAlthough Naruto is older and sinister events loom on the horizon, he has changed little in personality—still rambunctious and childish—though he is now far more confident and possesses an even greater determination to protect his friends and home. Come whatever may, Naruto will carry on with the fight for what is important to him, even at the expense of his own body, in the continuation of the saga about the boy who wishes to become Hokage.\n\n(Source: MAL Rewrite)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/1555/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/1555/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/1555/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/1555/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=1dy2zPPrKD0",
+    "year": 2007,
+    "scores": {
+      "averageScore": 8.4,
+      "reviewCount": 215106,
+      "weightedScore": 8.4
+    },
+    "franchiseId": "naruto-series",
+    "characters": [
+      {
+        "id": 219,
+        "name": "Kakashi Hatake",
+        "image": "https://media.kitsu.app/characters/images/219/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 220,
+        "name": "Sasuke Uchiha",
+        "image": "https://media.kitsu.app/characters/images/220/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 221,
+        "name": "Naruto Uzumaki",
+        "image": "https://media.kitsu.app/characters/images/221/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17782,
+        "name": "A",
+        "image": "https://media.kitsu.app/characters/images/17782/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 41249,
+        "name": "A (First Raikage)",
+        "image": "https://media.kitsu.app/characters/images/41249/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 41246,
+        "name": "A (Second Raikage)",
+        "image": "https://media.kitsu.app/characters/images/41246/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17907,
+        "name": "A (Third Raikage)",
+        "image": "https://media.kitsu.app/characters/images/17907/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 334,
+        "name": "Shino Aburame",
+        "image": "https://media.kitsu.app/characters/images/334/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17926,
+        "name": "Muta Aburame",
+        "image": "https://media.kitsu.app/characters/images/17926/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 335,
+        "name": "Shibi Aburame",
+        "image": "https://media.kitsu.app/characters/images/335/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 17925,
+        "name": "Torune Aburame",
+        "image": "https://media.kitsu.app/characters/images/17925/original.jpg",
+        "role": "MAIN"
+      },
+      {
+        "id": 94694,
+        "name": "Ajisai",
+        "image": "https://media.kitsu.app/characters/images/94694/original.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 1,
+        "name": "Director",
+        "role": "Director"
+      },
+      {
+        "id": 2,
+        "name": "Music Composer",
+        "role": "Music"
+      }
+    ],
+    "themes": [
+      {
+        "title": "Blue Bird",
+        "type": "OPENING",
+        "artist": "Ikimono Gakari"
+      },
+      {
+        "title": "Silhouette",
+        "type": "OPENING",
+        "artist": "KANA-BOON"
+      }
+    ],
+    "source": "ANILIST",
+    "relations": []
+  },
+  "5114": {
+    "id": "anilist-5114",
+    "anilistId": 5114,
+    "title": {
+      "romaji": "Hagane no Renkinjutsushi: Fullmetal Alchemist",
+      "english": "Fullmetal Alchemist: Brotherhood",
+      "native": "鋼の錬金術師 FULLMETAL ALCHEMIST",
+      "userPreferred": "Fullmetal Alchemist: Brotherhood"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 64,
+    "year": 2009,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy"
+    ],
+    "studios": [
+      "Bones"
+    ],
+    "description": "\"In order for something to be obtained, something of equal value must be lost.\"\n\nAlchemy is bound by this Law of Equivalent Exchange—something the young brothers Edward and Alphonse Elric only realize after attempting human transmutation: the one forbidden act of alchemy. They pay a terrible price for their transgression—Edward loses his left leg, Alphonse his physical body. It is only by the desperate sacrifice of Edward's right arm that he is able to affix Alphonse's soul to a suit of armor. Devastated and alone, it is the hope that they would both eventually return to their original bodies that gives Edward the inspiration to obtain metal limbs called \"automail\" and become a state alchemist, the Fullmetal Alchemist.\n\nThree years of searching later, the brothers seek the Philosopher's Stone, a mythical relic that allows an alchemist to overcome the Law of Equivalent Exchange. Even with military allies Colonel Roy Mustang, Lieutenant Riza Hawkeye, and Lieutenant Colonel Maes Hughes on their side, the brothers find themselves caught up in a nationwide conspiracy that leads them not only to the true nature of the elusive Philosopher's Stone, but their country's murky history as well. In between finding a serial killer and racing against time, Edward and Alphonse must ask themselves if what they are doing will make them human again... or take away their humanity.\n\n(Source: MAL Rewrite)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/3936/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/3936/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/3936/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/3936/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=yb2R1l0O9Zs",
+    "scores": {
+      "averageScore": 8.3,
+      "reviewCount": 421642,
+      "weightedScore": 8.3
+    },
+    "franchiseId": "fma",
+    "microTags": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy"
+    ],
+    "characters": [
+      {
+        "id": 5214,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/poster_images/3936/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 5314,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Again",
+        "artists": [
+          "Bones"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Uso",
+        "artists": [
+          "Bones"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "9253": {
+    "id": "anilist-9253",
+    "anilistId": 9253,
+    "title": {
+      "romaji": "Steins;Gate",
+      "english": "Steins;Gate",
+      "native": "STEINS;GATE",
+      "userPreferred": "Steins;Gate"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 24,
+    "year": 2011,
+    "genres": [
+      "Drama",
+      "Sci-Fi",
+      "Thriller"
+    ],
+    "studios": [
+      "White Fox"
+    ],
+    "description": "The self-proclaimed mad scientist Rintarou Okabe rents out a room in a rickety old building in Akihabara, where he indulges himself in his hobby of inventing prospective \"future gadgets\" with fellow lab members: Mayuri Shiina, his air-headed childhood friend, and Hashida Itaru, a perverted hacker nicknamed \"Daru.\" The three pass the time by tinkering with their most promising contraption yet, a machine dubbed the \"Phone Microwave,\" which performs the strange function of morphing bananas into piles of green gel.\n\nThough miraculous in itself, the phenomenon doesn't provide anything concrete in Okabe's search for a scientific breakthrough; that is, until the lab members are spurred into action by a string of mysterious happenings before stumbling upon an unexpected success—the Phone Microwave can send emails to the past, altering the flow of history.\n\nAdapted from the critically acclaimed visual novel by 5pb. and Nitroplus, Steins;Gate takes Okabe through the depths of scientific theory and practicality. Forced across the diverging threads of past and present, Okabe must shoulder the burdens that come with holding the key to the realm of time.\n\n(Source: MAL Rewrite)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/5646/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/5646/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/5646/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/5646/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=27OZc-ku6is",
+    "scores": {
+      "averageScore": 8.2,
+      "reviewCount": 237731,
+      "weightedScore": 8.2
+    },
+    "franchiseId": "steins-gate",
+    "microTags": [
+      "Drama",
+      "Sci-Fi",
+      "Thriller"
+    ],
+    "characters": [
+      {
+        "id": 9353,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/5646/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 9453,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Hacking to the Gate",
+        "artists": [
+          "White Fox"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Toki Tsukasadoru Juuni no Meiyaku",
+        "artists": [
+          "White Fox"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "10087": {
+    "id": "anilist-10087",
+    "anilistId": 10087,
+    "title": {
+      "romaji": "Fate/Zero",
+      "english": "Fate/Zero",
+      "native": "フェイト/ゼロ",
+      "userPreferred": "Fate/Zero"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 13,
+    "year": 2011,
+    "genres": [
+      "Action",
+      "Fantasy",
+      "Supernatural"
+    ],
+    "studios": [
+      "ufotable"
+    ],
+    "description": "With the promise of granting any wish, the omnipotent Holy Grail triggered three wars in the past, each too cruel and fierce to leave a victor. In spite of that, the wealthy Einzbern family is confident that the Fourth Holy Grail War will be different; namely, with a vessel of the Holy Grail now in their grasp. Solely for this reason, the much hated \"Magus Killer\" Kiritsugu Emiya is hired by the Einzberns, with marriage to their only daughter Irisviel as binding contract.\nKiritsugu now stands at the center of a cutthroat game of survival, facing off against six other participants, each armed with an ancient familiar, and fueled by unique desires and ideals. Accompanied by his own familiar, Saber, the notorious mercenary soon finds his greatest opponent in Kirei Kotomine, a priest who seeks salvation from the emptiness within himself in pursuit of Kiritsugu.\nBased on the light novel written by Gen Urobuchi, Fate/Zero depicts the events of the Fourth Holy Grail War—10 years prior to Fate/stay night. Witness a battle royale in which no one is guaranteed to survive.\n[Written by MAL Rewrite]",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/6028/poster_image/large-e9b1ea8a2aee8fd902446d0c273f9eb4.jpeg",
+      "large": "https://media.kitsu.app/anime/6028/poster_image/medium-edd1c8af6e5c64750fcbc9f58389ed0c.jpeg",
+      "medium": "https://media.kitsu.app/anime/6028/poster_image/small-5e122d42b3cb39b3e8d49b1882f7827b.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/6028/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=2G3voiNK8z0",
+    "scores": {
+      "averageScore": 8.2,
+      "reviewCount": 144418,
+      "weightedScore": 8.2
+    },
+    "franchiseId": "fate-series",
+    "microTags": [
+      "Action",
+      "Fantasy",
+      "Supernatural"
+    ],
+    "characters": [
+      {
+        "id": 10187,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/6028/poster_image/medium-edd1c8af6e5c64750fcbc9f58389ed0c.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 10287,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "oath sign",
+        "artists": [
+          "ufotable"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "MEMORIA",
+        "artists": [
+          "ufotable"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "16498": {
+    "id": "anilist-16498",
+    "anilistId": 16498,
+    "title": {
+      "romaji": "Shingeki no Kyojin",
+      "english": "Attack on Titan",
+      "native": "進撃の巨人",
+      "userPreferred": "Attack on Titan"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 25,
+    "year": 2013,
+    "genres": [
+      "Action",
+      "Drama",
+      "Fantasy",
+      "Mystery"
+    ],
+    "studios": [
+      "WIT Studio"
+    ],
+    "description": "Centuries ago, mankind was slaughtered to near extinction by monstrous humanoid creatures called Titans, forcing humans to hide in fear behind enormous concentric walls. What makes these giants truly terrifying is that their taste for human flesh is not born out of hunger but seemingly out of pleasure. To ensure their survival, the remnants of humanity began living within defensive barriers, resulting in one hundred years without a single titan encounter. However, that fragile calm is shattered when a colossal Titan breaches the supposedly impregnable outer wall, reigniting the fight for survival.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/7442/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/7442/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/7442/small.jpg",
+      "color": "#a13b28"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/7442/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=LHtdKWJ2i1U",
+    "scores": {
+      "averageScore": 8.9,
+      "reviewCount": 450000,
+      "weightedScore": 8.9
+    },
+    "franchiseId": "attack-on-titan",
+    "microTags": [
+      "Anti-Hero",
+      "Post-Apocalyptic",
+      "Military",
+      "Dark Fantasy",
+      "Gore",
+      "Survival"
+    ],
+    "characters": [
+      {
+        "id": 40882,
+        "name": "Eren Yeager",
+        "image": "https://media.kitsu.app/characters/images/40882/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 80,
+          "name": "Yuuki Kaji",
+          "image": "https://media.kitsu.app/people/images/80/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 40881,
+        "name": "Mikasa Ackerman",
+        "image": "https://media.kitsu.app/characters/images/40881/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 104,
+          "name": "Yui Ishikawa",
+          "image": "https://media.kitsu.app/people/images/104/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 38506,
+        "name": "Armin Arlert",
+        "image": "https://media.kitsu.app/characters/images/38506/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 102,
+          "name": "Marina Inoue",
+          "image": "https://media.kitsu.app/people/images/102/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 41991,
+        "name": "Levi Ackerman",
+        "image": "https://media.kitsu.app/characters/images/41991/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 147,
+          "name": "Hiroshi Kamiya",
+          "image": "https://media.kitsu.app/people/images/147/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 1,
+        "name": "Tetsuro Araki",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 2,
+        "name": "Hiroyuki Sawano",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 3,
+        "name": "Hajime Isayama",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Guren no Yumiya (紅蓮の弓矢)",
+        "artists": [
+          "Linked Horizon"
+        ],
+        "episodes": "Eps 1-13"
+      },
+      {
+        "type": "OP",
+        "title": "Jiyuu no Tsubasa (自由の翼)",
+        "artists": [
+          "Linked Horizon"
+        ],
+        "episodes": "Eps 14-25"
+      },
+      {
+        "type": "ED",
+        "title": "Utsukushiki Zankoku na Sekai (美しき残酷な世界)",
+        "artists": [
+          "Yoko Hikasa"
+        ],
+        "episodes": "Eps 1-13"
+      },
+      {
+        "type": "ED",
+        "title": "great escape",
+        "artists": [
+          "cinema staff"
+        ],
+        "episodes": "Eps 14-25"
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-20958",
+        "anilistId": 20958,
+        "relationType": "SEQUEL",
+        "title": "Attack on Titan Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "SPRING",
+        "episodes": 12,
+        "releaseYear": 2017,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/11440/medium.jpg"
+      },
+      {
+        "id": "anilist-99147",
+        "anilistId": 99147,
+        "relationType": "SEQUEL",
+        "title": "Attack on Titan Season 3",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "SUMMER",
+        "episodes": 22,
+        "releaseYear": 2018,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/13881/medium.jpg"
+      },
+      {
+        "id": "anilist-20811",
+        "anilistId": 20811,
+        "relationType": "SIDE_STORY",
+        "title": "Attack on Titan: No Regrets",
+        "format": "OVA",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "FALL",
+        "episodes": 2,
+        "releaseYear": 2014,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/8774/medium.jpg"
+      },
+      {
+        "id": "anilist-53390",
+        "anilistId": 53390,
+        "relationType": "SOURCE",
+        "title": "Attack on Titan Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2009,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/13390/medium.jpg"
+      }
+    ]
+  },
+  "20464": {
+    "id": "anilist-20464",
+    "anilistId": 20464,
+    "title": {
+      "romaji": "Haikyuu!!",
+      "english": "Haikyu!!",
+      "native": "ハイキュー!!",
+      "userPreferred": "Haikyuu!!"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 25,
+    "year": 2014,
+    "genres": [
+      "Sports",
+      "Comedy",
+      "Drama"
+    ],
+    "studios": [
+      "Production I.G"
+    ],
+    "description": "Inspired after watching a volleyball ace nicknamed \"Little Giant\" in action, small-statured Shouyou Hinata revives the volleyball club at his middle school. The newly-formed team even makes it to a tournament; however, their first match turns out to be their last when they are brutally squashed by the \"King of the Court,\" Tobio Kageyama. Hinata vows to surpass Kageyama, and so after graduating from middle school, he joins Karasuno High School's volleyball team—only to find that his sworn rival, Kageyama, is now his teammate.\n\nThanks to his short height, Hinata struggles to find his role on the team, even with his superior jumping power. Surprisingly, Kageyama has his own problems that only Hinata can help with, and learning to work together appears to be the only way for the team to be successful. Based on Haruichi Furudate's popular shounen manga of the same name, Haikyuu!! is an exhilarating and emotional sports comedy following two determined athletes as they attempt to patch a heated rivalry in order to make their high school volleyball team the best in Japan.\n\n(Source: MAL)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/8133/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/8133/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/8133/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/8133/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=JOGp2c7-cKc",
+    "scores": {
+      "averageScore": 8.3,
+      "reviewCount": 262909,
+      "weightedScore": 8.3
+    },
+    "franchiseId": "haikyuu",
+    "microTags": [
+      "Sports",
+      "Comedy",
+      "Drama"
+    ],
+    "characters": [
+      {
+        "id": 20564,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/8133/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 20664,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Imagination",
+        "artists": [
+          "Production I.G"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Tenchi Gaeshi",
+        "artists": [
+          "Production I.G"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "20954": {
+    "id": "anilist-20954",
+    "anilistId": 20954,
+    "title": {
+      "romaji": "Koe no Katachi",
+      "english": "A Silent Voice",
+      "native": "聲の形",
+      "userPreferred": "Koe no Katachi"
+    },
+    "type": "ANIME",
+    "format": "MOVIE",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 1,
+    "year": 2016,
+    "genres": [
+      "Drama",
+      "Romance",
+      "Slice of Life"
+    ],
+    "studios": [
+      "Kyoto Animation"
+    ],
+    "description": "Shoya is a bully. When Shoko, a girl who can't hear, enters his elementary school class, she becomes their favorite target, and Shoya and his friends goad each other into devising new tortures for her. But the children's cruelty goes too far. Shoko is forced to leave the school, and Shoya ends up shouldering all the blame. Six years later, the two meet again. Can Shoya make up for his past mistakes, or is it too late?\n\n(Source: Kodansha Comics)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/10028/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/10028/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/10028/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/10028/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=XBNWo25izJ8",
+    "scores": {
+      "averageScore": 8.4,
+      "reviewCount": 341840,
+      "weightedScore": 8.4
+    },
+    "franchiseId": "a-silent-voice",
+    "microTags": [
+      "Drama",
+      "Romance",
+      "Slice of Life"
+    ],
+    "characters": [
+      {
+        "id": 21054,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/10028/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 21154,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "My Generation",
+        "artists": [
+          "Kyoto Animation"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Koi wo Shita no wa",
+        "artists": [
+          "Kyoto Animation"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "21355": {
+    "id": "anilist-21355",
+    "anilistId": 21355,
+    "title": {
+      "romaji": "Re:Zero kara Hajimeru Isekai Seikatsu",
+      "english": "Re:ZERO -Starting Life in Another World-",
+      "native": "Re：ゼロから始める異世界生活",
+      "userPreferred": "Re:Zero kara Hajimeru Isekai Seikatsu"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 25,
+    "year": 2016,
+    "genres": [
+      "Action",
+      "Drama",
+      "Fantasy",
+      "Psychological"
+    ],
+    "studios": [
+      "White Fox"
+    ],
+    "description": "When Subaru Natsuki leaves the convenience store, the last thing he expects is to be wrenched from his everyday life and dropped into a fantasy world. Things aren't looking good for the bewildered teenager; however, not long after his arrival, he is attacked by some thugs. Armed with only a bag of groceries and a now useless cell phone, he is quickly beaten to a pulp. Fortunately, a mysterious beauty named Satella, in hot pursuit after the one who stole her insignia, happens upon Subaru and saves him. In order to thank the honest and kindhearted girl, Subaru offers to help in her search, and later that night, he even finds the whereabouts of that which she seeks. But unbeknownst to them, a much darker force stalks the pair from the shadows, and just minutes after locating the insignia, Subaru and Satella are brutally murdered.\n\nHowever, Subaru immediately reawakens to a familiar scene—confronted by the same group of thugs, meeting Satella all over again—the enigma deepens as history inexplicably repeats itself.\n\n(Source: MAL Rewrite)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/11209/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/11209/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/11209/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/11209/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=IvhgOe9BY5A",
+    "scores": {
+      "averageScore": 8.2,
+      "reviewCount": 154197,
+      "weightedScore": 8.2
+    },
+    "franchiseId": "rezero",
+    "microTags": [
+      "Action",
+      "Drama",
+      "Fantasy",
+      "Psychological"
+    ],
+    "characters": [
+      {
+        "id": 21455,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/11209/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 21555,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Redo",
+        "artists": [
+          "White Fox"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "STYX HELIX",
+        "artists": [
+          "White Fox"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "21519": {
+    "id": "anilist-21519",
+    "anilistId": 21519,
+    "title": {
+      "romaji": "Kimi no Na wa.",
+      "english": "Your Name.",
+      "native": "君の名は。",
+      "userPreferred": "Kimi no Na wa."
+    },
+    "type": "ANIME",
+    "format": "MOVIE",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 1,
+    "year": 2016,
+    "genres": [
+      "Romance",
+      "Drama",
+      "Supernatural"
+    ],
+    "studios": [
+      "CoMix Wave Films"
+    ],
+    "description": "From director Makoto Shinkai, the innovative mind behind Voices of a Distant Star and 5 Centimeters Per Second, comes a beautiful masterpiece about time, the thread of fate, and the hearts of two young souls.\n\nThe day the stars fell, two lives changed forever. High schoolers Mitsuha and Taki are complete strangers living separate lives. But one night, they suddenly switch places. Mitsuha wakes up in Taki’s body, and he in hers. This bizarre occurrence continues to happen randomly, and the two must adjust their lives around each other. Yet, somehow, it works. They build a connection and communicate by leaving notes, messages, and more importantly, an imprint.\n\nWhen a dazzling comet lights up the night’s sky, it dawns on them. They want something more from this connection—a chance to meet, an opportunity to truly know each other. Tugging at the string of fate, they try to find a way to each other. But distance isn’t the only thing keeping them apart. Is their bond strong enough to face the cruel irony of time? Or is their meeting nothing more than a wish upon the stars?\n\n(Source: FUNimation Films)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/11614/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/11614/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/11614/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/11614/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=3KR8_igDs1Y",
+    "scores": {
+      "averageScore": 8.3,
+      "reviewCount": 419291,
+      "weightedScore": 8.3
+    },
+    "franchiseId": "your-name",
+    "microTags": [
+      "Romance",
+      "Drama",
+      "Supernatural"
+    ],
+    "characters": [
+      {
+        "id": 21619,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/11614/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 21719,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Zenzenzense",
+        "artists": [
+          "CoMix Wave Films"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Nandemonaiya",
+        "artists": [
+          "CoMix Wave Films"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "98436": {
+    "id": "anilist-98436",
+    "anilistId": 98436,
+    "title": {
+      "romaji": "Vinland Saga",
+      "english": "Vinland Saga",
+      "native": "ヴィンランド・サガ",
+      "userPreferred": "Vinland Saga"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 24,
+    "year": 2019,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama"
+    ],
+    "studios": [
+      "WIT Studio"
+    ],
+    "description": "As a child, Thorfinn sat at the feet of the great Leif Ericson and thrilled to wild tales of a land far to the west. But his youthful fantasies were shattered by a mercenary raid. Raised by the Vikings who murdered his family, Thorfinn became a terrifying warrior, forever seeking to kill the band's leader, Askeladd, and avenge his father. Sustaining Throfinn through his ordeal are his pride in his family and his dreams of a fertile westward land, a land without war or slavery … the land Leif called Vinland.\n\n(Source: Kodansha Comics USA)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/41084/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/41084/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/41084/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/41084/cover_image/large-2590d6aecb5433b5693f3224e7265bb9.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=3xAlirMzjCQ",
+    "scores": {
+      "averageScore": 8.3,
+      "reviewCount": 64882,
+      "weightedScore": 8.3
+    },
+    "franchiseId": "vinland-saga",
+    "microTags": [
+      "Action",
+      "Adventure",
+      "Drama"
+    ],
+    "characters": [
+      {
+        "id": 98536,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/41084/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 98636,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "MUKANJYO",
+        "artists": [
+          "WIT Studio"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Torches",
+        "artists": [
+          "WIT Studio"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "101921": {
+    "id": "anilist-101921",
+    "anilistId": 101921,
+    "title": {
+      "romaji": "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+      "english": "Kaguya-sama: Love is War",
+      "native": "かぐや様は告らせたい～天才たちの恋愛頭脳戦～",
+      "userPreferred": "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 12,
+    "year": 2019,
+    "genres": [
+      "Comedy",
+      "Romance",
+      "Psychological"
+    ],
+    "studios": [
+      "A-1 Pictures"
+    ],
+    "description": "Known for being both brilliant and powerful, Miyuki Shirogane and Kaguya Shinomiya lead the illustrious Shuchiin Academy as near equals. Everyone thinks they’d make a great couple. But with pride and arrogance in ample supply, the only logical move is to trick the other into instigating a date! Who will come out on top in this psychological war where the first move is the only one that matters?\n\n(Source: Funimation)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/41373/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/41373/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/41373/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/41373/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=rZ95aZmQu_8",
+    "scores": {
+      "averageScore": 8.2,
+      "reviewCount": 114210,
+      "weightedScore": 8.2
+    },
+    "franchiseId": "kaguya-sama",
+    "microTags": [
+      "Comedy",
+      "Romance",
+      "Psychological"
+    ],
+    "characters": [
+      {
+        "id": 102021,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/41373/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 102121,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Love Dramatic",
+        "artists": [
+          "A-1 Pictures"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Sentimental Crisis",
+        "artists": [
+          "A-1 Pictures"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "101922": {
+    "id": "anilist-101922",
+    "anilistId": 101922,
+    "title": {
+      "romaji": "Kimetsu no Yaiba",
+      "english": "Demon Slayer: Kimetsu no Yaiba",
+      "native": "鬼滅の刃",
+      "userPreferred": "Kimetsu no Yaiba"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 26,
+    "year": 2019,
+    "genres": [
+      "Action",
+      "Fantasy",
+      "Supernatural",
+      "Adventure"
+    ],
+    "studios": [
+      "ufotable"
+    ],
+    "description": "Ever since the death of his father, the burden of supporting the family has fallen upon Tanjirou Kamado's shoulders. Although living impoverished on a remote mountain, the Kamado family are able to enjoy a relatively peaceful and happy life. One day, Tanjirou decides to go down to the local village to make a little money selling charcoal. On his way back, night falls, forcing Tanjirou to take shelter in the house of a strange man who warns him of the existence of flesh-eating demons that lurk in the woods at night.\n\nWhen he finally arrives back home the next day, he is met with a horrifying sight—his whole family has been slaughtered.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/41370/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/41370/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/41370/small.jpg",
+      "color": "#c43235"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/41370/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=VQGCKyvzIM4",
+    "scores": {
+      "averageScore": 8.7,
+      "reviewCount": 520000,
+      "weightedScore": 8.7
+    },
+    "franchiseId": "demon-slayer",
+    "microTags": [
+      "Historical",
+      "Super Power",
+      "Martial Arts",
+      "Demons",
+      "Dark Fantasy",
+      "Swordplay"
+    ],
+    "characters": [
+      {
+        "id": 74900,
+        "name": "Tanjirou Kamado",
+        "image": "https://media.kitsu.app/characters/images/74900/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 710,
+          "name": "Natsuki Hanae",
+          "image": "https://media.kitsu.app/people/images/710/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 74901,
+        "name": "Nezuko Kamado",
+        "image": "https://media.kitsu.app/characters/images/74901/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 991,
+          "name": "Akari Kitou",
+          "image": "https://media.kitsu.app/people/images/991/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 74902,
+        "name": "Zenitsu Agatsuma",
+        "image": "https://media.kitsu.app/characters/images/74902/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 201,
+          "name": "Hiro Shimono",
+          "image": "https://media.kitsu.app/people/images/201/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 74903,
+        "name": "Inosuke Hashibira",
+        "image": "https://media.kitsu.app/characters/images/74903/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 341,
+          "name": "Yoshitsugu Matsuoka",
+          "image": "https://media.kitsu.app/people/images/341/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 10,
+        "name": "Haruo Sotozaki",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 11,
+        "name": "Yuki Kajiura",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 12,
+        "name": "Go Shiina",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 13,
+        "name": "Koyoharu Gotouge",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Gurenge (紅蓮華)",
+        "artists": [
+          "LiSA"
+        ],
+        "episodes": "Eps 1-26"
+      },
+      {
+        "type": "ED",
+        "title": "from the edge",
+        "artists": [
+          "FictionJunction feat. LiSA"
+        ],
+        "episodes": "Eps 2-25"
+      },
+      {
+        "type": "ED",
+        "title": "Kamado Tanjirou no Uta (竈門炭治郎のうた)",
+        "artists": [
+          "Go Shiina feat. Nami Nakagawa"
+        ],
+        "episodes": "Ep 19"
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-112151",
+        "anilistId": 112151,
+        "relationType": "SEQUEL",
+        "title": "Demon Slayer: Kimetsu no Yaiba the Movie - Mugen Train",
+        "format": "MOVIE",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "FALL",
+        "episodes": 1,
+        "releaseYear": 2020,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/42525/medium.jpg"
+      },
+      {
+        "id": "anilist-142329",
+        "anilistId": 142329,
+        "relationType": "SEQUEL",
+        "title": "Demon Slayer: Kimetsu no Yaiba Entertainment District Arc",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "WINTER",
+        "episodes": 11,
+        "releaseYear": 2021,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/44081/medium.jpg"
+      },
+      {
+        "id": "anilist-145139",
+        "anilistId": 145139,
+        "relationType": "SEQUEL",
+        "title": "Demon Slayer: Kimetsu no Yaiba Swordsmith Village Arc",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "SPRING",
+        "episodes": 11,
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/45705/medium.jpg"
+      },
+      {
+        "id": "anilist-87216",
+        "anilistId": 87216,
+        "relationType": "SOURCE",
+        "title": "Kimetsu no Yaiba Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2016,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/44589/medium.jpg"
+      }
+    ]
+  },
+  "113415": {
+    "id": "anilist-113415",
+    "anilistId": 113415,
+    "title": {
+      "romaji": "Jujutsu Kaisen",
+      "english": "Jujutsu Kaisen",
+      "native": "呪術廻戦",
+      "userPreferred": "Jujutsu Kaisen"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 24,
+    "year": 2020,
+    "genres": [
+      "Action",
+      "Fantasy",
+      "Supernatural"
+    ],
+    "studios": [
+      "MAPPA"
+    ],
+    "description": "Yuji Itadori is a boy with tremendous physical strength, though he lives a completely ordinary high school life. One day, to save a classmate who has been attacked by curses, he eats the finger of Ryomen Sukuna, taking the curse into his own soul. From then on, he shares one body with Ryomen Sukuna. Guided by the most powerful of sorcerers, Satoru Gojo, Itadori is admitted to Tokyo Jujutsu High School, an organization that fights the curses... and thus begins the heroic tale of a boy who became a curse to exorcise a curse, a life from which he could never turn back.\n\n(Source: Crunchyroll)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/42765/poster_image/large-5ce19551c1a6cf995b378205b9149b5c.jpeg",
+      "large": "https://media.kitsu.app/anime/42765/poster_image/medium-d34c203fcd7c3a03a29645f1e44ce747.jpeg",
+      "medium": "https://media.kitsu.app/anime/42765/poster_image/small-08cb06fd4250de4d435041861d026a8c.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/42765/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=VpO6APNqY1c",
+    "scores": {
+      "averageScore": 8.6,
+      "reviewCount": 235074,
+      "weightedScore": 8.6
+    },
+    "franchiseId": "jujutsu-kaisen",
+    "microTags": [
+      "Action",
+      "Fantasy",
+      "Supernatural"
+    ],
+    "characters": [
+      {
+        "id": 113515,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/42765/poster_image/medium-d34c203fcd7c3a03a29645f1e44ce747.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 113615,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Kaikai Kitan",
+        "artists": [
+          "MAPPA"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Lost in Paradise",
+        "artists": [
+          "MAPPA"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "117718": {
+    "id": "anilist-117718",
+    "anilistId": 117718,
+    "title": {
+      "romaji": "Cyberpunk: Edgerunners",
+      "english": "CYBERPUNK: EDGERUNNERS",
+      "native": "サイバーパンク エッジランナーズ",
+      "userPreferred": "Cyberpunk: Edgerunners"
+    },
+    "type": "ANIME",
+    "format": "ONA",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 10,
+    "year": 2022,
+    "genres": [
+      "Action",
+      "Sci-Fi"
+    ],
+    "studios": [
+      "Studio Trigger"
+    ],
+    "description": "An original anime series set in the universe of Cyberpunk 2077.\n\nIn a dystopia riddled with corruption and cybernetic implants, a talented but reckless street kid strives to become a mercenary outlaw — an edgerunner.\n\n(Source: Netflix)\n\nNote: The first episode received a pre-screening at Anime Expo on July 2, 2022. The first 3 dubbed episodes were streamed on Twitch as part of a co-stream promotion on September 12, a day before the show’s premiere.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/43248/poster_image/large-a9fe312b804fd8067d13c5ca4bef3ae6.jpeg",
+      "large": "https://media.kitsu.app/anime/43248/poster_image/medium-b6579dda46b596b2d2c3fa6d4618dc69.jpeg",
+      "medium": "https://media.kitsu.app/anime/43248/poster_image/small-fdbda75792bdfdbfe89e2c2b507e1450.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/43248/cover_image/large-0438973fb0b000f9782294827beea9dd.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=ax5YUmkWf_Y",
+    "scores": {
+      "averageScore": 8.3,
+      "reviewCount": 22172,
+      "weightedScore": 8.3
+    },
+    "franchiseId": "cyberpunk",
+    "microTags": [
+      "Action",
+      "Sci-Fi"
+    ],
+    "characters": [
+      {
+        "id": 117818,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/43248/poster_image/medium-b6579dda46b596b2d2c3fa6d4618dc69.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 117918,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "This Fire",
+        "artists": [
+          "Studio Trigger"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Let You Down",
+        "artists": [
+          "Studio Trigger"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "124080": {
+    "id": "anilist-124080",
+    "anilistId": 124080,
+    "title": {
+      "romaji": "Horimiya",
+      "english": "Horimiya",
+      "native": "ホリミヤ",
+      "userPreferred": "Horimiya"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 13,
+    "year": 2021,
+    "genres": [
+      "Romance",
+      "Comedy",
+      "Slice of Life"
+    ],
+    "studios": [
+      "CloverWorks"
+    ],
+    "description": "Do opposites attract? At school, Hori is a social butterfly but her life at home is anything but perfect. Left to raise her brother, she’s facing responsibilities that she’s not ready for.\n\nMeanwhile, under a brooding façade, Miyamura hides a gentle heart, along with piercings and tattoos. In a chance meeting, they both reveal a side they’ve never shown. Could this blossom into something new?\n\n(Source: Funimation)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/43545/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/43545/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/43545/small.jpg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/43545/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=W3dimUB-Rbo",
+    "scores": {
+      "averageScore": 8.2,
+      "reviewCount": 60428,
+      "weightedScore": 8.2
+    },
+    "franchiseId": "horimiya",
+    "microTags": [
+      "Romance",
+      "Comedy",
+      "Slice of Life"
+    ],
+    "characters": [
+      {
+        "id": 124180,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/poster_images/43545/medium.jpg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 124280,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Iro Kousui",
+        "artists": [
+          "CloverWorks"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Yakusoku",
+        "artists": [
+          "CloverWorks"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "136430": {
+    "id": "anilist-136430",
+    "anilistId": 136430,
+    "title": {
+      "romaji": "Bocchi the Rock!",
+      "english": "BOCCHI THE ROCK!",
+      "native": "ぼっち・ざ・ろっく！",
+      "userPreferred": "Bocchi the Rock!"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 12,
+    "year": 2022,
+    "genres": [
+      "Comedy",
+      "Music",
+      "Slice of Life"
+    ],
+    "studios": [
+      "CloverWorks"
+    ],
+    "description": "Hitori Gotoh, “Bocchi-chan,” is a girl who’s so introverted and shy around people that she’d always start her conversations with “Ah...”\n\nDuring her middle school years, she started playing the guitar, wanting to join a band because she thought it could be an opportunity for even someone shy like her to also shine. But because she had no friends, she ended up practicing guitar for six hours every day all by herself.\n\nAfter becoming a skilled guitar player, she uploaded videos of herself playing the guitar to the internet under the name “Guitar Hero” and fantasized about performing at her school’s cultural festival concert. But not only could she not find any bandmates, before she knew it, she was in high school and still wasn’t able to make a single friend!\n\nShe was really close to becoming a shut-in, but one day, Nijika Ijichi, the drummer in Kessoku Band, reached out to her. And because of that, her everyday life started to change little by little...\n\n(Source: Crunchyroll)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/44196/poster_image/large-04fc7c066e52d4d2b9d0217b383597bb.jpeg",
+      "large": "https://media.kitsu.app/anime/44196/poster_image/medium-a7b52a1e9cea5a04b29ee6878fbff923.jpeg",
+      "medium": "https://media.kitsu.app/anime/44196/poster_image/small-6bbc75b8d81acea5f4a884a2ffed25e8.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/44196/cover_image/large-1b6608d1317ba4ffd5274f65a5af5b60.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=SyMMZF5zNW4",
+    "scores": {
+      "averageScore": 8.3,
+      "reviewCount": 14945,
+      "weightedScore": 8.3
+    },
+    "franchiseId": "bocchi-rock",
+    "microTags": [
+      "Comedy",
+      "Music",
+      "Slice of Life"
+    ],
+    "characters": [
+      {
+        "id": 136530,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/44196/poster_image/medium-a7b52a1e9cea5a04b29ee6878fbff923.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 136630,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Seishun Complex",
+        "artists": [
+          "CloverWorks"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Distortion!!",
+        "artists": [
+          "CloverWorks"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "140960": {
+    "id": "anilist-140960",
+    "anilistId": 140960,
+    "title": {
+      "romaji": "SPY×FAMILY",
+      "english": "SPY x FAMILY",
+      "native": "SPY×FAMILY",
+      "userPreferred": "SPY×FAMILY"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 12,
+    "year": 2022,
+    "genres": [
+      "Comedy",
+      "Action",
+      "Slice of Life"
+    ],
+    "studios": [
+      "WIT Studio & CloverWorks"
+    ],
+    "description": "Everyone has a part of themselves they cannot show to anyone else.\n\nAt a time when all nations of the world were involved in a fierce war of information happening behind closed doors, Ostania and Westalis had been in a state of cold war against one another for decades. The Westalis Intelligence Services' Eastern-Focused Division (WISE) sends their most talented spy, \"Twilight,\" on a top-secret mission to investigate the movements of Donovan Desmond, the chairman of Ostania's National Unity Party, who is threatening peace efforts between the two nations.\n\nThis mission is known as \"Operation Strix.\" It consists of \"putting together a family in one week in order to infiltrate social gatherings organized by the elite school that Desmond's son attends.\"\n\n\"Twilight\" takes on the identity of psychiatrist Loid Forger and starts looking for family members. But Anya, the daughter he adopts, turns out to have the ability to read people's minds, while his wife, Yor, is an assassin! With it being in each of their own interests to keep these facts hidden, they start living together while concealing their true identities from one another.\nWorld peace is now in the hands of this brand-new family as they embark on an adventure full of surprises.\n\n(Source: Crunchyroll)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/45398/poster_image/large-c26c1e0b77e881fcd66475af6bd22c57.jpeg",
+      "large": "https://media.kitsu.app/anime/45398/poster_image/medium-f2f30d957a12e8269655c6036b460c90.jpeg",
+      "medium": "https://media.kitsu.app/anime/45398/poster_image/small-d2d2ddd1b7f5a9c20bbb69b2b476a0d6.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/45398/cover_image/large-1e81255ff9bde22c072c555cc5998805.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=ofXigq9aIpo",
+    "scores": {
+      "averageScore": 8.5,
+      "reviewCount": 78574,
+      "weightedScore": 8.5
+    },
+    "franchiseId": "spy-family",
+    "microTags": [
+      "Comedy",
+      "Action",
+      "Slice of Life"
+    ],
+    "characters": [
+      {
+        "id": 141060,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/45398/poster_image/medium-f2f30d957a12e8269655c6036b460c90.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 141160,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Mixed Nuts",
+        "artists": [
+          "WIT Studio & CloverWorks"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Comedy",
+        "artists": [
+          "WIT Studio & CloverWorks"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "142838": {
+    "id": "anilist-142838",
+    "anilistId": 142838,
+    "title": {
+      "romaji": "Chainsaw Man",
+      "english": "Chainsaw Man",
+      "native": "チェンソーマン",
+      "userPreferred": "Chainsaw Man"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 12,
+    "year": 2022,
+    "genres": [
+      "Action",
+      "Supernatural",
+      "Gore"
+    ],
+    "studios": [
+      "MAPPA"
+    ],
+    "description": "Denji is a teenage boy living with a Chainsaw Devil named Pochita. Due to the debt his father left behind, he has been living a rock-bottom life while repaying his debt by harvesting devil corpses with Pochita.\n\nOne day, Denji is betrayed and killed. As his consciousness fades, he makes a contract with Pochita and gets revived as \"Chainsaw Man\" — a man with a devil's heart.\n\n(Source: Crunchyroll)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/43806/poster_image/large-815d6008fb3b56f4291b9f0ffa05cd8f.jpeg",
+      "large": "https://media.kitsu.app/anime/43806/poster_image/medium-9bf5b331db48e9087ad34f88c2ad4fb3.jpeg",
+      "medium": "https://media.kitsu.app/anime/43806/poster_image/small-a4fe7b02e127ba7f8041b1b35d6c4858.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/43806/cover_image/large-964674a0f11524f62d65dde845ad8e1f.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=v4yLeNt-kCU",
+    "scores": {
+      "averageScore": 8.4,
+      "reviewCount": 54116,
+      "weightedScore": 8.4
+    },
+    "franchiseId": "chainsaw-man",
+    "microTags": [
+      "Action",
+      "Supernatural",
+      "Gore"
+    ],
+    "characters": [
+      {
+        "id": 142938,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/43806/poster_image/medium-9bf5b331db48e9087ad34f88c2ad4fb3.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 143038,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "KICK BACK",
+        "artists": [
+          "MAPPA"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Chainsaw Blood",
+        "artists": [
+          "MAPPA"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "145064": {
+    "id": "anilist-145064",
+    "anilistId": 145064,
+    "title": {
+      "romaji": "Jigokuraku",
+      "english": "Hell's Paradise",
+      "native": "地獄楽",
+      "userPreferred": "Jigokuraku"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SPRING",
+    "episodes": 13,
+    "year": 2023,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Supernatural"
+    ],
+    "studios": [
+      "MAPPA"
+    ],
+    "description": "The Edo period is nearing its end. Gabimaru, a shinobi formerly known as the strongest in Iwagakure who is now a death row convict, is told that he will be acquitted and set free if he can bring back the Elixir of Life from an island that is rumored to be the Buddhist pure land Sukhavati. In hopes of reuniting with his beloved wife, Gabimaru heads to the island along with the executioner Yamada Asaemon Sagiri. Upon arriving there, they encounter other death row convicts in search of the Elixir of Life... as well as a host of unknown creatures, eerie manmade statues, and the hermits who rule the island. Can Gabimaru find the Elixir of Life on this mysterious island and make it back home alive?\n\n(Source: Crunchyroll)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/44012/poster_image/large-a82dcf6cbdfd5217530236ae5d8b100f.jpeg",
+      "large": "https://media.kitsu.app/anime/44012/poster_image/medium-b7adf5b796a614ae3630153229fe4469.jpeg",
+      "medium": "https://media.kitsu.app/anime/44012/poster_image/small-73d02ce093500ee4bf8d7259998983ef.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/44012/cover_image/large-5a140c7fcfc60806ae4d03f8513c5906.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=8BIaDDN-r3o",
+    "scores": {
+      "averageScore": 8.1,
+      "reviewCount": 16637,
+      "weightedScore": 8.1
+    },
+    "franchiseId": "hells-paradise",
+    "microTags": [
+      "Action",
+      "Adventure",
+      "Supernatural"
+    ],
+    "characters": [
+      {
+        "id": 145164,
+        "name": "Main Protagonist",
+        "image": "https://media.kitsu.app/anime/44012/poster_image/medium-b7adf5b796a614ae3630153229fe4469.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 145264,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "W●RK",
+        "artists": [
+          "MAPPA"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Kamihitoe",
+        "artists": [
+          "MAPPA"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "151807": {
+    "id": "anilist-151807",
+    "anilistId": 151807,
+    "title": {
+      "romaji": "Kaijuu 8-gou",
+      "english": "Kaiju No. 8",
+      "native": "怪獣８号",
+      "userPreferred": "Kaijuu 8-gou"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 12,
+    "year": 2024,
+    "genres": [
+      "Action",
+      "Sci-Fi"
+    ],
+    "studios": [
+      "Production I.G"
+    ],
+    "description": "In a world plagued by creatures known as Kaiju, Kafka Hibino aspired to enlist in The Defense Force. He makes a promise to enlist with his childhood friend, Mina Ashiro. Soon, life takes them in separate ways. While employed cleaning up after Kaiju battles, Kafka meets Reno Ichikawa. Reno's determination to join The Defense Force reawakens Kafka's promise to join Mina and protect humanity.\n\n(Source: Crunchyroll)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/46300/poster_image/large-31cc66fd5854cc555d496ced7ab40c31.jpeg",
+      "large": "https://media.kitsu.app/anime/46300/poster_image/medium-c1c025bbee42bed048e628b1eae278c0.jpeg",
+      "medium": "https://media.kitsu.app/anime/46300/poster_image/small-05a4916bc8cb12a0c77afbfd6fd00fbc.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/46300/cover_image/large-beb78aec0cb2066bc44ea52f66311e04.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=7n_mFVPeApw",
+    "scores": {
+      "averageScore": 8.4,
+      "reviewCount": 10530,
+      "weightedScore": 8.4
+    },
+    "franchiseId": "kaiju-no-8",
+    "microTags": [
+      "Action",
+      "Sci-Fi"
+    ],
+    "characters": [
+      {
+        "id": 151907,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/46300/poster_image/medium-c1c025bbee42bed048e628b1eae278c0.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 152007,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Abyss",
+        "artists": [
+          "Production I.G"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Nobody",
+        "artists": [
+          "Production I.G"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "154587": {
+    "id": "anilist-154587",
+    "anilistId": 154587,
+    "title": {
+      "romaji": "Sousou no Frieren",
+      "english": "Frieren: Beyond Journey's End",
+      "native": "葬送のフリーレン",
+      "userPreferred": "Sousou no Frieren"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 28,
+    "year": 2023,
+    "genres": [
+      "Adventure",
+      "Drama",
+      "Fantasy",
+      "Slice of Life"
+    ],
+    "studios": [
+      "Madhouse"
+    ],
+    "description": "The demon king has been defeated, and the victorious hero party returns home before disbanding. The four—mage Frieren, hero Himmel, priest Heiter, and warrior Eisen—reminisce about their decade-long journey as the moment to bid each other farewell arrives. But the passing of time is different for elves, thus Frieren witnesses her companions slowly pass away one by one.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/46474/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/46474/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/46474/small.jpg",
+      "color": "#5b9bd5"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/46474/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=qgQunxD0qMo",
+    "scores": {
+      "averageScore": 9.3,
+      "reviewCount": 380000,
+      "weightedScore": 9.3
+    },
+    "franchiseId": "frieren",
+    "microTags": [
+      "High Fantasy",
+      "Magic",
+      "Philosophical",
+      "Female Lead",
+      "Adventure",
+      "Top Rated"
+    ],
+    "characters": [
+      {
+        "id": 110001,
+        "name": "Frieren",
+        "image": "https://media.kitsu.app/characters/images/110001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 672,
+          "name": "Atsumi Tanezaki",
+          "image": "https://media.kitsu.app/people/images/672/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 110002,
+        "name": "Fern",
+        "image": "https://media.kitsu.app/characters/images/110002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 792,
+          "name": "Kana Ichinose",
+          "image": "https://media.kitsu.app/people/images/792/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 110003,
+        "name": "Stark",
+        "image": "https://media.kitsu.app/characters/images/110003/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 981,
+          "name": "Chiaki Kobayashi",
+          "image": "https://media.kitsu.app/people/images/981/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 110004,
+        "name": "Himmel",
+        "image": "https://media.kitsu.app/characters/images/110004/original.jpg",
+        "role": "SUPPORTING",
+        "voiceActor": {
+          "id": 311,
+          "name": "Nobuhiko Okamoto",
+          "image": "https://media.kitsu.app/people/images/311/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 20,
+        "name": "Keiichirou Saitou",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 21,
+        "name": "Evan Call",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 22,
+        "name": "Kanehito Yamada",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Yuusha (勇者)",
+        "artists": [
+          "YOASOBI"
+        ],
+        "episodes": "Eps 1-16"
+      },
+      {
+        "type": "OP",
+        "title": "Haru (晴る)",
+        "artists": [
+          "Yorushika"
+        ],
+        "episodes": "Eps 17-28"
+      },
+      {
+        "type": "ED",
+        "title": "Anytime Anywhere",
+        "artists": [
+          "milet"
+        ],
+        "episodes": "Eps 1-28"
+      },
+      {
+        "type": "ED",
+        "title": "bliss",
+        "artists": [
+          "milet"
+        ],
+        "episodes": "Ep 11"
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-180860",
+        "anilistId": 180860,
+        "relationType": "SEQUEL",
+        "title": "Sousou no Frieren Season 2",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "season": "FALL",
+        "episodes": null,
+        "releaseYear": 2026,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/46474/medium.jpg"
+      },
+      {
+        "id": "anilist-118586",
+        "anilistId": 118586,
+        "relationType": "SOURCE",
+        "title": "Frieren: Beyond Journey's End Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2020,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/56903/medium.jpg"
+      }
+    ]
+  },
+  "159309": {
+    "id": "anilist-159309",
+    "anilistId": 159309,
+    "title": {
+      "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu Season 2",
+      "english": "Mushoku Tensei: Jobless Reincarnation Season 2",
+      "native": "無職転生 II ～異世界行ったら本気だす～",
+      "userPreferred": "Mushoku Tensei: Isekai Ittara Honki Dasu Season 2"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SUMMER",
+    "episodes": 24,
+    "year": 2023,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Drama",
+      "Fantasy"
+    ],
+    "studios": [
+      "Studio Bind"
+    ],
+    "description": "Following his heartbreak from Eris' sudden departure, Rudeus Greyrat travels to the northern lands of the Magic Continent as an adventurer known as \"Quagmire\" to build a name for himself, hoping to find any clues about his mother Zenith's whereabouts. Later, an invitation arrives from the prestigious Ranoa Magic Academy.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/45973/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/45973/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/45973/small.jpg",
+      "color": "#c9923b"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/45973/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=J_7_Fv0V0_E",
+    "scores": {
+      "averageScore": 8.6,
+      "reviewCount": 290000,
+      "weightedScore": 8.6
+    },
+    "franchiseId": "mushoku-tensei",
+    "microTags": [
+      "Isekai",
+      "Magic",
+      "School Life",
+      "High Fantasy",
+      "Adventure",
+      "Romance"
+    ],
+    "characters": [
+      {
+        "id": 95001,
+        "name": "Rudeus Greyrat",
+        "image": "https://media.kitsu.app/characters/images/95001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 421,
+          "name": "Yumi Uchiyama",
+          "image": "https://media.kitsu.app/people/images/421/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 95002,
+        "name": "Sylphiette",
+        "image": "https://media.kitsu.app/characters/images/95002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 512,
+          "name": "Ai Kayano",
+          "image": "https://media.kitsu.app/people/images/512/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 30,
+        "name": "Hiroki Hirano",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 31,
+        "name": "Yoshiaki Fujisawa",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 32,
+        "name": "Rifujin na Magonote",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "spiral",
+        "artists": [
+          "LONGMAN"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "OP",
+        "title": "On the Frontline",
+        "artists": [
+          "Hitorie"
+        ],
+        "episodes": "Eps 13-24"
+      },
+      {
+        "type": "ED",
+        "title": "Musubime (ムスビメ)",
+        "artists": [
+          "Yuiko Oohara"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Mamoritai Mono (守りたいもの)",
+        "artists": [
+          "Yuiko Oohara"
+        ],
+        "episodes": "Eps 13-24"
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-108465",
+        "anilistId": 108465,
+        "relationType": "PREQUEL",
+        "title": "Mushoku Tensei: Jobless Reincarnation",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "WINTER",
+        "episodes": 23,
+        "releaseYear": 2021,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/42436/medium.jpg"
+      },
+      {
+        "id": "anilist-178496",
+        "anilistId": 178496,
+        "relationType": "SEQUEL",
+        "title": "Mushoku Tensei Season 3",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "season": "WINTER",
+        "episodes": null,
+        "releaseYear": 2026,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/45973/medium.jpg"
+      },
+      {
+        "id": "anilist-85470",
+        "anilistId": 85470,
+        "relationType": "SOURCE",
+        "title": "Mushoku Tensei Light Novel",
+        "format": "NOVEL",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2014,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/24641/medium.jpg"
+      }
+    ]
+  },
+  "163146": {
+    "id": "anilist-163146",
+    "anilistId": 163146,
+    "title": {
+      "romaji": "Kusuriya no Hitorigoto",
+      "english": "The Apothecary Diaries",
+      "native": "薬屋のひとりごと",
+      "userPreferred": "Kusuriya no Hitorigoto"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 24,
+    "year": 2023,
+    "genres": [
+      "Drama",
+      "Mystery",
+      "Historical"
+    ],
+    "studios": [
+      "TOHO animation & OLM"
+    ],
+    "description": "Maomao lived a peaceful life with her apothecary father. Until one day, she’s sold as a lowly servant to the emperor’s palace. But she wasn’t meant for a compliant life among royalty. So when imperial heirs fall ill, she decides to step in and find a cure! This catches the eye of Jinshi, a handsome palace official who promotes her. Now, she’s making a name for herself solving medical mysteries!\n\n(Source: Crunchyroll)",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/47083/poster_image/large-74f34116934722c262866e8956e36b90.jpeg",
+      "large": "https://media.kitsu.app/anime/47083/poster_image/medium-1ba1a4603c851776031d439eba948633.jpeg",
+      "medium": "https://media.kitsu.app/anime/47083/poster_image/small-373235583ab666a9aa33840a27d069be.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/47083/cover_image/large-ac417aa57ca0bdbd466c4f721fa1e8a1.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=oyHqh8ue4zw",
+    "scores": {
+      "averageScore": 8.7,
+      "reviewCount": 14204,
+      "weightedScore": 8.7
+    },
+    "franchiseId": "apothecary-diaries",
+    "microTags": [
+      "Drama",
+      "Mystery",
+      "Historical"
+    ],
+    "characters": [
+      {
+        "id": 163246,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/47083/poster_image/medium-1ba1a4603c851776031d439eba948633.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 163346,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Hana ni Natte",
+        "artists": [
+          "TOHO animation & OLM"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "Aikotoba",
+        "artists": [
+          "TOHO animation & OLM"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "178789": {
+    "id": "anilist-178789",
+    "anilistId": 178789,
+    "title": {
+      "romaji": "Dandadan",
+      "english": "DAN DA DAN",
+      "native": "ダンダダン",
+      "userPreferred": "Dandadan"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "FALL",
+    "episodes": 12,
+    "year": 2024,
+    "genres": [
+      "Action",
+      "Comedy",
+      "Supernatural",
+      "Sci-Fi"
+    ],
+    "studios": [
+      "Science SARU"
+    ],
+    "description": "This is a story about Momo, a high school girl who comes from a family of spirit mediums, and her classmate Okarun, an occult fanatic. After Momo rescues Okarun from being bullied, they begin talking. However, an argument ensues between them since Momo believes in ghosts but denies aliens exist, and Okarun believes in aliens but denies ghosts exist.\n\nTo prove to each other what they believe in is real, Momo goes to an abandoned hospital where a UFO has been spotted and Okarun goes to a tunnel rumored to be haunted. To their surprise, they each encounter overwhelming paranormal activities that transcend comprehension. Amid these predicaments, Momo awakens her hidden power and Okarun gains the power of a curse to overcome these new dangers! Their fateful love begins as well!?\n\nThe story of the occult battle and adolescence starts!\n\n(Source: Crunchyroll)\n\nNotes:\n- Worldwide premiere of Episode 1 before the Japanese television premiere occurred at Anime Expo July 6, 2024.\n- Episodes 1-3 titled as DAN DA DAN: FIRST ENCOUNTER was pre-screened in advance in theaters on September 13, 2024. The regular TV broadcast begins October 2024.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/48269/poster_image/large-589c017798b98c69e3a615ca4191f49d.jpeg",
+      "large": "https://media.kitsu.app/anime/48269/poster_image/medium-9feb265c75b7016c63b21e122f69a84b.jpeg",
+      "medium": "https://media.kitsu.app/anime/48269/poster_image/small-d19c18a776aa6d045ff51e054e5564db.jpeg",
+      "color": "#3b82f6"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/48269/cover_image/large-2a78bed2943524035cc0146c6633d1bf.jpeg",
+    "trailerUrl": "https://www.youtube.com/watch?v=vnRmIBoyfBM",
+    "scores": {
+      "averageScore": 8.5,
+      "reviewCount": 12591,
+      "weightedScore": 8.5
+    },
+    "franchiseId": "dandadan",
+    "microTags": [
+      "Action",
+      "Comedy",
+      "Supernatural",
+      "Sci-Fi"
+    ],
+    "characters": [
+      {
+        "id": 178889,
+        "name": "Main Character",
+        "image": "https://media.kitsu.app/anime/48269/poster_image/medium-9feb265c75b7016c63b21e122f69a84b.jpeg",
+        "role": "MAIN"
+      }
+    ],
+    "staff": [
+      {
+        "id": 178989,
+        "name": "Director",
+        "image": "",
+        "role": "Director"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Otonoke",
+        "artists": [
+          "Science SARU"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "TAIDADA",
+        "artists": [
+          "Science SARU"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": []
+  },
+  "182255": {
+    "id": "anilist-182255",
+    "anilistId": 182255,
+    "title": {
+      "romaji": "Ore dake Level Up na Ken",
+      "english": "Solo Leveling",
+      "native": "俺だけレベルアップな件",
+      "userPreferred": "Solo Leveling"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "WINTER",
+    "episodes": 12,
+    "year": 2024,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy"
+    ],
+    "studios": [
+      "A-1 Pictures"
+    ],
+    "description": "In a world where hunters—humans who possess magical abilities—must battle deadly monsters to protect the human race from certain annihilation, a notoriously weak hunter named Sung Jin-woo finds himself in a seemingly endless struggle for survival. After narrowly surviving an overwhelmingly powerful double dungeon, a mysterious quest window only visible to him appears.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/46114/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/46114/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/46114/small.jpg",
+      "color": "#4287f5"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/46114/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=9Lz7f0mO0_4",
+    "scores": {
+      "averageScore": 8.5,
+      "reviewCount": 340000,
+      "weightedScore": 8.5
+    },
+    "franchiseId": "solo-leveling",
+    "microTags": [
+      "Overpowered MC",
+      "System",
+      "Dungeon",
+      "Monsters",
+      "Super Power",
+      "Solo Player"
+    ],
+    "characters": [
+      {
+        "id": 88001,
+        "name": "Sung Jin-woo",
+        "image": "https://media.kitsu.app/characters/images/88001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 781,
+          "name": "Taito Ban",
+          "image": "https://media.kitsu.app/people/images/781/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 88002,
+        "name": "Cha Hae-in",
+        "image": "https://media.kitsu.app/characters/images/88002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 612,
+          "name": "Reina Ueda",
+          "image": "https://media.kitsu.app/people/images/612/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 40,
+        "name": "Shunsuke Nakashige",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 41,
+        "name": "Hiroyuki Sawano",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 42,
+        "name": "Chugong",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "LEveL",
+        "artists": [
+          "SawanoHiroyuki[nZk]:TOMORROW X TOGETHER"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "request",
+        "artists": [
+          "krage"
+        ],
+        "episodes": "Eps 1-12"
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-176374",
+        "anilistId": 176374,
+        "relationType": "SEQUEL",
+        "title": "Solo Leveling Season 2: Arise from the Shadow",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "WINTER",
+        "episodes": 13,
+        "releaseYear": 2025,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/46114/medium.jpg"
+      },
+      {
+        "id": "anilist-105398",
+        "anilistId": 105398,
+        "relationType": "SOURCE",
+        "title": "Solo Leveling Manhwa",
+        "format": "MANHWA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2018,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/54124/medium.jpg"
+      }
+    ]
+  },
+  "204466": {
+    "id": "anilist-204466",
+    "anilistId": 204466,
+    "title": {
+      "romaji": "Make Heroine ga Oosugiru!",
+      "english": "Makeine: Too Many Losing Heroines!",
+      "native": "負けヒロインが多すぎる！",
+      "userPreferred": "Make Heroine ga Oosugiru!"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SUMMER",
+    "episodes": 12,
+    "year": 2024,
+    "genres": [
+      "Comedy",
+      "Romance",
+      "Slice of Life"
+    ],
+    "studios": [
+      "A-1 Pictures"
+    ],
+    "description": "Kazuhiko Nukumizu is a self-proclaimed background character in his high school class. One afternoon at a family restaurant, he accidentally witnesses the class popular girl Anna Yanami getting dumped by her childhood friend. Before he knows it, he gets tangled up supporting multiple \"losing heroines\" who lost the romance race.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/48278/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/48278/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/48278/small.jpg",
+      "color": "#e87291"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/48278/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=F_Yv22F0eM8",
+    "scores": {
+      "averageScore": 8.4,
+      "reviewCount": 180000,
+      "weightedScore": 8.4
+    },
+    "franchiseId": "makeine",
+    "microTags": [
+      "School Life",
+      "Romance",
+      "Comedy",
+      "Slice of Life",
+      "Youth"
+    ],
+    "characters": [
+      {
+        "id": 71001,
+        "name": "Anna Yanami",
+        "image": "https://media.kitsu.app/characters/images/71001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 881,
+          "name": "Hikaru Toono",
+          "image": "https://media.kitsu.app/people/images/881/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 71002,
+        "name": "Kazuhiko Nukumizu",
+        "image": "https://media.kitsu.app/characters/images/71002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 791,
+          "name": "Shuichiro Umeda",
+          "image": "https://media.kitsu.app/people/images/791/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 50,
+        "name": "Shotaro Kitamura",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 51,
+        "name": "Kana Utatane",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 52,
+        "name": "Takibi Amamori",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Tsuyogaru Girl (つよがるガール)",
+        "artists": [
+          "BotchiBoromaru feat. Mossa"
+        ],
+        "episodes": "Eps 1-12"
+      },
+      {
+        "type": "ED",
+        "title": "LOVE 2000",
+        "artists": [
+          "Anna Yanami (CV: Hikaru Toono)"
+        ],
+        "episodes": "Eps 1-4"
+      },
+      {
+        "type": "ED",
+        "title": "Crazy For You",
+        "artists": [
+          "Lemon Yakishio (CV: Shion Wakayama)"
+        ],
+        "episodes": "Eps 5-8"
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-150242",
+        "anilistId": 150242,
+        "relationType": "SOURCE",
+        "title": "Make Heroine ga Oosugiru! Light Novel",
+        "format": "NOVEL",
+        "type": "MANGA",
+        "status": "RELEASING",
+        "releaseYear": 2021,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/63510/medium.jpg"
+      }
+    ]
+  },
+  "207141": {
+    "id": "anilist-207141",
+    "anilistId": 207141,
+    "title": {
+      "romaji": "[Oshi no Ko] Season 2",
+      "english": "[Oshi No Ko] Season 2",
+      "native": "【推しの子】第2期",
+      "userPreferred": "[Oshi no Ko] Season 2"
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "status": "FINISHED",
+    "season": "SUMMER",
+    "episodes": 13,
+    "year": 2024,
+    "genres": [
+      "Drama",
+      "Mystery",
+      "Supernatural"
+    ],
+    "studios": [
+      "Doga Kobo"
+    ],
+    "description": "Aqua Hoshino continues his covert search into the identity of his and Ruby's biological father, the mastermind behind their mother Ai's murder. Aqua joins the cast of the stage play adaptation of the popular manga \"Tokyo Blade\" to get closer to the producer who might hold the secret.",
+    "coverImage": {
+      "extraLarge": "https://media.kitsu.app/anime/poster_images/47514/large.jpg",
+      "large": "https://media.kitsu.app/anime/poster_images/47514/medium.jpg",
+      "medium": "https://media.kitsu.app/anime/poster_images/47514/small.jpg",
+      "color": "#8338ec"
+    },
+    "bannerImage": "https://media.kitsu.app/anime/cover_images/47514/large.jpg",
+    "trailerUrl": "https://www.youtube.com/watch?v=F55_i77o5_A",
+    "scores": {
+      "averageScore": 8.5,
+      "reviewCount": 220000,
+      "weightedScore": 8.5
+    },
+    "franchiseId": "oshi-no-ko",
+    "microTags": [
+      "Drama",
+      "Mystery",
+      "Showbiz",
+      "Revenge",
+      "Psychological"
+    ],
+    "characters": [
+      {
+        "id": 60001,
+        "name": "Aqua Hoshino",
+        "image": "https://media.kitsu.app/characters/images/60001/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 521,
+          "name": "Takeo Otsuka",
+          "image": "https://media.kitsu.app/people/images/521/original.jpg",
+          "language": "Japanese"
+        }
+      },
+      {
+        "id": 60002,
+        "name": "Akane Kurokawa",
+        "image": "https://media.kitsu.app/characters/images/60002/original.jpg",
+        "role": "MAIN",
+        "voiceActor": {
+          "id": 712,
+          "name": "Manaka Iwami",
+          "image": "https://media.kitsu.app/people/images/712/original.jpg",
+          "language": "Japanese"
+        }
+      }
+    ],
+    "staff": [
+      {
+        "id": 60,
+        "name": "Daisuke Hiramaki",
+        "image": "",
+        "role": "Director"
+      },
+      {
+        "id": 61,
+        "name": "Takurou Iga",
+        "image": "",
+        "role": "Music Composer"
+      },
+      {
+        "id": 62,
+        "name": "Aka Akasaka",
+        "image": "",
+        "role": "Original Creator"
+      }
+    ],
+    "themes": [
+      {
+        "type": "OP",
+        "title": "Fatal",
+        "artists": [
+          "GEMN (Kento Nakajima x Tatsuya Kitani)"
+        ],
+        "episodes": "Eps 1-13"
+      },
+      {
+        "type": "ED",
+        "title": "Burning",
+        "artists": [
+          "Hitsujibungaku"
+        ],
+        "episodes": "Eps 1-13"
+      }
+    ],
+    "relations": [
+      {
+        "id": "anilist-143866",
+        "anilistId": 143866,
+        "relationType": "PREQUEL",
+        "title": "[Oshi no Ko]",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "FINISHED",
+        "season": "SPRING",
+        "episodes": 11,
+        "releaseYear": 2023,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/45731/medium.jpg"
+      },
+      {
+        "id": "anilist-181977",
+        "anilistId": 181977,
+        "relationType": "SEQUEL",
+        "title": "[Oshi no Ko] Season 3",
+        "format": "TV",
+        "type": "ANIME",
+        "status": "UPCOMING",
+        "season": "SPRING",
+        "episodes": null,
+        "releaseYear": 2026,
+        "coverImage": "https://media.kitsu.app/anime/poster_images/47514/medium.jpg"
+      },
+      {
+        "id": "anilist-117195",
+        "anilistId": 117195,
+        "relationType": "SOURCE",
+        "title": "[Oshi no Ko] Manga",
+        "format": "MANGA",
+        "type": "MANGA",
+        "status": "FINISHED",
+        "releaseYear": 2020,
+        "coverImage": "https://media.kitsu.app/manga/poster_images/56381/medium.jpg"
+      }
+    ]
+  }
+}
