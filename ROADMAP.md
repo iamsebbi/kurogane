@@ -21,7 +21,7 @@ This document tracks planned features, architectural enhancements, and upcoming 
 
 ## 3. Search Engine & Inverted Index Expansion
 
-- **Studio & Staff Indexing:** Extend the Inverted Index in `apps/api` to support queries by Animation Studios (e.g. *ufotable*, *MAPPA*, *Kyoto Animation*), directors, manga authors, and voice actors (Seiyuu).
+- **Studio & Staff Indexing:** Extend the search engine in `apps/workers-api` to support queries by Animation Studios (e.g. *ufotable*, *MAPPA*, *Kyoto Animation*), directors, manga authors, and voice actors (Seiyuu).
 - **Character & Voice Actor Profiles:** Index main character names and voice actors for deeper media discovery.
 
 ---
@@ -32,14 +32,7 @@ This document tracks planned features, architectural enhancements, and upcoming 
 
 ---
 
-## 5. UI & Frontend Enhancements (`apps/web`)
-
-- **Advanced Tag & Filter Drawer:** Build a multi-select filter panel for instant combination of genres, micro-tags, and score thresholds.
-- **Custom List Views:** Grid vs Compact List vs Kanban board view options for user watchlists.
-
----
-
-## 6. Mobile Profile Screen Enhancements & Zero Hardcoding (`apps/mobile`)
+## 5. Mobile Profile Screen Enhancements & Zero Hardcoding (`apps/mobile`)
 
 - **Dynamic Verification Badge:** Condiționare `sealCheck` pe baza profilului din API / Supabase.
 - **Dynamic Profile Banner & Fallback:** Suport pentru custom banner și fallback tematic nativ.
@@ -48,7 +41,7 @@ This document tracks planned features, architectural enhancements, and upcoming 
 
 ---
 
-## 7. Mobile Series Detail Screen Enhancements (`apps/mobile`)
+## 6. Mobile Series Detail Screen Enhancements (`apps/mobile`)
 
 - **Relații Native Dinamice:** Implementat prin widget-ul `MediaRelationsView` conectat la API (`/api/media/:id/relations`).
 - **Unificare Butoane Plutitoare:** Utilizare widget global `FloatingCircleButton` (52px, blur 18).

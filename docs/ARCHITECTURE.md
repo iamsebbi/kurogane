@@ -1,21 +1,20 @@
 # Kurogane — Arhitectură Tehnică & Documentație de Sistem
 
-> Documentație tehnică completă pentru platforma **Kurogane**: monorepo, backend API (Node.js/Express), client mobil (Flutter/Dart), pachet de tipuri partajate (TypeScript) și auditul de integrare API <-> Mobile.
+> Documentație tehnică completă pentru platforma **Kurogane**: monorepo axat exclusiv pe **Aplicația Mobilă** (Flutter/Dart) și **Cloudflare Workers API** (Hono/Edge/D1/KV), pachet de tipuri partajate (TypeScript) și specificațiile de integrare.
 
 ---
 
 ## 1. Prezentare Generală a Arhitecturii
 
-Kurogane este o platformă modernă dedicată descoperirii, clasificării și monitorizării conținutului media pan-asiatic: **Anime** (Japonia), **Donghua** (China), **Aeni** (Coreea de Sud), **Manga**, **Manhwa**, **Manhua** și **Webtoons**.
+Kurogane este o platformă modernă de clasă enterprise dedicată descoperirii, clasificării și monitorizării conținutului media pan-asiatic: **Anime** (Japonia), **Donghua** (China), **Aeni** (Coreea de Sud), **Manga**, **Manhwa**, **Manhua** și **Webtoons**.
 
-Platforma este structurată ca un **npm workspaces monorepo**:
+Platforma este structurată ca un **npm workspaces monorepo** simplificat și robust:
 
 ```text
 kurogane/
 ├── apps/
-│   ├── api/          # Backend Express + TypeScript, Inverted Index, Supabase & AniList
-│   ├── mobile/       # Aplicație mobilă Flutter (Android, iOS) cu Riverpod & Firebase
-│   └── web/          # Frontend Web Next.js 14 (App Router) + TailwindCSS
+│   ├── mobile/       # Aplicație mobilă Flutter (Android, iOS) cu Riverpod, GoRouter & Firebase
+│   └── workers-api/  # Backend modern Cloudflare Workers (Hono, D1, KV, RSS & Kitsu Failover)
 ├── packages/
 │   └── shared/       # Interfețe de domeniu TypeScript, constante și modele unificate
 ├── docs/             # Documentație tehnică și specificații de arhitectură
@@ -25,37 +24,24 @@ kurogane/
 
 ---
 
-## 2. Backend API (`apps/api`)
+## 2. Backend API Cloudflare Workers (`apps/workers-api`)
 
 ### 2.1 Tehnologii de Bază
-- **Runtime:** Node.js (v18+)
-- **Framework HTTP:** Express.js 4
-- **Limbaj:** TypeScript 5.3 (compilare rapidă cu `esbuild`, dezvoltare cu `ts-node-dev`)
-- **Securitate:** `helmet` (politici Cross-Origin), `cors` (politici restrictive per domeniu + bypass autorizat pentru clienți nativi/mobile), `bcryptjs`, `jsonwebtoken`, limitatoare de rată personalizate în memorie.
-- **Bază de date & Persistență:**
-  - *Primary Local Layer:* JSON storage persistent (`apps/api/data/`) cu flush asincron și atomic.
-  - *Cloud Mirror / Cluster:* Supabase PostgreSQL via `@supabase/supabase-js` și Prisma ORM (`prisma/schema.prisma`).
-  - *In-Memory Search:* Motor bazat pe Inverted Index cu dicționar de cuvinte și distanță Levenshtein.
+- **Runtime:** Cloudflare Workers (Edge V8 Serverless)
+- **Framework HTTP:** Hono v4 (ultrarapid, tipat, conform Web Standards)
+- **Limbaj:** TypeScript 5.3+
+- **Bază de date:** Cloudflare D1 (`kurogane-d1` — SQLite la Edge distribuit)
+- **Cache Distribuit:** Cloudflare KV (`CACHE_KV`) pentru cache de cataloage media, seed-uri și feed-uri de știri cu TTL
+- **Surse de Date Externe & Agregare:**
+  - AniList GraphQL API (cu circuit de bypass și fallback la 403)
+  - Kitsu API live (îmbogățire runtime a sinopsisurilor, imaginilor HD și ratingurilor)
+  - Live RSS Feed Aggregator (Anime News Network, Otaku USA)
+- **Securitate:** CORS complet conform cu suport pentru clienți nativi mobili, validare JWT Bearer, rate limiting nativ Edge.
 
-### 2.2 Motorul de Căutare Inverted-Index
-Aflat în `apps/api/src/services/db.ts`:
-1. **Indexare Multi-Token:** Tokenizează titlurile (romaji, engleză, nativ, userPreferred) și sinonimele într-o hartă `Map<string, Set<number>>`.
-2. **Rezolvitor de Acronime & Inițialisme:** Detectează automat prescurtări uzuale ale comunității (ex: `aot` -> *Attack on Titan*, `jjk` -> *Jujutsu Kaisen*, `fmab` -> *Fullmetal Alchemist: Brotherhood*, `mha` -> *My Hero Academia*).
-3. **Fuzzy Matching Levenshtein:** Permite toleranță la greșeli de tipar (1 sau 2 caractere distanță în funcție de lungimea termenului), cu dicționar pre-indexat și cache LRU pentru tokeni.
-4. **Filtrare Hibridă:** Permite combinarea filtrelor de tip media, format, an, sezon, stare, demografie, genuri multiple și micro-taguri.
-5. **Cache cu Expirare (TTL):** Memorează rezultatele căutărilor frecvente timp de 5 minute cu eliminare automată LRU.
-
-### 2.3 Taxonomie & Micro-Taguri
-Definită în `apps/api/data/tag-taxonomy.json`:
-- Clasifică automat conținutul în **37 de micro-taguri** tematice (ex: *Overpowered MC, Isekai, Anti-Hero, Xianxia, Cyberpunk, Post-Apocalyptic, Time Travel, Revenge, Dungeon/Towers*) pe baza analizei semantice a descrierilor, titlurilor și genurilor.
-- Asociază automat demografiile (*Shounen, Seinen, Shoujo, Josei, Kids*).
-
-### 2.4 Sistemul de Persistență & Replicare Cloud
-Aflat în `apps/api/src/services/db-persistent.ts`:
-- **Utilizatori (`users-db.json`):** Salvează profilele locale cu @handle, email, avatar, bio, pronume, genuri favorite și istoricul modificării numelui (restricție de 14 zile).
-- **Liste de Urmărire (`watchlist-db.json`):** Salvează intrările de urmărire cu status, scor personal, episoade parcurse, notițe, dată de început și dată de finalizare.
-- **Replicare Supabase:** Când variabilele `SUPABASE_URL` și `SUPABASE_SERVICE_ROLE_KEY` sunt configurate, orice mutație locală este replicată asincron în baza PostgreSQL din cloud. La pornire, serverul execută `syncFromSupabase()` pentru a recupera starea cloud.
-- **Fallback Offline:** Dacă serverul rulează fără conexiune la cloud sau fără credențiale, funcționează 100% autonom pe baza fișierelor JSON locale.
+### 2.2 Arhitectura de Rezistență (Hybrid Failover)
+1. **Bypass Anti-Bot / WAF:** Când serverele upstream AniList emit blocaje WAF 403 Forbidden, worker-ul comută transparent și instantaneu pe catalogul îmbogățit D1/KV combinat cu runtime enrichment de la Kitsu API.
+2. **Zero Hardcoding:** Nicio informație despre serii, personaje, actori vocali sau știri nu este hardcodată în clientul mobil. Toate datele sunt obținute dinamic.
+3. **Agregator de Știri Live:** Parsare dinamică de feed-uri XML RSS, decodare entități HTML, extragere regex a tagurilor `<img>` și `<enclosure>` din conținut, formatare automată a datelor în limba română și caching în KV (`news:items`) cu TTL de 1800 secunde.
 
 ### 2.5 Catalog de Endpoint-uri API
 
@@ -125,73 +111,64 @@ Dacă un URL este complet inaccesibil (eroare de conexiune sau timeout), `_execu
 
 ## 4. Raportul Complet de Audit API <-> Aplicație Mobilă
 
-În urma analizei exhaustive a codului sursă din `apps/api` și `apps/mobile`, s-au verificat contractele, DTO-urile, antetele și fluxurile de date:
+În urma analizei exhaustive a codului sursă din `apps/workers-api` și `apps/mobile`, s-au verificat contractele, DTO-urile, antetele și fluxurile de date:
 
 ### 4.1 Matricea de Conformitate a Endpoint-urilor
 
-| Funcție Mobil (`ApiClient` / `AuthService`) | Endpoint Apelat | Metodă | Rută Corespondentă în API | Status Audit | Note |
+| Funcție Mobil (`ApiClient` / `AuthService`) | Endpoint Apelat | Metodă | Rută Corespondentă în Worker | Status Audit | Note |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `getHomepage()` | `/api/homepage` | `GET` | `homepage.routes.ts` (`/homepage`) | ✅ Conform | Câmpurile DTO (`featuredSeason`, `recentlyAired`, `newsBeta`, `recommendations`, `topAiring`, `topUpcoming`, `top100`) se mapează identic. |
-| `searchMedia(...)` | `/api/search` | `GET` | `search.routes.ts` (`/`) | ✅ Conform | Parametrii de query (`q`, `type`, `format`, `status`, `demographic`, `genres`, `microTags`, `sortBy`, `minScore`, `limit`, `page`) sunt acceptați și procesați identic. |
-| `getMediaById(id)` | `/api/media/:id` | `GET` | `media.routes.ts` (`/:id`) | ✅ Conform | Returnează `MediaItem` complet; 404 tratat cu `null` curat în mobil. |
-| `getMediaRelations(id)` | `/api/media/:id/relations` | `GET` | `media.routes.ts` (`/:id/relations`) | ✅ Conform | Răspunsul `{ relations: [...] }` este deserializat în `List<MediaRelation>`. |
-| `getSimilarMedia(id)` | `/api/media/:id/similar` | `GET` | `media.routes.ts` (`/:id/similar`) | ✅ Conform | Extrage `similarItems[].item` în mod corect. |
-| `getWatchOrder(id)` | `/api/media/:id/watch-order`| `GET` | `media.routes.ts` (`/:id/watch-order`)| ✅ Conform | Deserializat în `WatchOrderGuide`. |
-| `voteWatchOrderPreset` | `/api/media/watch-order/presets/:id/vote`| `POST` | `media.routes.ts` | ✅ Conform | Validat 1/-1, gestiune corectă a erorilor de auto-vot (403). |
-| `reportWatchOrderPreset`| `/api/media/watch-order/presets/:id/report`| `POST` | `media.routes.ts` | ✅ Conform | Raportare salvată persistent. |
-| `createWatchOrderPreset`| `/api/media/:id/watch-order/presets` | `POST` | `media.routes.ts` | ✅ Conform | Status HTTP 201 Created validat. |
-| `getNews()` | `/api/news` | `GET` | `news.routes.ts` (`/`) | ✅ Conform | Câmpurile `articles[].{id, title, category, tagBadge, summary, imageUrl, date, readTime, source}` se potrivesc 100%. |
-| `getWatchlist()` | `/api/watchlist` | `GET` | `watchlist.routes.ts` (`/`) | ✅ Conform | Necesită Bearer token; returnează lista îmbogățită cu `mediaItem`. |
-| `upsertWatchlistItem` | `/api/watchlist` | `POST` | `watchlist.routes.ts` (`/`) | ✅ Conform | Trimitere `mediaId`, `status`, `score`, `progressEpisodes`, `notes`, `startedAt`, `completedAt`. |
-| `deleteWatchlistItem` | `/api/watchlist/:mediaId` | `DELETE` | `watchlist.routes.ts` (`/:mediaId`) | ✅ Conform | Ștergere confirmată prin `{ success: true }`. |
-| `getProfile()` | `/api/user/profile` | `GET` | `user.routes.ts` (`/profile`) | ✅ Conform | Răspuns `{ profile }` mapat direct în `UserProfileData`. |
-| `updateProfile` | `/api/user/profile` | `PUT` | `user.routes.ts` (`/profile`) | ✅ Conform | Validează sanitizarea, lungimea și cooldown-ul de 14 zile. |
-| `resolveIdentifier` | `/api/auth/resolve-identifier` | `POST` | `auth.routes.ts` (`/resolve-identifier`)| ✅ Conform | Protecție împotriva atacurilor de sincronizare temporală (timing attack dummy hash). |
-| `checkUsernameAvailable`| `/api/auth/check-username` | `GET` | `auth.routes.ts` (`/check-username`) | ✅ Conform | Query `username`, `excludeUserId`, `email`. |
-| `signUp / registerUser`| `/api/auth/register-user` | `POST` | `auth.routes.ts` (`/register-user`) | ✅ Conform | Sincronizează profilul inițial în DB după crearea Firebase. |
-
-### 4.2 Verificarea Fluxului de Autentificare & Securitate
-- **Mecanism Token:** Mobilul apelează `FirebaseAuth.instance.currentUser?.getIdToken()` și îl trimite ca antet `Authorization: Bearer <token>`.
-- **Verificare Backend:**
-  1. Încearcă verificarea cu cheia simetrică locală (`jwt.verify(token, JWT_SECRET)`).
-  2. Dacă eșuează (fiind token Google Firebase), verifică criptografic prin `firebaseAdmin.auth().verifyIdToken(token)`.
-  3. În cazul în care serverul rulează în regim offline sau certurile Google sunt inaccesibile temporar, există fallback-ul de securitate prin decodarea sigură a payload-ului JWT Google (`securetoken.google.com`) pentru extragerea `uid` și `email`.
-- **Concluzie:** Handshake-ul de autentificare este complet robust și funcționează atât online cât și în mod de dezvoltare locală.
-
-### 4.3 Componente Identificate ca Învechite / Orfane
-- Fișierele `apps/mobile/lib/widgets/watch_order_tree_view.dart` și `apps/mobile/lib/widgets/watch_order_proposal_sheet.dart` au rămas neutilizate în interfață deoarece ecranul de detalii serie a fost migrat complet la noul sistem nativ de `MediaRelationsView` (Prequel/Sequel dinamice). Acestea pot fi păstrate ca arhivă sau eliminate dacă se dorește curățarea strictă a codului mort.
+| `getHomepage()` | `/api/homepage` | `GET` | `/api/homepage` | ✅ Conform | Câmpurile DTO (`featuredSeason`, `recentlyAired`, `newsBeta`, `recommendations`, `topAiring`, `topUpcoming`, `top100`) se mapează identic. |
+| `searchMedia(...)` | `/api/search` | `GET` | `/api/search` | ✅ Conform | Parametrii de query (`q`, `type`, `format`, `status`, `genres`, `sortBy`, `limit`, `page`) sunt acceptați și procesați identic. |
+| `getMediaById(id)` | `/api/media/:id` | `GET` | `/api/media/:id` | ✅ Conform | Returnează `MediaItem` complet; 404 tratat cu `null` curat în mobil. |
+| `getMediaRelations(id)` | `/api/media/:id/relations` | `GET` | `/api/media/:id/relations` | ✅ Conform | Răspunsul `{ relations: [...] }` este deserializat în `List<MediaRelation>`. |
+| `getMediaCharacters(id)` | `/api/media/:id/characters` | `GET` | `/api/media/:id/characters` | ✅ Conform | Răspunsul `{ characters: [...] }` oferă personajele principale/secundare și actorii vocali. |
+| `getSimilarMedia(id)` | `/api/media/:id/similar` | `GET` | `/api/media/:id/similar` | ✅ Conform | Extrage `similarItems[].item` în mod corect. |
+| `getWatchOrder(id)` | `/api/media/:id/watch-order`| `GET` | `/api/media/:id/watch-order`| ✅ Conform | Deserializat în `WatchOrderGuide`. |
+| `voteWatchOrderPreset` | `/api/media/watch-order/presets/:id/vote`| `POST` | `/api/media/watch-order/presets/:id/vote` | ✅ Conform | Suportă atât `vote: 1 / -1` cât și `voteType: UP / DOWN`. |
+| `reportWatchOrderPreset`| `/api/media/watch-order/presets/:id/report`| `POST` | `/api/media/watch-order/presets/:id/report` | ✅ Conform | Raportare salvată persistent. |
+| `createWatchOrderPreset`| `/api/media/:id/watch-order/presets` | `POST` | `/api/media/:id/watch-order/presets` | ✅ Conform | Status HTTP 201 Created validat. |
+| `getCategories()` | `/api/categories` | `GET` | `/api/categories` | ✅ Conform | Rafturi tematice dinamice: Shonen, Dark Fantasy, Psychological, Sci-Fi, Romance. |
+| `getNews()` | `/api/news` | `GET` | `/api/news` | ✅ Conform | Câmpurile `{ total, count, articles, items }` conțin articole agregate live din RSS. |
+| `getWatchlist()` | `/api/watchlist` | `GET` | `/api/watchlist` | ✅ Conform | Necesită Bearer token; sincronizat cu baza de date D1. |
+| `upsertWatchlistItem` | `/api/watchlist` | `POST` | `/api/watchlist` | ✅ Conform | Trimitere `mediaId`, `status`, `score`, `progressEpisodes`, `notes`, `startedAt`, `completedAt`. |
+| `deleteWatchlistItem` | `/api/watchlist/:mediaId` | `DELETE` | `/api/watchlist/:mediaId` | ✅ Conform | Ștergere confirmată prin `{ success: true }`. |
+| `getProfile()` | `/api/user/profile` | `GET` | `/api/user/profile` | ✅ Conform | Răspuns `{ profile }` mapat direct în `UserProfileData`. |
+| `updateProfile` | `/api/user/profile` | `PUT` | `/api/user/profile` | ✅ Conform | Validează sanitizarea, lungimea și cooldown-ul de 14 zile la handle. |
+| `resolveIdentifier` | `/api/auth/resolve-identifier` | `POST` | `/api/auth/resolve-identifier` | ✅ Conform | Rezolvă un @username în email pentru autentificarea unificată. |
+| `checkUsernameAvailable`| `/api/auth/check-username` | `GET` | `/api/auth/check-username` | ✅ Conform | Query `username`, `excludeUserId`, `email`. |
+| `signUp / registerUser`| `/api/auth/register-user` | `POST` | `/api/auth/register-user` | ✅ Conform | Sincronizează profilul inițial în baza de date D1. |
 
 ---
 
 ## 5. Ghid de Rulare & Comenzi Utile
 
-### 5.1 Pornire Backend API
+### 5.1 Pornire Backend API (Cloudflare Workers)
 ```bash
-# Pornire în mod dezvoltare cu auto-reload
+# Pornire Wrangler în mod dezvoltare locală (port 8787):
 npm run dev:api
 
-# Sau direct din directorul aplicației
-cd apps/api
-npm run dev
+# Deploy pe Cloudflare Workers Edge:
+npm run deploy:api
 ```
 
 ### 5.2 Pornire Aplicație Mobilă Flutter
 ```bash
-cd apps/mobile
+# Rulare pe telefon fizic conectat prin USB:
+npm run dev:mobile:phone
 
-# Rulare pe emulator Android sau dispozitiv conectat prin USB
-flutter run
+# Rulare pe emulator Android:
+npm run dev:mobile:emulator
 
-# În cazul în care dispozitivul fizic e conectat prin USB, redirecționează portul:
-adb reverse tcp:4000 tcp:4000
+# Reverse port forwarding pentru dispozitive fizice (port 8787):
+npm run mobile:reverse
 ```
 
 ### 5.3 Rulare Teste & Verificare
 ```bash
-# Teste unitare API
-npm test --workspace=apps/api
+# Analiză statică Flutter:
+cd apps/mobile && flutter analyze
 
-# Analiză statică Flutter
-cd apps/mobile
-flutter analyze
+# Rulare teste unitare Flutter:
+cd apps/mobile && flutter test
 ```
+

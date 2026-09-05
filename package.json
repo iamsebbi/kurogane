@@ -8,8 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npx concurrently --shell powershell.exe -n \"API,WEB\" -c \"cyan,magenta\" \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:web": "npm run dev --workspace=apps/web",
+    "dev": "npm run dev:api",
     "dev:api": "npm run dev --workspace=apps/workers-api",
     "deploy:api": "npm run deploy --workspace=apps/workers-api",
     "dev:mobile": "cd apps/mobile && flutter run",
