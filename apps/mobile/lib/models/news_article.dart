@@ -31,13 +31,13 @@ class NewsArticle {
       title: json['title'] as String? ?? '',
       category: json['category'] as String? ?? 'ANIME',
       tagBadge: json['tagBadge'] as String? ?? 'HOT',
-      summary: json['summary'] as String? ?? '',
-      content: json['content'] as String?,
-      imageUrl: json['imageUrl'] as String? ?? '',
-      date: json['date'] as String? ?? '',
+      summary: (json['summary'] ?? json['contentSnippet'] ?? json['description'] ?? '') as String,
+      content: (json['content'] ?? json['summary'] ?? json['contentSnippet']) as String?,
+      imageUrl: (json['imageUrl'] ?? json['thumbnailUrl'] ?? '') as String,
+      date: (json['date'] ?? json['pubDate'] ?? '') as String,
       readTime: json['readTime'] as String? ?? '2 min',
       source: json['source'] as String? ?? 'Kurogane News',
-      url: json['url'] as String?,
+      url: (json['url'] ?? json['link']) as String?,
     );
   }
 }

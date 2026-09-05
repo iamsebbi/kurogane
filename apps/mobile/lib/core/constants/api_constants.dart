@@ -7,19 +7,11 @@ class ApiConstants {
   );
 
   static const String workersBaseUrl = 'https://kurogane-api.kurogane-workers-api.workers.dev';
-  static const String cloudBaseUrl = 'https://kurogane.onrender.com';
+  static const String localWorkerBaseUrl = 'http://127.0.0.1:8787';
 
   static String get baseUrl {
     if (_configuredUrl.isNotEmpty) {
       return _configuredUrl;
-    }
-    // Default to Cloudflare Workers edge backend
-    if (kReleaseMode) {
-      return workersBaseUrl;
-    }
-    if (kIsWeb) return workersBaseUrl;
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return workersBaseUrl;
     }
     return workersBaseUrl;
   }
@@ -28,23 +20,12 @@ class ApiConstants {
     final list = <String>[];
     if (_configuredUrl.isNotEmpty) {
       list.add(_configuredUrl);
-      list.add(workersBaseUrl);
-      list.add(cloudBaseUrl);
-    } else if (kReleaseMode) {
-      list.add(workersBaseUrl);
-      list.add(cloudBaseUrl);
-      list.add('http://192.168.1.224:4000');
-    } else {
-      list.add(workersBaseUrl);
+    }
+    list.add(workersBaseUrl);
+    if (!kReleaseMode) {
+      list.add(localWorkerBaseUrl);
       if (defaultTargetPlatform == TargetPlatform.android) {
-        list.add('http://192.168.1.224:4000');
-        list.add(cloudBaseUrl);
-        list.add('http://127.0.0.1:4000');
-        list.add('http://10.0.2.2:4000');
-      } else {
-        list.add('http://localhost:4000');
-        list.add(cloudBaseUrl);
-        list.add('http://192.168.1.224:4000');
+        list.add('http://10.0.2.2:8787');
       }
     }
     return list.toSet().toList();

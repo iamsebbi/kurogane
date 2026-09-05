@@ -288,7 +288,10 @@ class ApiClient {
     try {
       final response = await _post(
         '/api/media/watch-order/presets/$presetId/vote',
-        data: {'vote': vote},
+        data: {
+          'vote': vote,
+          'voteType': vote == -1 ? 'DOWN' : 'UP',
+        },
       );
       if (response != null && response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
         return true;
@@ -369,8 +372,17 @@ class ApiClient {
     try {
       final response = await _get(ApiConstants.news, queryParameters: {'limit': limit});
       if (response != null && response.data != null) {
-        final articles = response.data['articles'] as List<dynamic>? ?? [];
-        return articles.map((e) => NewsArticle.fromJson(e as Map<String, dynamic>)).toList();
+        final raw = response.data;
+        List<dynamic> articlesList = [];
+        if (raw is Map<String, dynamic>) {
+          articlesList = (raw['articles'] ?? raw['items'] ?? []) as List<dynamic>;
+        } else if (raw is List) {
+          articlesList = raw;
+        }
+        return articlesList
+            .whereType<Map<String, dynamic>>()
+            .map((e) => NewsArticle.fromJson(e))
+            .toList();
       }
       return [];
     } catch (e) {

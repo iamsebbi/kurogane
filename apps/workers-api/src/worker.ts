@@ -264,7 +264,8 @@ async function handleVotePreset(c: any) {
 
     const presetId = c.req.param('presetId');
     const body = await c.req.json();
-    const voteType = body.voteType === 'DOWN' ? 'DOWN' : 'UP';
+    const isDown = body.vote === -1 || body.voteType === 'DOWN';
+    const voteType = isDown ? 'DOWN' : 'UP';
 
     const result = await votePreset(c.env.DB, presetId, user.id, voteType);
     return c.json(result);
@@ -497,7 +498,44 @@ app.get('/api/news', async (c) => {
   try {
     const limit = parseInt(c.req.query('limit') || '20', 10);
     const articles = await getNewsArticles(c.env, limit);
-    return c.json({ items: articles });
+    return c.json({
+      total: articles.length,
+      count: articles.length,
+      articles,
+      items: articles,
+    });
+  } catch (err: any) {
+    return c.json({ error: 'Internal Server Error', message: err.message }, 500);
+  }
+});
+
+// -------------------------------------------------------------
+// 6.1. CATEGORIES / SHELVES ROUTES
+// -------------------------------------------------------------
+app.get('/api/categories', async (c) => {
+  try {
+    const genres = [
+      { id: 'shonen-action', title: 'Shonen Legends', description: 'Bătălii epice, rivalități legendare și puteri spectaculoase.', genre: 'Action' },
+      { id: 'dark-fantasy', title: 'Dark Fantasy & Supranatural', description: 'Lumi întunecate, blesteme și destine tragice.', genre: 'Supernatural' },
+      { id: 'psychological', title: 'Psihologic & Mystery', description: 'Jocuri ale minții, conspirații și tensiune psihologică.', genre: 'Psychological' },
+      { id: 'scifi-cyberpunk', title: 'Sci-Fi & Cyberpunk', description: 'Viitor distopic, inteligență artificială și universuri paralele.', genre: 'Sci-Fi' },
+      { id: 'romance-slice', title: 'Romance & Slice of Life', description: 'Momente emoționante, umor cald și relații de neuitat.', genre: 'Romance' },
+    ];
+
+    const shelves = await Promise.all(
+      genres.map(async (g) => {
+        const searchRes = await searchMedia(c.env, { genre: g.genre, perPage: 10 });
+        return {
+          id: g.id,
+          title: g.title,
+          description: g.description,
+          genre: g.genre,
+          items: searchRes.items || [],
+        };
+      })
+    );
+
+    return c.json({ shelves });
   } catch (err: any) {
     return c.json({ error: 'Internal Server Error', message: err.message }, 500);
   }
