@@ -605,7 +605,7 @@ app.get('/test-anilist', async (c) => {
     const status = response.status;
     const headers = Object.fromEntries(response.headers.entries());
 
-    let data = null;
+    let data: any = null;
     let rawText = '';
     if (isOk) {
       data = await response.json();
